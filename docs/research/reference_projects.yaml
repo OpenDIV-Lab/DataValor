@@ -1,0 +1,269 @@
+schema_version: datavalor.reference_projects/v1
+verified_at: "2026-08-26T00:00:00+08:00"
+verification_source: GitHub REST API and public repository trees
+disclaimer: >-
+  Repository-level licenses and activity are snapshots. Recheck the selected revision,
+  dependency license, model license, and dataset terms before integration or redistribution.
+
+projects:
+  - id: pydvl
+    github: aai-institute/pyDVL
+    url: https://github.com/aai-institute/pyDVL
+    modules: [data_value, toolkit.benchmark]
+    kind: importable_algorithm_library
+    priority: A
+    license: LGPL-3.0
+    stars_snapshot: 145
+    default_branch: develop
+    pushed_at: "2026-04-13T21:02:38Z"
+    reuse: optional_dependency_adapter
+    caution: Do not copy LGPL implementation code into the Apache-2.0 core.
+
+  - id: opendataval
+    github: opendataval/opendataval
+    url: https://github.com/opendataval/opendataval
+    modules: [data_value, toolkit.benchmark]
+    kind: unified_benchmark_and_algorithms
+    priority: A
+    license: MIT
+    stars_snapshot: 103
+    default_branch: main
+    pushed_at: "2025-02-04T05:50:40Z"
+    reuse: benchmark_adapter
+
+  - id: opensv
+    github: ZJU-DIVER/OpenSV
+    url: https://github.com/ZJU-DIVER/OpenSV
+    modules: [data_value, toolkit.benchmark]
+    kind: shapley_valuation_framework
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 8
+    pushed_at: "2026-04-29T02:35:01Z"
+    reuse: watch_and_validate
+
+  - id: lava
+    github: reds-lab/LAVA
+    url: https://github.com/reds-lab/LAVA
+    modules: [data_value]
+    kind: research_algorithm
+    priority: B
+    license: MIT
+    stars_snapshot: 54
+    pushed_at: "2024-06-05T06:31:22Z"
+    reuse: method_reference
+
+  - id: cleanlab
+    github: cleanlab/cleanlab
+    url: https://github.com/cleanlab/cleanlab
+    modules: [data_eval]
+    kind: importable_quality_library
+    priority: A
+    license: Apache-2.0
+    stars_snapshot: 11634
+    pushed_at: "2026-01-13T17:39:04Z"
+    reuse: optional_operator_adapter
+
+  - id: great_expectations
+    github: fivetran/great_expectations
+    previous_url_checked: https://github.com/great-expectations/great_expectations
+    url: https://github.com/fivetran/great_expectations
+    modules: [data_gov, data_eval]
+    kind: validation_platform
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 11735
+    pushed_at: "2026-08-25T21:15:06Z"
+    reuse: external_engine_adapter
+
+  - id: evidently
+    github: evidentlyai/evidently
+    url: https://github.com/evidentlyai/evidently
+    modules: [data_eval, toolkit.analysis, toolkit.webui]
+    kind: evaluation_and_observability
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 7848
+    pushed_at: "2026-08-05T16:29:57Z"
+    reuse: artifact_adapter
+
+  - id: deequ
+    github: awslabs/deequ
+    url: https://github.com/awslabs/deequ
+    modules: [data_gov, data_eval]
+    kind: spark_quality_library
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 3643
+    pushed_at: "2026-07-21T17:55:47Z"
+    reuse: service_or_artifact_adapter
+
+  - id: fg_data_profiling
+    github: Data-Centric-AI-Community/fg-data-profiling
+    previous_url_checked: https://github.com/ydataai/ydata-profiling
+    url: https://github.com/Data-Centric-AI-Community/fg-data-profiling
+    modules: [data_prof]
+    kind: dataframe_profiling
+    priority: B
+    license: MIT
+    stars_snapshot: 13684
+    pushed_at: "2026-04-22T23:26:39Z"
+    reuse: recheck_package_identity_then_adapter
+
+  - id: datahub
+    github: datahub-project/datahub
+    url: https://github.com/datahub-project/datahub
+    modules: [data_gov]
+    kind: metadata_platform
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 12578
+    pushed_at: "2026-08-26T01:52:22Z"
+    reuse: api_event_integration
+
+  - id: openmetadata
+    github: open-metadata/OpenMetadata
+    url: https://github.com/open-metadata/OpenMetadata
+    modules: [data_gov, data_query]
+    kind: metadata_and_governance_platform
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 14966
+    pushed_at: "2026-08-26T02:42:58Z"
+    reuse: api_integration
+
+  - id: torchmetrics
+    github: Lightning-AI/torchmetrics
+    url: https://github.com/Lightning-AI/torchmetrics
+    modules: [data_eval, toolkit.benchmark]
+    kind: metric_library_structure
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 2461
+    pushed_at: "2026-08-20T18:21:33Z"
+    reuse: interface_and_test_pattern
+
+  - id: wilds
+    github: p-lambda/wilds
+    url: https://github.com/p-lambda/wilds
+    modules: [data_eval, data_value, toolkit.benchmark]
+    kind: distribution_shift_benchmark
+    priority: B
+    license: MIT
+    stars_snapshot: 602
+    pushed_at: "2024-01-26T17:09:51Z"
+    reuse: benchmark_adapter
+
+  - id: dataperf
+    github: mlcommons/dataperf
+    url: https://github.com/mlcommons/dataperf
+    modules: [toolkit.benchmark]
+    kind: data_centric_benchmark
+    priority: C
+    license: Apache-2.0
+    stars_snapshot: 25
+    pushed_at: "2024-05-24T21:12:37Z"
+    reuse: benchmark_design_reference
+
+  - id: pysyft
+    github: OpenMined/PySyft
+    url: https://github.com/OpenMined/PySyft
+    modules: [data_gov, data_market]
+    kind: remote_private_data_science
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 9957
+    pushed_at: "2026-08-24T09:58:36Z"
+    reuse: architectural_or_service_integration
+
+  - id: ocean_py
+    github: oceanprotocol/ocean.py
+    url: https://github.com/oceanprotocol/ocean.py
+    modules: [data_market]
+    kind: data_exchange_sdk
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 173
+    pushed_at: "2025-08-04T07:49:52Z"
+    reuse: protocol_adapter
+
+  - id: dataall
+    github: data-dot-all/dataall
+    url: https://github.com/data-dot-all/dataall
+    modules: [data_gov, data_market]
+    kind: cloud_data_marketplace
+    priority: B
+    license: Apache-2.0
+    stars_snapshot: 257
+    pushed_at: "2026-06-21T01:13:36Z"
+    reuse: workflow_and_architecture_reference
+
+  - id: mesa
+    github: mesa/mesa
+    url: https://github.com/mesa/mesa
+    modules: [data_market, data_market.simulation]
+    kind: agent_based_simulation
+    priority: A
+    license: Apache-2.0
+    stars_snapshot: 3808
+    pushed_at: "2026-08-25T08:50:29Z"
+    reuse: optional_simulation_backend
+
+  - id: ai_economist
+    github: salesforce/ai-economist
+    url: https://github.com/salesforce/ai-economist
+    modules: [data_market, data_market.simulation]
+    kind: economic_simulation_framework
+    priority: C
+    license: BSD-3-Clause
+    stars_snapshot: 113
+    archived: true
+    pushed_at: "2023-08-20T13:42:30Z"
+    reuse: research_reference_only
+
+  - id: db_gpt
+    github: eosphoros-ai/DB-GPT
+    url: https://github.com/eosphoros-ai/DB-GPT
+    modules: [data_query]
+    kind: data_agent_platform
+    priority: A
+    license: MIT
+    stars_snapshot: 19793
+    pushed_at: "2026-08-21T01:55:03Z"
+    reuse: connector_or_service_adapter
+
+  - id: vanna
+    github: vanna-ai/vanna
+    url: https://github.com/vanna-ai/vanna
+    modules: [data_query]
+    kind: text_to_sql_library
+    priority: C
+    license: MIT
+    stars_snapshot: 23817
+    archived: true
+    pushed_at: "2026-02-02T14:14:20Z"
+    reuse: historical_reference_recheck_successor
+
+  - id: kedro
+    github: kedro-org/kedro
+    url: https://github.com/kedro-org/kedro
+    modules: [toolkit, data_gov]
+    kind: modular_data_science_framework
+    priority: B
+    license: repository_license_requires_manual_check
+    github_api_license: NOASSERTION
+    stars_snapshot: 10969
+    pushed_at: "2026-08-25T13:52:32Z"
+    reuse: repository_and_pipeline_design_reference
+
+  - id: flaml
+    github: microsoft/FLAML
+    url: https://github.com/microsoft/FLAML
+    modules: [toolkit.benchmark, toolkit.analysis]
+    kind: automl_and_tuning_library
+    priority: C
+    license: MIT
+    stars_snapshot: 4390
+    pushed_at: "2026-08-25T04:13:54Z"
+    reuse: plugin_and_experiment_pattern
+

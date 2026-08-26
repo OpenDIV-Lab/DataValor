@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+dist/
+build/
+
+# Generated experiment artifacts are local by default.
+outputs/*
+!outputs/.gitkeep
+
+# Data directories contain documentation only until redistribution rights are checked.
+data/examples/*
+!data/examples/README.md
+data/dataflow_data/*
+!data/dataflow_data/README.md
+
