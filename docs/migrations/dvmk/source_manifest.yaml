@@ -1,0 +1,66 @@
+schema_version: datavalor.implementation_migration_manifest/v1
+status: template
+source_path: /root/yusen/data_value_market_kit
+target_package: datavalor
+version_policy: use_current_complete_files
+note: >-
+  这是完整实现文件迁移记录模板。每一批迁移填写 source_paths、target_paths、
+  target_interfaces、changes、tests_migrated 和 status；迁入后源命名空间必须被替换。
+batches:
+  - batch_id: stage_00_inventory_v1
+    source_paths:
+      - src/dvmk/core/
+      - src/dvmk/data_product/
+      - src/dvmk/distribution/
+      - configs/
+      - examples/
+      - plugins/
+      - tests/
+    target_paths:
+      - src/datavalor/core/
+      - src/datavalor/data_gov/
+      - src/datavalor/toolkit/benchmark/
+      - configs/
+      - examples/
+      - plugins/
+      - tests/
+    target_interfaces:
+      - datavalor.core.ArtifactStore
+      - datavalor.core.RunContext
+      - datavalor.core.Registry
+    changes:
+      - inventoried the complete Stage 0 and Stage 1 source file set
+      - mapped source implementations to DataValor module boundaries
+      - removed source namespace and source-specific protocol assumptions
+    tests_migrated:
+      - tests/test_stage01_data_products.py
+    status: completed
+  - batch_id: stage_01_foundation_and_data_products_v1
+    source_paths:
+      - src/dvmk/core/artifacts.py
+      - src/dvmk/core/io.py
+      - src/dvmk/core/run_metadata.py
+      - src/dvmk/data_product/
+      - src/dvmk/distribution/
+    target_paths:
+      - src/datavalor/core/io.py
+      - src/datavalor/core/artifact_store.py
+      - src/datavalor/core/run_metadata.py
+      - src/datavalor/data_gov/data_product/
+      - src/datavalor/toolkit/benchmark/data_sources/
+      - src/datavalor/toolkit/benchmark/data_perturbations/
+    target_interfaces:
+      - datavalor.core.ArtifactStore
+      - datavalor.data_gov.MetadataExtractor
+      - datavalor.toolkit.benchmark.BenchmarkDataProvider
+      - datavalor.toolkit.benchmark.DataPerturbation
+    changes:
+      - ported file hashing, canonical record hashing, JSON and JSONL I/O
+      - added a DataValor LocalArtifactStore implementation
+      - ported JSON, JSONL, CSV, Parquet, directory and iterable adapters
+      - ported local, parametric, scikit-learn and Hugging Face data providers
+      - ported sampling, missingness, label shift and split operators with audit metadata
+      - replaced source namespace, output paths and source-specific error messages
+    tests_migrated:
+      - tests/test_stage01_data_products.py
+    status: completed

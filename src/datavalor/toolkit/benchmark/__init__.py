@@ -1,5 +1,15 @@
 """Cross-module benchmark protocols and runners."""
 
+from .data_perturbations import apply_perturbations, split_records
+from .data_sources import (
+    BaseDistribution,
+    DistributionBatch,
+    HuggingFaceProvider,
+    LocalDatasetProvider,
+    ParametricProvider,
+    SklearnDatasetProvider,
+    SklearnGeneratorProvider,
+)
 from .interfaces import BenchmarkDataProvider, BenchmarkMetric, BenchmarkRunner, DataPerturbation
 from .models import BenchmarkCase, BenchmarkObservation, BenchmarkReport, BenchmarkSpec
 from .registry import (
@@ -22,4 +32,13 @@ __all__ = [
     "BenchmarkRunner",
     "BenchmarkSpec",
     "DataPerturbation",
+    "BaseDistribution",
+    "DistributionBatch",
+    "HuggingFaceProvider",
+    "LocalDatasetProvider",
+    "ParametricProvider",
+    "SklearnDatasetProvider",
+    "SklearnGeneratorProvider",
+    "apply_perturbations",
+    "split_records",
 ]

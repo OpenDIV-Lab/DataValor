@@ -1,5 +1,18 @@
 """DataGov: governance, standards, cleaning, security, and metadata."""
 
+from .data_product import (
+    CSVAdapter,
+    DataProductAdapter,
+    DataProductMetadata,
+    DirectoryAdapter,
+    IterableAdapter,
+    JSONAdapter,
+    JSONLAdapter,
+    ParquetAdapter,
+    adapter_from_uri,
+    canonical_record_hash,
+    load_manifest_product,
+)
 from .interfaces import (
     DataCleaner,
     DataStandardizer,
@@ -56,4 +69,15 @@ __all__ = [
     "TransformationPlan",
     "TransformationResult",
     "TransformationStep",
+    "CSVAdapter",
+    "DataProductAdapter",
+    "DataProductMetadata",
+    "DirectoryAdapter",
+    "IterableAdapter",
+    "JSONAdapter",
+    "JSONLAdapter",
+    "ParquetAdapter",
+    "adapter_from_uri",
+    "canonical_record_hash",
+    "load_manifest_product",
 ]

@@ -1,6 +1,7 @@
 """Stable, dependency-free contracts shared by DataValor modules."""
 
 from .artifact import ArtifactEnvelope, ArtifactRef, ArtifactStatus, Evidence
+from .artifact_store import LocalArtifactStore
 from .component import BaseComponent, Component, ComponentSpec
 from .context import RunContext
 from .exceptions import (
@@ -15,6 +16,15 @@ from .exceptions import (
     RegistryFrozenError,
 )
 from .interfaces import ArtifactStore
+from .io import (
+    canonical_record_hash,
+    canonical_sha256,
+    ensure_dir,
+    file_sha256,
+    read_jsonl,
+    write_json,
+    write_jsonl,
+)
 from .models import (
     ActorProfile,
     ActorRole,
@@ -27,6 +37,7 @@ from .models import (
 )
 from .pipeline import PipelineNode, PipelineResult, PipelineRunner, PipelineSpec
 from .registry import Registry
+from .run_metadata import add_input_artifact, finish_run, start_run
 
 __all__ = [
     "ActorProfile",
@@ -35,6 +46,7 @@ __all__ = [
     "ArtifactRef",
     "ArtifactStatus",
     "ArtifactStore",
+    "LocalArtifactStore",
     "BaseComponent",
     "CapabilityUnavailableError",
     "Component",
@@ -60,4 +72,14 @@ __all__ = [
     "RightsBundle",
     "RunContext",
     "TaskContext",
+    "add_input_artifact",
+    "canonical_record_hash",
+    "canonical_sha256",
+    "ensure_dir",
+    "file_sha256",
+    "finish_run",
+    "read_jsonl",
+    "start_run",
+    "write_json",
+    "write_jsonl",
 ]

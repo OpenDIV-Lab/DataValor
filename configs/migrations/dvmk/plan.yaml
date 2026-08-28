@@ -1,0 +1,302 @@
+schema_version: datavalor.dvmk_migration_plan/v1
+plan_id: datavalor-full-implementation-port-v1
+title: DataValor 完整实现迁移计划
+source:
+  repository: https://github.com/YusenWu2022/data_value_market_kit.git
+  local_path: /root/yusen/data_value_market_kit
+  version_policy: use_current_complete_files
+  note: 迁移以当前工作区完整实现文件为准，不做版本筛选或增量兼容。
+target:
+  repository: /root/yusen/DataValor
+  package: datavalor
+  runtime_dependency_on_dvmk: false
+  migration_mode: full_file_refactor_retest
+  prohibited_imports: [dvmk, data_value_market_kit]
+  prohibited_residue: [dvmk, data_value_market_kit, dvmk_protocol, dvmk_cli]
+integration_policy:
+  complete_file_migration: true
+  rename_namespace_to_datavalor: true
+  remove_source_specific_protocols: true
+  remove_source_specific_paths: true
+  remove_source_specific_configuration: true
+  preserve_behavior_with_datavalor_contracts: true
+  source_symbols_are_mapping_anchors_only: true
+
+stages:
+  - id: stage_00_inventory
+    title: 完整文件盘点与公共契约
+    status: completed
+    scope: complete_source_files
+    depends_on: []
+    source_paths: [src/dvmk/, configs/, examples/, plugins/, tests/]
+    target_paths: [src/datavalor/, configs/, examples/, plugins/, tests/]
+    components:
+      - name: source_inventory
+        action: record_complete_file_set
+        target_interface: null
+      - name: public_contract
+        action: verify
+        target_interface: datavalor.core
+    tests: [source_file_inventory_complete, no_runtime_dvmk_dependency]
+    acceptance:
+      - current source files are inventoried before migration
+      - complete-file migration scope is reviewed
+      - target interfaces are frozen before code copy
+
+  - id: stage_01_foundation_and_data_products
+    title: 公共产物、数据产品与可复现数据源
+    status: completed
+    scope: complete_source_files
+    depends_on: [stage_00_inventory]
+    source_paths:
+      - src/dvmk/core/artifacts.py
+      - src/dvmk/core/io.py
+      - src/dvmk/core/run_metadata.py
+      - src/dvmk/core/config.py
+      - src/dvmk/data_product/base.py
+      - src/dvmk/data_product/adapters.py
+      - src/dvmk/data_product/manifest.py
+      - src/dvmk/distribution/base.py
+      - src/dvmk/distribution/providers/
+      - src/dvmk/distribution/transforms/
+    target_paths:
+      - src/datavalor/core/artifact.py
+      - src/datavalor/core/context.py
+      - src/datavalor/core/interfaces.py
+      - src/datavalor/data_gov/data_product/
+      - src/datavalor/toolkit/benchmark/data_sources/
+      - src/datavalor/toolkit/benchmark/data_perturbations/
+    components:
+      - name: canonical_hash_and_file_io
+        source_symbols: [file_sha256, canonical_sha256, read_jsonl, write_json, write_jsonl]
+        target_interface: datavalor.core.ArtifactStore
+        refactor: remove_fixed_output_paths_and_return_artifact_refs
+      - name: data_product_adapters
+        source_symbols: [JSONLAdapter, JSONAdapter, CSVAdapter, ParquetAdapter, DirectoryAdapter, adapter_from_uri]
+        target_interface: datavalor.data_gov.MetadataExtractor
+        refactor: retain_streaming_reads_add_rights_metadata_and_schema
+      - name: provenance_manifest
+        source_symbols: [load_manifest_product, DistributionBatch]
+        target_interface: datavalor.core.ArtifactEnvelope
+        refactor: separate_governance_manifest_from_benchmark_distribution_manifest
+      - name: deterministic_distribution_providers
+        source_symbols: [LocalDatasetDistribution, ParametricDistribution, SklearnDatasetDistribution, SklearnGeneratorDistribution, HuggingFaceDatasetDistribution]
+        target_interface: datavalor.toolkit.benchmark.BenchmarkDataProvider
+        refactor: keep_as_research_input_providers_not_governance_components
+      - name: shifts_splits_and_resampling
+        source_symbols: [apply_transforms, split_records, summarize_field]
+        target_interface: datavalor.toolkit.benchmark.DataPerturbation
+        refactor: record_parent_artifact_seed_parameters_and_audit
+    tests:
+      - tests/test_stage01_data_products.py
+      - data_value_market_kit/tests/test_phase_one_research_infrastructure.py
+      - data_value_market_kit/tests/test_distribution_layer.py
+      - data_value_market_kit/tests/test_distribution_phase_two.py
+    acceptance:
+      - DataProduct and ArtifactEnvelope represent migrated outputs
+      - transformations record seed, parameters, parent and checksum
+      - benchmark data sources are not imported by DataGov policy code
+
+  - id: stage_02_profile_and_evaluation
+    title: 数据画像与质量评估
+    status: planned
+    scope: complete_source_files
+    depends_on: [stage_01_foundation_and_data_products]
+    source_paths:
+      - src/dvmk/evaluation/base.py
+      - src/dvmk/evaluation/registry.py
+      - src/dvmk/evaluation/artifacts.py
+      - src/dvmk/evaluation/text/lexical_diversity.py
+      - src/dvmk/evaluation/image/metadata_quality.py
+      - src/dvmk/evaluation/audio/metadata_quality.py
+      - src/dvmk/evaluation/multimodal/package_integrity.py
+      - src/dvmk/evaluation/common/cleanlab_issues.py
+      - src/dvmk/evaluation/common/embedding_mmd.py
+      - src/dvmk/evaluation/common/litellm_judge.py
+      - src/dvmk/evaluation/common/contribution.py
+      - src/dvmk/evaluation/task_utility/
+      - src/dvmk/evaluation/video/
+    target_paths: [src/datavalor/data_prof/, src/datavalor/data_eval/]
+    components:
+      - name: metric_contract_and_artifacts
+        source_symbols: [MetricResult, BaseMetric, MetricArtifactWriter, validate_score_artifacts]
+        target_interface: datavalor.data_eval.QualityMetric
+        target_model: datavalor.data_eval.MetricResult
+        refactor: split_profile_facts_from_quality_judgments_and_evidence
+      - name: lightweight_modal_metrics
+        source_symbols: [TextLexicalDiversity, ImageMetadataQuality, AudioMetadataQuality, MultimodalPackageIntegrity]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: normalize_direction_scope_unit_missing_behavior
+      - name: optional_quality_operators
+        source_symbols: [CleanlabLabelQualityMetric, EmbeddingMMDPreviewMetric, LiteLLMSemanticJudgeMetric]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: lazy_optional_extras_and_row_level_evidence
+      - name: task_utility
+        source_symbols: [BaseTaskUtility, CachedTaskUtility, SklearnClassificationUtility, SklearnRegressionUtility, TaskContributionMetric]
+        target_interface: datavalor.data_eval.TaskUtilityEvaluator
+        refactor: expose_task_context_and_observed_utility_without_monetary_value
+      - name: video_helpers_and_metrics
+        source_symbols: [get_video_metadata, iter_sampled_frames, VideoFormatProbe, VideoMotionMetadata, VideoBasicCleanliness, VideoOpticalFlowMotionScore, VideoSceneSegmentationScore, VideoTemporalSSIMConsistency, VideoPrivacyCVScore]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: isolate_cv_dependencies_and_make_file_availability_explicit
+    tests:
+      - data_value_market_kit/tests/test_minimal_pipeline.py
+      - data_value_market_kit/tests/test_optional_metrics.py
+      - data_value_market_kit/tests/test_phase_one_research_infrastructure.py
+    acceptance:
+      - DatasetProfile remains descriptive and separate from EvaluationReport
+      - every metric has scope, direction, evidence and diagnostics
+      - missing optional backends produce explicit errors
+
+  - id: stage_03_valuation_and_contribution
+    title: 用户任务估值与数据贡献度
+    status: planned
+    scope: complete_source_files
+    depends_on: [stage_02_profile_and_evaluation]
+    source_paths:
+      - src/dvmk/valuation/base.py
+      - src/dvmk/valuation/registry.py
+      - src/dvmk/valuation/requirements.py
+      - src/dvmk/valuation/contribution.py
+      - src/dvmk/valuation/expression.py
+      - src/dvmk/valuation/symbolic.py
+      - src/dvmk/valuation/value_functions/
+    target_paths: [src/datavalor/data_value/]
+    components:
+      - name: requirement_import_and_merge
+        source_symbols: [load_requirements, merge_requirement_bundles, collect_requirements]
+        target_interface: datavalor.data_value.ValuationRequest
+        refactor: map_typed_buyer_task_rights_costs_and_preserve_override_rules
+      - name: contribution_methods
+        source_symbols: [leave_one_out, exact_shapley, monte_carlo_shapley, banzhaf]
+        target_interface: datavalor.data_value.ContributionValuator
+        refactor: expose_target_scope_utility_calls_convergence_and_uncertainty
+      - name: weighted_and_distribution_valuation
+        source_symbols: [WeightedUserTaskValuator, DistributionPreviewValuator, ContributionAdjustedValuator]
+        target_interface: datavalor.data_value.DataValuator
+        refactor: return_value_estimates_not_prices_and_keep_context
+      - name: learned_and_symbolic_valuation
+        source_symbols: [LearnedLinearValuator, RestrictedExpressionValuator, ReflectiveSymbolicValuator, SymbolicModel, SymbolicPreferenceLearner, validate_expression, evaluate_expression, evolve_expression]
+        target_interface: datavalor.data_value.TrainableValuator
+        refactor: separate_fit_from_value_and_record_expression_reflection_history
+    tests:
+      - data_value_market_kit/tests/test_advanced_pricing_valuation.py
+      - data_value_market_kit/tests/test_remaining_phases.py
+    acceptance:
+      - valuation results never use PricingOutcome or Payment as their native model
+      - contribution methods expose max-size and computation-budget diagnostics
+      - buyer/task/rights/cost context remains typed and auditable
+
+  - id: stage_04_pricing_mechanisms
+    title: 定价模型与市场机制
+    status: planned
+    scope: complete_source_files
+    depends_on: [stage_03_valuation_and_contribution]
+    source_paths:
+      - src/dvmk/pricing/base.py
+      - src/dvmk/pricing/utils.py
+      - src/dvmk/pricing/registry.py
+      - src/dvmk/pricing/mechanisms/
+    target_paths: [src/datavalor/data_price/]
+    components:
+      - name: quote_models
+        source_symbols: [Bid, PricingResult, clean_money, value_of, capacity_of, demand_of]
+        target_interface: datavalor.data_price.PricingModel
+        target_model: datavalor.data_price.PriceQuote
+        refactor: Decimal_money_and_split_quote_from_mechanism_outcome
+      - name: welfare_and_feasibility_helpers
+        source_symbols: [valid_bids, group_by_product, allocation_welfare, bid_welfare, is_feasible_subset, brute_force_welfare_maximizer]
+        target_interface: datavalor.data_price.PricingMechanism
+        refactor: explicit_supply_demand_and_property_checks
+      - name: single_item_mechanisms
+        source_symbols: [FirstPriceAuction, SecondPriceMarket, PostedPriceMechanism, FreshnessAdjustedPostedPrice, MenuPricingMechanism]
+        target_interface: datavalor.data_price.PricingMechanism
+        refactor: normalize_bid_ask_allocation_payment_and_rights_inputs
+      - name: double_and_externality_mechanisms
+        source_symbols: [McAfeeDoubleAuction, VCGMechanism, ExternalityVCGMechanism]
+        target_interface: datavalor.data_price.PricingMechanism
+        refactor: preserve_assumptions_and_report_non_applicable_properties
+      - name: budget_and_core_mechanisms
+        source_symbols: [BudgetFeasibleProcurement, ProportionalShareProcurement, ContributionFairShareMechanism, CoreSelectingAuction]
+        target_interface: datavalor.data_price.PricingMechanism
+        refactor: retain_critical_payment_core_constraints_and_complexity
+      - name: online_and_constraints
+        source_symbols: [ContextualBanditPostedPrice, NoArbitrageProjectionPricing]
+        target_interface: datavalor.data_price.OnlinePricingModel
+        refactor: split_quote_observe_and_log_exposure_state
+    tests:
+      - data_value_market_kit/tests/test_advanced_pricing_valuation.py
+      - data_value_market_kit/tests/test_remaining_phases.py
+    acceptance:
+      - ValueEstimate, Bid, PriceQuote and Payment are distinct types
+      - all money arithmetic uses Decimal
+      - diagnostics state mechanism assumptions and non-proven properties
+
+  - id: stage_05_market_benchmark_analysis
+    title: 市场仿真、Benchmark 与统计分析
+    status: planned
+    scope: complete_source_files
+    depends_on: [stage_04_pricing_mechanisms]
+    source_paths:
+      - src/dvmk/simulation/
+      - src/dvmk/benchmark/
+      - src/dvmk/analysis/
+    target_paths:
+      - src/datavalor/data_market/simulation/
+      - src/datavalor/toolkit/benchmark/
+      - src/datavalor/toolkit/analysis/
+    components:
+      - name: participant_strategies
+        source_symbols: [TruthfulStrategy, FixedShadingStrategy, AdaptiveShadingStrategy, EpsilonGreedyShadingStrategy, BudgetPacingStrategy, MultiplicativeWeightsStrategy, BestResponseGridStrategy, ContextualShadingStrategy]
+        target_interface: datavalor.data_market.simulation.ParticipantStrategy
+        refactor: explicit_bid_ask_decision_state_and_observation
+      - name: simulation_orchestration
+        source_symbols: [run_simulation, _participants, _rounds, _buyer_observations]
+        target_interface: datavalor.data_market.simulation.MarketSimulator
+        refactor: separate_step_report_and_config_paths
+      - name: outcome_metrics
+        source_symbols: [measure_outcome]
+        target_interface: datavalor.toolkit.benchmark.BenchmarkMetric
+        refactor: retain_true_value_reported_bid_welfare_revenue_and_properties
+      - name: benchmark_matrix
+        source_symbols: [run_benchmark, _stable_seed, _aggregate, _property_summary]
+        target_interface: datavalor.toolkit.benchmark.BenchmarkRunner
+        refactor: raw_observations_before_aggregates
+      - name: statistics_and_frontier
+        source_symbols: [bootstrap_mean_interval, pareto_frontier, scalarized_rank, run_analysis, _paired_comparisons]
+        target_interface: datavalor.toolkit.analysis.Analyzer
+        refactor: artifact_refs_assumptions_warnings_and_failure_witnesses
+    tests:
+      - data_value_market_kit/tests/test_market_benchmark_phase_three.py
+      - data_value_market_kit/tests/test_simulation_analysis_phases_four_five.py
+      - data_value_market_kit/tests/test_remaining_phases.py
+    acceptance:
+      - simulation does not claim equilibrium or no-regret by default
+      - benchmark stores raw observations before aggregates
+      - analysis verifies lineage, checksum and record counts
+
+  - id: stage_06_native_integration
+    title: DataValor 原生 CLI、示例、插件与发布集成
+    status: planned
+    scope: complete_source_files
+    depends_on: [stage_05_market_benchmark_analysis]
+    source_paths: [src/dvmk/cli.py, configs/, examples/, plugins/, tests/]
+    target_paths: [src/datavalor/cli/, configs/, examples/, plugins/, tests/]
+    components:
+      - name: native_cli
+        action: redesign
+        target_interface: datavalor.core.PipelineRunner
+        refactor: do_not_port_dvmk_command_names_or_four_layer_assumptions
+      - name: representative_examples
+        action: migrate_complete_files
+        target_interface: datavalor.toolkit.benchmark.BenchmarkSpec
+        refactor: convert_to_datavalor_schema_and_recheck_data_rights
+      - name: plugin_examples
+        action: migrate_complete_files
+        target_interface: datavalor.core.Registry
+        refactor: rename_all_symbols_and_paths_to_datavalor_and_apply_registry_boundaries
+    tests: [all_datavalor_tests, no_dvmk_import_audit, no_source_residue_scan, editable_build]
+    acceptance:
+      - DataValor installs and runs without DVMK installed
+      - examples and docs use datavalor names only
+      - third-party notices and migration manifest are complete

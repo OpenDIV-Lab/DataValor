@@ -441,7 +441,7 @@ component × case × repetition × metric
 
 `BENCHMARK_DATA_PROVIDERS`、`DATA_PERTURBATIONS`、`BENCHMARK_METRICS`、`BENCHMARK_RUNNERS`。
 
-未来 DVMK 的 distribution provider、shift transform 和 market benchmark 应在此拆分迁入；pyDVL、OpenDataVal 等外部算法也通过统一 benchmark 比较。
+Stage 1 已将数据 provider、shift/扰动和 split 能力落位到此处；后续市场 benchmark 与 pyDVL、OpenDataVal 等外部算法继续通过统一 benchmark 比较。
 
 [返回模块索引](#module-index)
 
@@ -545,7 +545,7 @@ metric = QUALITY_METRICS.create("example.my_metric")
 - 最小配置与示例；
 - `ComponentSpec` capability 和可选依赖；
 - 算法来源、假设、复杂度和适用边界；
-- 如果由 DVMK 迁移，提交源 revision、源路径、MIT 归属和改造记录。
+- 如果由既有实现迁入，必须完成 DataValor 命名、接口、配置、产物和测试的完整改造，不保留原项目的包名、协议或路径。
 
 <a id="installation"></a>
 
@@ -578,10 +578,12 @@ ruff check src tests
 - [GitHub 项目调研与选型](docs/research/github_landscape.md)
 - [机器可读参考项目清单](docs/research/reference_projects.yaml)
 - [data_value_market_kit 代码筛选、迁移与改造方案](docs/research/dvmk_reuse.md)
+- [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
+- [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 
 参考项目只作为调研对象列出，不表示 DIV Lab 或 DataValor 对其背书。仓库当前尚未迁移这些项目的代码、模型或数据；真正接入前仍需复核版本、许可证、数据权利与安全边界。
 
-DVMK 是实验室已有代码基础，将采用“筛选源码、保留 MIT 归属、按 DataValor 模块重构后直接纳入”的方式迁移，而不是作为运行时依赖调用。
+DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后不作为运行时依赖，也不保留原项目的显式命名和协议。
 
 <a id="development-principles"></a>
 
@@ -590,12 +592,12 @@ DVMK 是实验室已有代码基础，将采用“筛选源码、保留 MIT 归�
 - 质量评估、估值与定价是不同语义层，不把质量分数直接当作价格；
 - 算法通过稳定协议和 registry 接入，benchmark 与算法实现解耦；
 - 运行产物包含 schema version、配置、随机种子、依赖版本、输入摘要和 provenance；
-- 一般第三方能力优先采用 optional dependency、adapter、API 或服务边界，不直接复制研究仓库源码；
-- DVMK 作为已有内部代码基础按文件和算法选择性迁移，迁移后成为 `datavalor.*` 原生实现，并保留完整来源、许可证和改造记录；
+- 一般外部能力优先采用 optional dependency、adapter、API 或服务边界；实验室自有实现可以完整迁入，但必须按 DataValor 接口和目录重构；
+- DVMK 的完整实现文件迁入后成为 `datavalor.*` 原生实现，不保留原包名、protocol、CLI 命令和固定路径；
 - 重型依赖不在公共包 import 阶段加载；
 - 算法层不直接绑定固定输出目录、数据库、Web 框架或 UI；
 - 原始数据、受限数据和大体积输出默认不提交到 Git。
 
 ## License
 
-Apache License 2.0。第三方依赖和数据保持各自的许可证与使用条款；从 DVMK 迁移的实质性代码必须继续保留其 MIT 版权和许可声明。
+Apache License 2.0。数据、模型和可选依赖按实际使用范围管理；实验室自有实现统一遵循 DataValor 的目录、接口和发布约定。
