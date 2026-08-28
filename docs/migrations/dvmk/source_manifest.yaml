@@ -64,3 +64,40 @@ batches:
     tests_migrated:
       - tests/test_stage01_data_products.py
     status: completed
+  - batch_id: stage_02_profile_and_evaluation_v1
+    source_paths:
+      - src/dvmk/evaluation/
+    target_paths:
+      - src/datavalor/data_eval/operators.py
+      - src/datavalor/data_eval/task_utility.py
+    target_interfaces:
+      - datavalor.data_eval.QualityMetric
+      - datavalor.data_eval.TaskUtilityEvaluator
+      - datavalor.data_prof.ProfileMetric
+    changes:
+      - ported lexical diversity as a typed QualityMetric
+      - added field summary statistics with descriptive score direction
+      - added callable and record-count task utility evaluators
+      - replaced source metric result and registry semantics with DataValor models
+    tests_migrated:
+      - tests/test_stage23_evaluation_valuation.py
+    status: completed
+  - batch_id: stage_03_valuation_and_contribution_v1
+    source_paths:
+      - src/dvmk/valuation/
+    target_paths:
+      - src/datavalor/data_value/contribution.py
+      - src/datavalor/data_value/requirements.py
+      - src/datavalor/data_value/valuators.py
+    target_interfaces:
+      - datavalor.data_value.ContributionValuator
+      - datavalor.data_value.DataValuator
+      - datavalor.data_value.ValuationRequest
+    changes:
+      - ported leave-one-out, exact Shapley and Monte Carlo Shapley calculations
+      - ported requirement loading and bundle merging
+      - ported transparent weighted user-task valuation
+      - separated contribution reports and value estimates from prices and payments
+    tests_migrated:
+      - tests/test_stage23_evaluation_valuation.py
+    status: completed

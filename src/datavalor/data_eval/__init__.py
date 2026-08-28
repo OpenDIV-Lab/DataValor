@@ -8,7 +8,9 @@ from .models import (
     ScoreDirection,
     TaskUtilityResult,
 )
+from .operators import FieldSummaryMetric, LexicalDiversityMetric, lexical_diversity
 from .registry import EVALUATORS, QUALITY_METRICS, TASK_UTILITY_EVALUATORS
+from .task_utility import CallableTaskUtility, RecordCountUtility
 
 __all__ = [
     "EVALUATORS",
@@ -22,4 +24,9 @@ __all__ = [
     "ScoreDirection",
     "TaskUtilityEvaluator",
     "TaskUtilityResult",
+    "FieldSummaryMetric",
+    "LexicalDiversityMetric",
+    "lexical_diversity",
+    "CallableTaskUtility",
+    "RecordCountUtility",
 ]

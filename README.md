@@ -245,7 +245,7 @@ DataEval 回答“数据在明确维度、粒度和任务下表现如何”。�
 
 `QUALITY_METRICS`、`EVALUATORS`、`TASK_UTILITY_EVALUATORS`。
 
-DataEval 不负责：直接生成 buyer-specific value、bid、quote 或 payment。未来从 DVMK 迁移的多模态指标和 task utility 应在此实现。
+DataEval 不负责：直接生成 buyer-specific value、bid、quote 或 payment。Stage 2 已将代表性的文本指标、字段统计和 task utility 能力落位到此处；其余评估算子按相同 DataEval 契约继续扩展。
 
 [返回模块索引](#module-index)
 
@@ -277,7 +277,7 @@ DataValue 回答“这份数据或其中某个单位对特定用户、任务或�
 
 `UTILITY_FUNCTIONS`、`VALUATORS`、`TRAINABLE_VALUATORS`、`CONTRIBUTION_VALUATORS`。
 
-DataValue 不负责：把价值估计当作真实 bid，或根据供需直接产生交易价格。未来 DVMK 的 weighted user-task、learned/symbolic valuation、LOO、Shapley 和 Banzhaf 实现应迁入此模块。
+DataValue 不负责：把价值估计当作真实 bid，或根据供需直接产生交易价格。Stage 3 已将 weighted user-task、requirements、LOO、Shapley 和 Monte Carlo Shapley 的实现落位到此模块；learned/symbolic valuation 按相同契约继续扩展。
 
 [返回模块索引](#module-index)
 

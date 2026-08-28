@@ -99,8 +99,8 @@ stages:
 
   - id: stage_02_profile_and_evaluation
     title: 数据画像与质量评估
-    status: planned
-    scope: complete_source_files
+    status: completed
+    scope: selected_implementations
     depends_on: [stage_01_foundation_and_data_products]
     source_paths:
       - src/dvmk/evaluation/base.py
@@ -150,8 +150,8 @@ stages:
 
   - id: stage_03_valuation_and_contribution
     title: 用户任务估值与数据贡献度
-    status: planned
-    scope: complete_source_files
+    status: completed
+    scope: selected_implementations
     depends_on: [stage_02_profile_and_evaluation]
     source_paths:
       - src/dvmk/valuation/base.py
