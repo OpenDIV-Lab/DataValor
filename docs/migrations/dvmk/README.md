@@ -1,17 +1,17 @@
 # DVMK 源码迁移执行手册
 
-本目录描述如何把 `/root/yusen/data_value_market_kit` 中的完整实现文件复制、改造并融入 DataValor。它不是运行时兼容层，也不是“在 DataValor 里调用 DVMK”的说明。
+本目录描述如何把 `/root/yusen/data_value_market_kit` 中的完整实现文件复制、改造并融入 DataValor，目标是形成可独立维护的原生模块。
 
 机器可读总计划：[configs/migrations/dvmk/plan.yaml](../../../configs/migrations/dvmk/plan.yaml)
 
-当前执行状态：Stage 0–5 以及 Stage 6（DataValor 原生 CLI、配置、示例与插件）均已完成；对应实现已经落位到 `src/datavalor`，迁移文档暂时保留。
+当前进度：Stage 0–5 以及 Stage 6（DataValor 原生 CLI、配置、示例与插件）均已完成；对应实现已经落位到 `src/datavalor`，本文作为过程记录继续保留。
 
 ## 1. 迁移原则
 
 1. DVMK 目录中的完整实现文件是迁移输入，DataValor 是唯一最终运行项目。
 2. 完整迁移不等于原样保留：每个文件都必须改成 DataValor 的目录、命名、接口、配置和产物 schema。
-3. 迁移后目标代码只能使用 `datavalor.*`，不得导入 `dvmk` 或保留源项目命名。
-4. CLI、固定输出路径、旧配置协议和 runner 需要在 DataValor 中重新接入，不能把旧编排作为公共 API。
+3. 迁移后的目标代码统一使用 `datavalor.*`，并完成源项目命名到 DataValor 命名的转换。
+4. CLI、输出路径、配置协议和 runner 在 DataValor 中重新接入，形成新的公共 API。
 5. 每批迁移必须同时提交目标代码、改造后的测试、配置示例和文档，并通过源残留扫描。
 6. 迁移以当前工作区完整文件为准，不做版本筛选、增量兼容或双版本适配。
 
@@ -28,7 +28,7 @@ DVMK 已实现：JSONL/JSON/CSV/Parquet/目录/iterable 适配器、canonical re
 | `file_sha256`、`canonical_sha256`、I/O | `datavalor.core.ArtifactStore` | 去掉固定输出目录，返回 `ArtifactRef`，把 checksum 和 lineage 放进 `ArtifactEnvelope` |
 | `JSONLAdapter`、`CSVAdapter`、`ParquetAdapter`、`DirectoryAdapter` | `data_gov` 数据产品实现 | 保留流式读取，增加 rights、schema、classification 和 owner 元数据 |
 | distribution manifest | `ArtifactEnvelope` + `MetadataRecord` | 区分治理 manifest 和 benchmark distribution manifest |
-| local/parametric/sklearn/HF providers | `BenchmarkDataProvider` | 仅作为研究输入 provider，不把它们叫作 DataGov |
+| local/parametric/sklearn/HF providers | `BenchmarkDataProvider` | 作为研究输入 provider，和 DataGov 的治理能力分开 |
 | shift/noise/split/重采样 | `DataPerturbation` | 每次输出 parent、seed、参数和变换审计 |
 
 ### 2.2 DataProf 与 DataEval
@@ -44,7 +44,7 @@ DVMK 已实现：统一 `MetricResult`/metric registry；文本 lexical diversit
 | Cleanlab/MMD/LiteLLM | `QualityMetric` | 作为 optional extras，保留样本级证据，依赖延迟加载 |
 | task utility、cache、sklearn tasks | `TaskUtilityEvaluator` | 明确 `TaskContext` 和观测 utility，不产生货币价值 |
 | 视频 helper 和 CV 指标 | `QualityMetric` | 隔离 OpenCV/ffprobe，文件不可用时给出显式 diagnostics |
-| 基础统计与字段属性 | `ProfileMetric`/`DataProfiler` | 只输出 `DatasetProfile`，不直接作质量结论 |
+| 基础统计与字段属性 | `ProfileMetric`/`DataProfiler` | 输出 `DatasetProfile`，质量结论交由 DataEval 结合场景判断 |
 
 ### 2.3 DataValue
 
@@ -70,7 +70,7 @@ DVMK 已实现：first-price、second-price、VCG、McAfee double auction、post
 |---|---|---|
 | bid/价格辅助函数 | `PricingModel` / `PricingMechanism` | 将浮点金额改为 `Money(Decimal, currency)`，拆分 quote 和 outcome |
 | first/second/posted/freshness/menu | `PricingMechanism` | 统一 `PricingRequest`、`Allocation`、`Payment` 和 rights 输入 |
-| McAfee/VCG/externality VCG | `PricingMechanism` | 保留外部性、单参数等假设，未判定性质明确标记 |
+| McAfee/VCG/externality VCG | `PricingMechanism` | 保留外部性、单参数等假设，并单独标记尚待验证的性质 |
 | budget/proportional/core/contribution | `PricingMechanism` | 保留 critical payment、core constraints、IR/budget/capacity diagnostics |
 | contextual bandit | `OnlinePricingModel` | 拆成 `quote/observe`，显式记录曝光、接受、库存和状态 |
 | no-arbitrage projection | `PriceConstraint` | 从机制中独立出来，保留投影前后价格和约束说明 |
@@ -87,8 +87,8 @@ DVMK 已实现：truthful、fixed/adaptive shading、epsilon-greedy、budget pac
 | simulation runner | `MarketSimulator.reset/step/run` | 分离 `MarketSnapshot`、step transition 和 report |
 | `measure_outcome` | `BenchmarkMetric.measure` | 保留 true/reported welfare、revenue 和性质维度 |
 | benchmark runner | `BenchmarkRunner.run` | case × component × repetition，raw observation 先于 aggregate |
-| bootstrap、paired comparison | `Analyzer`/`ResultComparator` | 只消费 artifact refs，写明独立性和适用条件 |
-| Pareto/frontier | `FrontierAnalyzer` | 明确目标方向和约束，不把 scalarized rank 当作唯一真值 |
+| bootstrap、paired comparison | `Analyzer`/`ResultComparator` | 消费 artifact refs，并写明独立性和适用条件 |
+| Pareto/frontier | `FrontierAnalyzer` | 明确目标方向和约束，保留 frontier 与 scalarized rank 的各自含义 |
 
 ## 3. 阶段计划
 
@@ -118,7 +118,7 @@ Stage 06  DataValor 原生 CLI、示例、插件和发布集成
 | 05 | simulation、benchmark、analysis | 形成市场实验与统计层 | 把仿真结果误写成理论证明 |
 | 06 | CLI、配置、示例、插件 | 形成 DataValor 原生体验 | 清除源项目命名、协议和路径残留 |
 
-每个阶段都必须完成：完整文件复制 → 目标接口实现 → schema 改造 → 测试迁移 → 新测试 → 源命名清理。
+每个阶段按“完整文件复制 → 目标接口实现 → schema 改造 → 测试迁移 → 新测试 → 源命名清理”的顺序推进。
 
 ## 4. 迁移记录模板
 
@@ -149,15 +149,15 @@ status: planned
 
 ## 5. 每阶段验收和回滚
 
-### 必须通过
+### 验收标准
 
-- 目标代码只使用 `datavalor.*` import；
-- 全仓库源码、配置和示例不出现 `dvmk`、`data_value_market_kit`、旧 protocol 或旧 CLI 命名；
+- 目标代码统一使用 `datavalor.*` import；
+- 全仓库源码、配置和示例完成 `dvmk`、`data_value_market_kit`、旧 protocol 与旧 CLI 命名的清理；
 - 完整源文件已转换为 DataValor 语义，并补充改造后的新测试；
 - artifact 包含 schema version、producer、parents、evidence 和 diagnostics；
-- 可选依赖不在 import 阶段加载；
+- 可选依赖按能力按需加载；
 - 算法与 I/O、配置、报告写入解耦；
-- 文档说明假设、适用范围、复杂度和不能证明的性质。
+- 文档说明假设、适用范围、复杂度以及需要单独验证的性质。
 
 ### 回滚
 
@@ -167,7 +167,7 @@ status: planned
 
 - DVMK `cli.py`、runner 和配置完整迁入后，必须在 DataValor CLI、PipelineRunner 和配置层重新落位；
 - 仅用于展示的 README、HTML、CSS、logo 和生成页面；
-- 不属于代码实现范围的超大 outputs、缓存和临时数据；
+- 超大 outputs、缓存和临时数据：由外部存储管理；
 - `__pycache__`、`.pytest_cache`、`.ruff_cache` 和本地 outputs；
 - 源项目 protocol、命令名和固定路径作为 DataValor 公共 API；
 - 任何让 DataValor 必须安装或导入 DVMK 才能运行的代码。

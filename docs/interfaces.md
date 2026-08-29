@@ -1,22 +1,22 @@
 # DataValor 系统框架与接口设计
 
-> 状态：`v1alpha1 interface scaffold`。本文定义可实现、可注册、可测试的接口模板，不包含具体数据治理、估值、定价或智能问数算法。
+> 状态：`v1alpha1 interface scaffold`。本文整理可实现、可注册、可测试的接口模板，具体算法由各模块按契约逐步补充。
 
 ## 一、结构参考来源
 
-本框架只参考调研项目的**工程组织方式**，没有复制其算法内容或接口源码：
+本框架参考调研项目的**工程组织方式**，算法内容和接口源码均按 DataValor 语义重新设计：
 
 | 结构来源 | 借鉴的结构模式 | DataValor 中的体现 |
 |---|---|---|
 | pyDVL | 明确的数据、utility、valuation method、result 和 fit 生命周期 | `UtilityFunction`、`DataValuator`、`TrainableValuator`、`ValuationReport` |
-| OpenDataVal | data loader、dataval、experiment、metric 分层 | DataValue 与 `toolkit.benchmark` 分离，算法不直接承担 benchmark 编排 |
+| OpenDataVal | data loader、dataval、experiment、metric 分层 | DataValue 与 `toolkit.benchmark` 分离，benchmark 编排由独立流程处理 |
 | TorchMetrics | 小型 metric 基类、metric collection、状态/证据和可选领域依赖 | `QualityMetric`、`MetricResult`、`DataEvaluator` 和 typed registry |
 | Cleanlab、Great Expectations、Evidently | finding、evidence、validation/report 与执行编排分离 | `GovernanceFinding`、`Evidence`、`EvaluationReport`、`GovernanceReport` |
 | Kedro | catalog、节点、pipeline、artifact/config 边界 | `MetadataCatalog`、`PipelineNode`、`PipelineSpec`、`ArtifactEnvelope` |
 | Mesa | participant、strategy、observation、state、step、data collection 分层 | `ParticipantStrategy`、`MarketObservation`、`SimulationStep`、`MarketSimulator` |
-| DataHub、OpenMetadata | 元数据与治理平台通过稳定边界连接，而不是塞进算法包 | `MetadataRecord`、`MetadataCatalog`、`PolicyEvaluator` |
+| DataHub、OpenMetadata | 通过稳定边界接入元数据与治理平台，保持算法包轻量 | `MetadataRecord`、`MetadataCatalog`、`PolicyEvaluator` |
 
-DVMK 与一般第三方项目不同。它是后续选择性迁移的内部代码来源；迁移内容必须实现本文接口并成为 `datavalor.*` 原生代码，而不是在这些接口内部调用 `dvmk`。
+DVMK 与一般第三方项目不同，是后续选择性迁移的内部代码来源；迁移内容会实现本文接口并整理为 `datavalor.*` 原生代码。
 
 ## 二、代码结构
 
@@ -49,11 +49,11 @@ src/datavalor/
 每个业务模块都遵循同一种目录约定：
 
 - `models.py`：跨实现稳定传递的 request、result、finding 和 report；
-- `interfaces.py`：只声明行为和语义边界的 ABC；
+- `interfaces.py`：声明行为和语义边界的 ABC；
 - `registry.py`：按能力分类的 typed lazy registry；
 - `__init__.py`：经过选择的公共 API，不暴露内部实现路径。
 
-具体算法加入后可以继续建立 `metrics/`、`valuators/`、`mechanisms/`、`providers/` 等实现目录，但不能反向污染公共模型。
+具体算法加入后可以继续建立 `metrics/`、`valuators/`、`mechanisms/`、`providers/` 等实现目录，公共模型保持稳定。
 
 ## 三、公共接口
 
@@ -84,7 +84,7 @@ ComponentSpec(
 - 模块配置、标签和附加元数据；
 - 运行开始时间。
 
-算法不能从全局变量、固定目录或隐式环境中猜测这些信息。
+算法通过 `RunContext` 接收这些信息，避免依赖全局变量、固定目录或隐式环境。
 
 ### 3. `ArtifactEnvelope[T]`
 
@@ -101,11 +101,11 @@ diagnostics
 created_at
 ```
 
-原生 payload 保留具体类型，例如 `EvaluationReport` 或 `PricingOutcome`；信封只统一 provenance 和 lineage，不把所有结果压成一个字典或单一分数。
+原生 payload 保留具体类型，例如 `EvaluationReport` 或 `PricingOutcome`；信封统一记录 provenance 和 lineage，各类结果仍保持自己的结构。
 
 ### 4. `Registry[T]`
 
-Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实例化组件，因此重型可选依赖不应在 `import datavalor` 时加载。Registry 支持：
+Registry 接收 `ComponentSpec + factory`，在 `create(name)` 时实例化组件，重型可选依赖随具体能力按需加载。Registry 支持：
 
 - 重名保护和显式 `replace`；
 - 不实例化组件即可读取 `ComponentSpec`；
@@ -114,7 +114,7 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 
 ### 5. Pipeline 与 ArtifactStore
 
-`PipelineSpec` 只声明节点、输入引用、输出名和参数；`PipelineRunner` 负责校验和执行；`ArtifactStore` 负责保存与加载。算法接口本身不直接创建固定的 `outputs/...` 目录。
+`PipelineSpec` 声明节点、输入引用、输出名和参数；`PipelineRunner` 负责校验和执行；`ArtifactStore` 负责保存与加载。输出目录由运行配置统一管理。
 
 ## 四、七个业务模块的具体接口
 
@@ -135,11 +135,11 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 
 | 接口 | 主要方法 | 职责 |
 |---|---|---|
-| `ProfileMetric` | `measure` | 计算一个描述性事实，不判断好坏 |
+| `ProfileMetric` | `measure` | 计算一个描述性事实 |
 | `DataProfiler` | `profile` | 组合统计量形成 `DatasetProfile` |
 | `ProfileComparator` | `compare` | 比较两个 profile 的描述性变化 |
 
-`DatasetProfile` 不包含最终质量结论；分布变化是否不可接受，由 DataEval 的具体 metric 或 policy 判断。
+`DatasetProfile` 提供数据的描述性事实；分布变化的可接受性由 DataEval 的具体 metric 或 policy 判断。
 
 ### 3. DataEval
 
@@ -149,7 +149,7 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 | `DataEvaluator` | `evaluate` | 组合多个 metric，保留各自证据 |
 | `TaskUtilityEvaluator` | `evaluate_task` | 通过下游任务实验测量实际 utility |
 
-`MetricResult` 明确包含 dimension、scope、value、direction、unit、statistics、evidence 和 diagnostics。`EvaluationReport` 不是 DataValue，也不是 DataPrice。
+`MetricResult` 明确包含 dimension、scope、value、direction、unit、statistics、evidence 和 diagnostics。`EvaluationReport` 是 DataEval 的评估产物，DataValue 和 DataPrice 在此基础上分别完成估值与定价。
 
 ### 4. DataValue
 
@@ -160,7 +160,7 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 | `TrainableValuator` | `fit/value` | 从历史观测学习估值模型 |
 | `ContributionValuator` | `value_contributions` | 计算边际或联盟贡献度 |
 
-`ValuationRequest` 显式携带 buyer、task、rights、costs 和 evaluation artifacts；`ValueEstimate` 显式携带 unit、currency、components、uncertainty 和 explanation。它仍然不是市场 bid。
+`ValuationRequest` 显式携带 buyer、task、rights、costs 和 evaluation artifacts；`ValueEstimate` 显式携带 unit、currency、components、uncertainty 和 explanation。市场 bid 在定价流程中单独记录。
 
 ### 5. DataPrice
 
@@ -171,7 +171,7 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 | `PriceConstraint` | `project` | 执行 no-arbitrage 等价格约束 |
 | `PricingMechanism` | `price` | 从 bids、asks、supply、demand 计算 allocation/payment |
 
-金额统一使用 `Decimal` 封装在 `Money` 中。`Bid` 是报告的支付意愿，`ValueEstimate` 是估计价值，`PriceQuote` 是报价，`Payment` 是机制结果，四者不能混用。
+金额统一使用 `Decimal` 封装在 `Money` 中。`Bid` 表示报告的支付意愿，`ValueEstimate` 表示估计价值，`PriceQuote` 表示报价，`Payment` 表示机制结果，四者在模型中分别表示。
 
 ### 6. DataMarket
 
@@ -207,7 +207,7 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 |---|---|---|
 | `BenchmarkDataProvider` | `load` | 加载带 provenance 的真实或合成输入 |
 | `DataPerturbation` | `apply` | 确定性构造 shift、noise、split 或重采样 |
-| `BenchmarkMetric` | `measure` | 测量一次原始输出，不负责排行榜聚合 |
+| `BenchmarkMetric` | `measure` | 测量一次原始输出，聚合与排名由 benchmark 流程处理 |
 | `BenchmarkRunner` | `run` | 执行 component × case × repetition 矩阵 |
 
 ### Analysis
@@ -218,11 +218,11 @@ Registry 接收 `ComponentSpec + factory`，只有在 `create(name)` 时才实�
 
 ### Web UI
 
-Web UI 接口保持 framework-neutral：`ViewProvider` 只把 artifacts 转成 `ViewModel`，`WebApplicationFactory` 再把声明式 `ApplicationSpec` 转成 Streamlit、FastAPI、Gradio 或其他具体对象。核心包不会启动服务器，也不依赖任何 Web 框架。
+Web UI 接口保持 framework-neutral：`ViewProvider` 把 artifacts 转成 `ViewModel`，`WebApplicationFactory` 再把声明式 `ApplicationSpec` 转成 Streamlit、FastAPI、Gradio 或其他具体对象。具体框架通过可选适配器接入。
 
 ## 六、最小扩展示例
 
-下面的实现只展示接口使用方式，不是内置算法：
+下面的实现用来展示接口使用方式：
 
 ```python
 from datavalor import ComponentSpec, RunContext
@@ -262,9 +262,9 @@ metric = QUALITY_METRICS.create("example.my_metric")
 
 正式实现需要同时提交：组件实现、测试、配置示例、方法说明、依赖 extra，以及包含假设和边界的文档。
 
-## 七、当前非目标
+## 七、后续实现范围
 
-本轮没有实现：
+以下能力已列入后续实现计划：
 
 - 实际清洗、画像、质量指标或估值算法；
 - 拍卖、采购、动态定价和收益分配算法；
@@ -272,4 +272,4 @@ metric = QUALITY_METRICS.create("example.my_metric")
 - Text-to-SQL、LLM agent 或 Web UI；
 - DVMK 源码迁移。
 
-这些能力后续都应在当前接口上逐项实现和验证，而不是绕过接口直接堆叠脚本。
+这些能力后续将在当前接口上逐项实现和验证，保持脚本、算法与公共契约之间的边界清晰。

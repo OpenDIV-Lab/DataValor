@@ -4,7 +4,7 @@
 
 数据智能与价值化实验室（Data Intelligence and Valorization Laboratory，DIV Lab）发起的开源研究工具箱。
 
-> 当前状态：`pre-alpha / interface scaffold`。本仓库目前定义模块边界、公共模型、抽象接口、registry、benchmark 和扩展路线，不代表各模块已经具有具体算法或生产能力。
+> 当前状态：`pre-alpha / interface scaffold`。仓库已经完成模块边界、公共模型、抽象接口、registry、benchmark 和扩展路线的搭建，具体算法与生产化能力将按计划逐步补齐。
 
 DataValor 面向数据从“可管理”到“可使用、可交易、可定价”的完整价值链，将研究对象分成三个阶段：
 
@@ -16,22 +16,25 @@ DataValor 面向数据从“可管理”到“可使用、可交易、可定价�
 
 ## 模块索引
 
-下面的索引使用显式英文锚点，不依赖 Markdown 渲染器自动生成中文标题 ID，可从 GitHub 或 IDE 预览稳定跳转。
+下面的索引使用显式英文锚点，在 GitHub 和 IDE 预览中都能稳定跳转。
 
-| 阶段 | 模块 | 核心职责 | 详细说明 |
-|---|---|---|---|
-| 公共基础 | `datavalor.core` | 组件、数据产品、运行上下文、产物、registry、pipeline、存储协议 | [Core](#module-core) |
-| 价值发现 | `datavalor.data_gov` | 标准化、清洗、安全、元数据、政策和治理 | [DataGov](#module-datagov) |
-| 价值发现 | `datavalor.data_prof` | 统计画像、字段属性、分布和画像比较 | [DataProf](#module-dataprof) |
-| 价值发现 | `datavalor.data_eval` | 多维质量评估、证据和任务效用测量 | [DataEval](#module-dataeval) |
-| 价值发现 | `datavalor.data_value` | 用户/任务相关估值和数据贡献度 | [DataValue](#module-datavalue) |
-| 价值流通 | `datavalor.data_market` | 挂牌、发现、参与者、激励、交易、收益分配和仿真 | [DataMarket](#module-datamarket) |
-| 价值流通 | `datavalor.data_price` | 报价、动态定价、拍卖清算、allocation 和 payment | [DataPrice](#module-dataprice) |
-| 价值实现 | `datavalor.data_query` | 授权、查询规划、执行、结果防护和数据智能体 | [DataQuery](#module-dataquery) |
-| 公共工具 | `datavalor.toolkit` | 对公共 artifact、pipeline、registry 的便捷导出 | [Toolkit](#module-toolkit) |
-| 公共工具 | `datavalor.toolkit.benchmark` | 数据源、扰动、benchmark metric 和实验矩阵 | [Benchmark](#module-benchmark) |
-| 公共工具 | `datavalor.toolkit.analysis` | 统计分析、方法比较和 Pareto frontier | [Analysis](#module-analysis) |
-| 公共工具 | `datavalor.toolkit.webui` | 与具体 Web 框架无关的 view/app 接口 | [Web UI](#module-webui) |
+<table>
+<thead><tr><th>阶段</th><th>模块</th><th>核心职责</th><th>详细说明</th></tr></thead>
+<tbody>
+<tr><td rowspan="1">公共基础</td><td><code>datavalor.core</code></td><td>组件、数据产品、运行上下文、产物、registry、pipeline、存储协议</td><td><a href="#module-core">Core</a></td></tr>
+<tr><td rowspan="4">价值发现</td><td><code>datavalor.data_gov</code></td><td>标准化、清洗、安全、元数据、政策和治理</td><td><a href="#module-datagov">DataGov</a></td></tr>
+<tr><td><code>datavalor.data_prof</code></td><td>统计画像、字段属性、分布和画像比较</td><td><a href="#module-dataprof">DataProf</a></td></tr>
+<tr><td><code>datavalor.data_eval</code></td><td>多维质量评估、证据和任务效用测量</td><td><a href="#module-dataeval">DataEval</a></td></tr>
+<tr><td><code>datavalor.data_value</code></td><td>用户/任务相关估值和数据贡献度</td><td><a href="#module-datavalue">DataValue</a></td></tr>
+<tr><td rowspan="2">价值流通</td><td><code>datavalor.data_market</code></td><td>挂牌、发现、参与者、激励、交易、收益分配和仿真</td><td><a href="#module-datamarket">DataMarket</a></td></tr>
+<tr><td><code>datavalor.data_price</code></td><td>报价、动态定价、拍卖清算、allocation 和 payment</td><td><a href="#module-dataprice">DataPrice</a></td></tr>
+<tr><td>价值实现</td><td><code>datavalor.data_query</code></td><td>授权、查询规划、执行、结果防护和数据智能体</td><td><a href="#module-dataquery">DataQuery</a></td></tr>
+<tr><td rowspan="4">公共工具</td><td><code>datavalor.toolkit</code></td><td>对公共 artifact、pipeline、registry 的便捷导出</td><td><a href="#module-toolkit">Toolkit</a></td></tr>
+<tr><td><code>datavalor.toolkit.benchmark</code></td><td>数据源、扰动、benchmark metric 和实验矩阵</td><td><a href="#module-benchmark">Benchmark</a></td></tr>
+<tr><td><code>datavalor.toolkit.analysis</code></td><td>统计分析、方法比较和 Pareto frontier</td><td><a href="#module-analysis">Analysis</a></td></tr>
+<tr><td><code>datavalor.toolkit.webui</code></td><td>与具体 Web 框架无关的 view/app 接口</td><td><a href="#module-webui">Web UI</a></td></tr>
+</tbody>
+</table>
 
 其他常用位置：
 
@@ -71,25 +74,25 @@ DataValor/
     └── research/                 # GitHub 调研与 DVMK 迁移分析
 ```
 
-目录采用 Python 可导入命名。例如方案中的 `DataValue` 对应 `datavalor.data_value`；展示顺序和阶段信息可从 `datavalor.MODULES` 读取。没有采用 `0_DataGov` 作为包名，因为数字开头不能成为正常的 Python import 路径。
+目录采用 Python 可导入命名。例如方案中的 `DataValue` 对应 `datavalor.data_value`；展示顺序和阶段信息可从 `datavalor.MODULES` 读取。模块目录使用语义化名称，便于直接作为 Python import 路径。
 
 每个业务模块默认采用相同的内部约定：
 
 ```text
 module/
 ├── models.py       # 稳定的 request、result、finding、report
-├── interfaces.py   # 不包含算法实现的抽象接口
+├── interfaces.py   # 抽象接口与行为约定
 ├── registry.py     # 按能力分类的 typed lazy registry
 └── __init__.py     # 经过筛选的公共 API
 ```
 
-未来具体实现可以放入 `metrics/`、`valuators/`、`mechanisms/`、`providers/` 等子目录，但不应反向改变公共模型的语义。
+未来具体实现可以放入 `metrics/`、`valuators/`、`mechanisms/`、`providers/` 等子目录，公共模型继续作为稳定的语义基础。
 
 <a id="semantic-boundaries"></a>
 
 ## 模块间语义边界
 
-DataValor 不把整个数据价值链压成一个“综合分数”。各模块通过有版本的 artifact 连接：
+DataValor 让各模块保留各自的语义，并通过有版本的 artifact 连接：
 
 ```text
 DataGov 治理与可用性
@@ -103,14 +106,13 @@ DataGov 治理与可用性
 
 必须保持以下区分：
 
-- profile 是描述性事实，不是质量结论；
-- evaluation 是多维质量或任务表现，不是货币价值；
-- valuation 是效用或贡献估计，不是买方 bid；
-- bid 是报告的支付意愿，不是平台 quote；
-- quote 是报出的价格，不是最终 payment；
+- profile 提供描述性事实；
+- evaluation 记录多维质量或任务表现；
+- valuation 估计特定用户或任务的效用与贡献；
+- bid 表示参与者报告的支付意愿，quote 表示平台报出的价格；
 - payment 是机制和市场环境共同产生的交易结果；
-- simulation observation 不是均衡、真实性或最优性的理论证明；
-- query answer 只有在授权、执行和结果防护全部完成后才是可交付结果。
+- simulation observation 用于记录实验行为，理论性质需要单独分析；
+- query answer 在授权、执行和结果防护完成后形成可交付结果。
 
 <a id="module-core"></a>
 
@@ -118,7 +120,7 @@ DataGov 治理与可用性
 
 源码入口：[src/datavalor/core](src/datavalor/core)
 
-Core 是所有模块共享的零第三方依赖基础层。它只定义跨模块稳定概念，不实现清洗、估值、拍卖或问数算法。
+Core 是所有模块共享的零第三方依赖基础层，集中定义跨模块稳定概念；清洗、估值、拍卖和问数算法由业务模块承载。
 
 ### 核心接口和模型
 
@@ -149,7 +151,7 @@ from datavalor import ArtifactEnvelope, ComponentSpec, Registry, RunContext
 from datavalor.core import DataProduct, DataReference, RightsBundle
 ```
 
-Core 不负责：打开数据 URI、执行数据库查询、决定治理政策、运行算法或创建固定 `outputs/` 路径。
+Core 提供数据引用、上下文、产物和执行协议；数据读取、治理决策、算法运行及输出路径由上层模块按需实现。
 
 [返回模块索引](#module-index)
 
@@ -159,7 +161,7 @@ Core 不负责：打开数据 URI、执行数据库查询、决定治理政策�
 
 源码入口：[src/datavalor/data_gov](src/datavalor/data_gov)
 
-DataGov 回答“这份数据是否有明确来源、元数据、权利和处理规则，以及某项操作是否允许执行”。它覆盖标准化、清洗、安全、元数据和政策决策，但当前只是接口模板，不等同于完整的数据目录或合规平台。
+DataGov 回答“这份数据是否有明确来源、元数据、权利和处理规则，以及某项操作是否允许执行”。它覆盖标准化、清洗、安全、元数据和政策决策，当前以可扩展接口为主，可与数据目录和合规平台衔接。
 
 ### 主要输入与输出
 
@@ -171,7 +173,7 @@ DataGov 回答“这份数据是否有明确来源、元数据、权利和处理
 | 接口 | 方法 | 说明 |
 |---|---|---|
 | `MetadataExtractor` | `inspect(product, context)` | 提取技术、语义、权利、分类和血缘元数据 |
-| `MetadataCatalog` | `upsert/get/search` | 保存并检索治理元数据，不绑定 DataHub/OpenMetadata |
+| `MetadataCatalog` | `upsert/get/search` | 保存并检索治理元数据，可通过适配器连接 DataHub/OpenMetadata |
 | `DataStandardizer` | `plan/transform` | 先产生可审计计划，再执行格式、schema 或语义标准化 |
 | `DataCleaner` | `plan/clean` | 先产生清洗计划，再物化新的数据引用 |
 | `SecurityScanner` | `scan` | 检测敏感字段、泄露、隐私和安全风险 |
@@ -185,7 +187,7 @@ DataGov 回答“这份数据是否有明确来源、元数据、权利和处理
 
 `METADATA_EXTRACTORS`、`METADATA_CATALOGS`、`STANDARDIZERS`、`CLEANERS`、`SECURITY_SCANNERS`、`POLICY_EVALUATORS`。
 
-DataGov 不负责：把 provenance manifest 宣称为完整合规认证，也不负责统计画像、质量打分、估值或价格计算。
+DataGov 聚焦来源、权利、处理规则与政策判断；统计画像、质量评估、估值和价格计算分别由 DataProf、DataEval、DataValue 与 DataPrice 承载。
 
 [返回模块索引](#module-index)
 
@@ -214,7 +216,7 @@ DataProf 回答“数据是什么样的”。它生成字段类型、缺失、�
 
 `PROFILE_METRICS`、`PROFILERS`、`PROFILE_COMPARATORS`。
 
-DataProf 不负责：判断某个分布是否“好”、把 drift 直接认定为质量问题、生成货币估值。是否可接受由 DataEval metric 或 DataGov policy 决定。
+DataProf 聚焦数据的描述性画像；分布变化的可接受性由 DataEval metric 或 DataGov policy 结合具体场景判断。
 
 [返回模块索引](#module-index)
 
@@ -224,7 +226,7 @@ DataProf 不负责：判断某个分布是否“好”、把 drift 直接认定�
 
 源码入口：[src/datavalor/data_eval](src/datavalor/data_eval)
 
-DataEval 回答“数据在明确维度、粒度和任务下表现如何”。它保留每个指标的方向、单位、统计量、证据和诊断，不把所有指标静默合成一个货币分数。
+DataEval 回答“数据在明确维度、粒度和任务下表现如何”。它保留每个指标的方向、单位、统计量、证据和诊断，方便下游按场景使用。
 
 ### 主要输入与输出
 
@@ -245,7 +247,7 @@ DataEval 回答“数据在明确维度、粒度和任务下表现如何”。�
 
 `QUALITY_METRICS`、`EVALUATORS`、`TASK_UTILITY_EVALUATORS`。
 
-DataEval 不负责：直接生成 buyer-specific value、bid、quote 或 payment。Stage 2 已将代表性的文本指标、字段统计和 task utility 能力落位到此处；其余评估算子按相同 DataEval 契约继续扩展。
+DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别在 DataValue、DataMarket 与 DataPrice 中生成。Stage 2 已将代表性的文本指标、字段统计和 task utility 能力落位到此处；其余评估算子按相同 DataEval 契约继续扩展。
 
 [返回模块索引](#module-index)
 
@@ -277,7 +279,7 @@ DataValue 回答“这份数据或其中某个单位对特定用户、任务或�
 
 `UTILITY_FUNCTIONS`、`VALUATORS`、`TRAINABLE_VALUATORS`、`CONTRIBUTION_VALUATORS`。
 
-DataValue 不负责：把价值估计当作真实 bid，或根据供需直接产生交易价格。Stage 3 已将 weighted user-task、requirements、LOO、Shapley 和 Monte Carlo Shapley 的实现落位到此模块；learned/symbolic valuation 按相同契约继续扩展。
+DataValue 聚焦用户、任务和模型相关的效用与贡献估计，交易报价和清算由 DataPrice 根据市场信息处理。Stage 3 已将 weighted user-task、requirements、LOO、Shapley 和 Monte Carlo Shapley 的实现落位到此模块；learned/symbolic valuation 按相同契约继续扩展。
 
 [返回模块索引](#module-index)
 
@@ -312,7 +314,7 @@ DataPrice 回答“在给定估值证据、权利、报价、供需和机制规�
 
 `PRICING_MODELS`、`ONLINE_PRICING_MODELS`、`PRICE_CONSTRAINTS`、`PRICING_MECHANISMS`。
 
-DataPrice 不负责：listing 生命周期、参与者数据库、数据交付和结算执行。Stage 4 已将 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束实现落位到此模块；后续继续补充机制性质测试。
+DataPrice 聚焦报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。Stage 4 已将 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束实现落位到此模块；后续继续补充机制性质测试。
 
 [返回模块索引](#module-index)
 
@@ -348,13 +350,13 @@ DataMarket 回答“数据产品如何注册和发现，市场参与者如何行
 | `ParticipantStrategy` | `decide/observe` | 根据获准观察生成 bid、ask 或 abstention，并更新状态 |
 | `MarketSimulator` | `reset/step/run` | 以确定性种子运行有限轮市场实验 |
 
-仿真模型包括 `MarketObservation`、`StrategyDecision`、`SimulationStep` 和 `SimulationReport`。仿真结果默认只是实验观察，不自动声称 equilibrium、no-regret 或 incentive compatibility。
+仿真模型包括 `MarketObservation`、`StrategyDecision`、`SimulationStep` 和 `SimulationReport`。仿真结果用于记录实验观察；equilibrium、no-regret 或 incentive compatibility 等理论性质需结合专门分析。
 
 ### 扩展 registry
 
 `MARKET_CATALOGS`、`PARTICIPANT_REPOSITORIES`、`INCENTIVE_POLICIES`、`REVENUE_ALLOCATORS`、`TRANSACTION_PROCESSORS`、`PARTICIPANT_STRATEGIES`、`MARKET_SIMULATORS`。
 
-DataMarket 不负责：计算指标质量或内生估值，也不自行实现另一套货币类型和支付 schema。
+DataMarket 负责市场流程、参与者互动、激励、交易和收入分配，并沿用 DataEval、DataValue 与 DataPrice 的结果模型。
 
 [返回模块索引](#module-index)
 
@@ -364,7 +366,7 @@ DataMarket 不负责：计算指标质量或内生估值，也不自行实现另
 
 源码入口：[src/datavalor/data_query](src/datavalor/data_query)
 
-DataQuery 回答“获授权用户或 Agent 如何安全地使用数据并获得可追溯结果”。授权是执行前的硬接口，不是 prompt 中的一句文字。
+DataQuery 回答“获授权用户或 Agent 如何安全地使用数据并获得可追溯结果”。授权在执行前作为硬接口校验，prompt 只承载用户意图。
 
 ### 标准执行链
 
@@ -388,7 +390,7 @@ QueryRequest
 | `QueryPlanner` | `plan` | 把获批请求转换为可检查的 retrieval/computation 步骤 |
 | `QueryExecutor` | `execute` | 执行计划并保留完整 trace |
 | `ResultGuard` | `guard` | 应用行数限制、脱敏、聚合和结果政策 |
-| `DataAgent` | `run` | 编排上述阶段，但不能绕过授权和结果防护 |
+| `DataAgent` | `run` | 编排上述阶段并统一执行授权和结果防护 |
 
 ### 关键模型
 
@@ -398,7 +400,7 @@ QueryRequest
 
 `QUERY_AUTHORIZERS`、`QUERY_PLANNERS`、`QUERY_EXECUTORS`、`RESULT_GUARDS`、`DATA_AGENTS`。
 
-DataQuery 不负责：绕过 DataGov 的产品权利或把模型生成的 SQL 直接视为已授权查询。未来 DB-GPT、数据库 connector 或 LLM 能力应通过这些接口接入。
+DataQuery 的执行始终沿用 DataGov 的产品权利和授权结果，模型生成的 SQL 也需经过同一条执行链。未来 DB-GPT、数据库 connector 或 LLM 能力可通过这些接口接入。
 
 [返回模块索引](#module-index)
 
@@ -410,7 +412,7 @@ DataQuery 不负责：绕过 DataGov 的产品权利或把模型生成的 SQL �
 
 Toolkit 为研究和应用层提供公共入口，当前重导出 `ArtifactEnvelope`、`ArtifactRef`、`ArtifactStore`、`PipelineNode`、`PipelineSpec`、`PipelineRunner`、`Registry` 和 `RunContext`。具体公共工具分为 Benchmark、Analysis 和 Web UI 三个子模块。
 
-Toolkit 不负责：重新定义七个业务模块的结果语义，也不允许 benchmark runner 直接成为算法公共 API。
+七个业务模块继续维护各自的结果语义，Toolkit 提供共享的 artifact、pipeline、benchmark、analysis 和 Web UI 工具。
 
 [返回模块索引](#module-index)
 
@@ -432,10 +434,10 @@ component × case × repetition × metric
 |---|---|---|
 | `BenchmarkDataProvider` | `load` | 加载带 provenance 的真实、合成或缓存输入 |
 | `DataPerturbation` | `apply` | 确定性构造 shift、noise、split 或 resampling |
-| `BenchmarkMetric` | `measure` | 测量一次原始输出，不负责排行榜聚合 |
+| `BenchmarkMetric` | `measure` | 测量一次原始输出，聚合与排名由 benchmark 流程统一处理 |
 | `BenchmarkRunner` | `run` | 执行 component、case、repetition 实验矩阵 |
 
-关键模型为 `BenchmarkCase`、`BenchmarkSpec`、`BenchmarkObservation` 和 `BenchmarkReport`。原始 observation 与 aggregate 分开保存，不能只保留最终排行榜。
+关键模型为 `BenchmarkCase`、`BenchmarkSpec`、`BenchmarkObservation` 和 `BenchmarkReport`。原始 observation 与 aggregate 分开保存，方便复核每次实验并生成排行榜。
 
 ### 扩展 registry
 
@@ -451,7 +453,7 @@ Stage 1 已将数据 provider、shift/扰动和 split 能力落位到此处；�
 
 源码入口：[src/datavalor/toolkit/analysis](src/datavalor/toolkit/analysis)
 
-Analysis 消费已经落盘并带版本的 artifact，负责统计分析和方法比较，不负责重新运行被分析算法。
+Analysis 消费已经落盘并带版本的 artifact，集中进行统计分析和方法比较；算法运行由 benchmark 或业务模块负责。
 
 ### 具体接口
 
@@ -477,7 +479,7 @@ Stage 5 已将市场策略、有限轮仿真、welfare/revenue benchmark、boots
 
 源码入口：[src/datavalor/toolkit/webui](src/datavalor/toolkit/webui)
 
-Web UI 保持 framework-neutral，核心包不依赖 Streamlit、Gradio、FastAPI 或其他具体框架，也不会在 import 时启动服务器。
+Web UI 保持 framework-neutral，核心包通过可选的 Streamlit、Gradio、FastAPI 等适配器接入，服务器按应用配置启动。
 
 ### 具体接口
 
@@ -492,7 +494,7 @@ Web UI 保持 framework-neutral，核心包不依赖 Streamlit、Gradio、FastAP
 
 `VIEW_PROVIDERS`、`WEB_APPLICATION_FACTORIES`。
 
-Web UI 不负责：算法计算、治理决策和 artifact 存储；它只展示或触发已经通过公共接口声明的能力。
+Web UI 负责将公共接口转换为可交互的视图与操作，算法计算、治理决策和 artifact 存储仍由对应模块完成。
 
 [返回模块索引](#module-index)
 
@@ -500,7 +502,7 @@ Web UI 不负责：算法计算、治理决策和 artifact 存储；它只展示
 
 ## 最小扩展方式
 
-下面只演示接口与 registry 的使用，不是内置质量算法：
+下面用一个小例子演示接口与 registry 的使用方式：
 
 ```python
 from datavalor import ComponentSpec, RunContext
@@ -545,13 +547,13 @@ metric = QUALITY_METRICS.create("example.my_metric")
 - 最小配置与示例；
 - `ComponentSpec` capability 和可选依赖；
 - 算法来源、假设、复杂度和适用边界；
-- 如果由既有实现迁入，必须完成 DataValor 命名、接口、配置、产物和测试的完整改造，不保留原项目的包名、协议或路径。
+- 既有实现迁入时，需同步完成 DataValor 命名、接口、配置、产物和测试的改造，并将公共入口统一到 DataValor。
 
 <a id="installation"></a>
 
 ## 安装与验证
 
-仓库当前没有运行时依赖；开发环境可安装轻量测试依赖：
+基础安装保持轻量；开发环境可安装测试依赖：
 
 ```bash
 python -m pip install -e ".[dev]"
@@ -562,8 +564,8 @@ ruff check src tests
 
 当前契约测试覆盖：
 
-- 所有公共模块在没有可选依赖时可导入；
-- 所有扩展接口都是不能直接实例化的 ABC；
+- 所有公共模块在可选依赖缺席时仍可导入；
+- 所有扩展接口均采用需要具体实现才能实例化的 ABC；
 - registry 的延迟 factory、重名保护和 freeze；
 - artifact、evaluation、valuation、pricing 的语义边界；
 - 货币金额使用 `Decimal`；
@@ -577,25 +579,29 @@ ruff check src tests
 - [系统框架与接口设计](docs/interfaces.md)
 - [GitHub 项目调研与选型](docs/research/github_landscape.md)
 - [机器可读参考项目清单](docs/research/reference_projects.yaml)
+- [外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)
+- [外部仓库复用阶段配置](configs/integrations/external_repo_reuse.yaml)
 - [data_value_market_kit 代码筛选、迁移与改造方案](docs/research/dvmk_reuse.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 
-参考项目只作为调研对象列出，不表示 DIV Lab 或 DataValor 对其背书。仓库当前尚未迁移这些项目的代码、模型或数据；真正接入前仍需复核版本、许可证、数据权利与安全边界。
+参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后不作为运行时依赖，也不保留原项目的显式命名和协议。
+外部仓库的 adapter、optional dependency、SDK 和服务接入均处于设计阶段，详见[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)。这些依赖将在明确集成方案后按需启用。
+
+DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
 
 <a id="development-principles"></a>
 
 ## 开发原则
 
-- 质量评估、估值与定价是不同语义层，不把质量分数直接当作价格；
+- 质量评估、估值与定价保持各自语义层，价格计算引用明确的估值和市场证据；
 - 算法通过稳定协议和 registry 接入，benchmark 与算法实现解耦；
 - 运行产物包含 schema version、配置、随机种子、依赖版本、输入摘要和 provenance；
 - 一般外部能力优先采用 optional dependency、adapter、API 或服务边界；实验室自有实现可以完整迁入，但必须按 DataValor 接口和目录重构；
-- DVMK 的完整实现文件迁入后成为 `datavalor.*` 原生实现，不保留原包名、protocol、CLI 命令和固定路径；
+- DVMK 的完整实现文件迁入后成为 `datavalor.*` 原生实现，统一采用 DataValor 的包名、protocol、CLI 命令和路径；
 - 重型依赖不在公共包 import 阶段加载；
-- 算法层不直接绑定固定输出目录、数据库、Web 框架或 UI；
+- 算法层通过协议连接输出目录、数据库、Web 框架或 UI；
 - 原始数据、受限数据和大体积输出默认不提交到 Git。
 
 ## License

@@ -1,4 +1,3 @@
 # Example data
 
-Only small, redistributable, synthetic or explicitly licensed examples belong here. Every future dataset must document source, license, permitted uses, schema, checksum and whether commercial redistribution is allowed.
-
+这里存放体量较小、可再分发、合成或已明确授权的示例数据。新增数据时请记录来源、许可证、允许用途、schema、checksum，以及是否允许商业再分发。

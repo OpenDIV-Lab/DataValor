@@ -1,0 +1,135 @@
+schema_version: datavalor.external_repo_reuse_plan/v1
+status: design_only
+runtime_changes_in_this_plan: false
+base_install_requires_external_repos: false
+adapter_rules:
+  import_inside_adapter_method: true
+  expose_datavalor_models_only: true
+  translate_exceptions: true
+  preserve_evidence_and_lineage: true
+  prohibit_whole_repository_import: true
+  prohibit_external_cli_as_public_api: true
+repositories:
+  - id: pydvl
+    modules: [data_value, toolkit.benchmark]
+    priority: A
+    reuse_mode: optional_dependency_adapter
+    import_hint: import pydvl.valuation as pydvl_valuation
+    components: [shapley, semivalue, least_core, influence]
+    target_interfaces: [datavalor.data_value.ContributionValuator, datavalor.toolkit.benchmark.BenchmarkMetric]
+  - id: opendataval
+    modules: [data_value, toolkit.benchmark]
+    priority: A
+    reuse_mode: benchmark_adapter
+    import_hint: from opendataval import DataEvaluator as _ODVLEvaluator
+    components: [AME, DVRL, KNN_Shapley, LAVA, Data_OOB]
+    target_interfaces: [datavalor.data_value.DataValuator, datavalor.toolkit.benchmark.BenchmarkRunner]
+  - id: cleanlab
+    modules: [data_eval]
+    priority: A
+    reuse_mode: optional_operator_adapter
+    import_hint: from cleanlab import Datalab
+    components: [label_issues, outliers, duplicates]
+    target_interfaces: [datavalor.data_eval.QualityMetric]
+  - id: great_expectations
+    modules: [data_gov, data_eval]
+    priority: B
+    reuse_mode: external_engine_adapter
+    import_hint: import great_expectations as gx
+    components: [expectation, checkpoint, validation]
+    target_interfaces: [datavalor.data_gov.PolicyEvaluator, datavalor.data_eval.QualityMetric]
+  - id: evidently
+    modules: [data_eval, toolkit.analysis]
+    priority: B
+    reuse_mode: artifact_adapter
+    import_hint: from evidently import Report
+    components: [drift, test, report_snapshot]
+    target_interfaces: [datavalor.data_eval.QualityMetric, datavalor.toolkit.analysis.Analyzer]
+  - id: fg_data_profiling
+    modules: [data_prof]
+    priority: B
+    reuse_mode: profile_adapter
+    import_hint: import ydata_profiling as _profile
+    components: [dataframe_profile, field_statistics]
+    target_interfaces: [datavalor.data_prof.DataProfiler, datavalor.data_prof.ProfileMetric]
+  - id: torchmetrics
+    modules: [data_eval, toolkit.benchmark]
+    priority: B
+    reuse_mode: metric_state_adapter
+    import_hint: from torchmetrics import Metric
+    components: [stateful_metric, aggregation]
+    target_interfaces: [datavalor.data_eval.QualityMetric, datavalor.toolkit.benchmark.BenchmarkMetric]
+  - id: mesa
+    modules: [data_market, data_market.simulation]
+    priority: A
+    reuse_mode: optional_simulation_backend
+    import_hint: from mesa import Agent, Model
+    components: [agent, scheduler, datacollector]
+    target_interfaces: [datavalor.data_market.simulation.ParticipantStrategy, datavalor.data_market.simulation.MarketSimulator]
+  - id: datahub
+    modules: [data_gov]
+    priority: B
+    reuse_mode: api_connector
+    import_hint: from datahub.emitter.rest_emitter import DatahubRestEmitter
+    components: [metadata, lineage, ownership]
+    target_interfaces: [datavalor.data_gov.MetadataCatalog]
+  - id: openmetadata
+    modules: [data_gov, data_query]
+    priority: B
+    reuse_mode: api_connector
+    import_hint: REST_client
+    components: [catalog, lineage, governance]
+    target_interfaces: [datavalor.data_gov.MetadataCatalog, datavalor.data_query.QueryAuthorizer]
+  - id: pysyft
+    modules: [data_gov, data_market]
+    priority: B
+    reuse_mode: service_connector
+    import_hint: import syft as _syft
+    components: [owner_side_execution, permissions]
+    target_interfaces: [datavalor.data_gov.PolicyEvaluator, datavalor.data_market.TransactionProcessor]
+  - id: ocean_py
+    modules: [data_market]
+    priority: B
+    reuse_mode: protocol_adapter
+    import_hint: from ocean_lib import Ocean
+    components: [asset_registration, discovery, consumption]
+    target_interfaces: [datavalor.data_market.MarketCatalog, datavalor.data_market.TransactionProcessor]
+  - id: db_gpt
+    modules: [data_query]
+    priority: A
+    reuse_mode: connector_or_service_adapter
+    import_hint: HTTP_or_SDK_client
+    components: [connector, text_to_sql, agent_service]
+    target_interfaces: [datavalor.data_query.QueryPlanner, datavalor.data_query.DataAgent]
+  - id: wilds
+    modules: [toolkit.benchmark, data_eval]
+    priority: B
+    reuse_mode: benchmark_data_adapter
+    import_hint: from wilds import get_dataset
+    components: [dataset_loader, official_split, evaluator]
+    target_interfaces: [datavalor.toolkit.benchmark.BenchmarkDataProvider]
+stages:
+  - id: external_e0_boundary
+    title: 依赖边界与 capability probe
+    repositories: [pydvl, opendataval, cleanlab, great_expectations, evidently, fg_data_profiling, torchmetrics, mesa]
+    deliverables: [optional_extras, capability_probe, missing_dependency_errors, import_audit]
+  - id: external_e1_eval_profile
+    title: DataEval/DataProf 外部算子
+    repositories: [cleanlab, great_expectations, evidently, fg_data_profiling, torchmetrics]
+    deliverables: [quality_adapters, evidence_mapping, profile_adapter, metric_tests]
+  - id: external_e2_value_benchmark
+    title: DataValue 与估值 Benchmark
+    repositories: [pydvl, opendataval, wilds]
+    deliverables: [valuation_adapters, benchmark_cases, paired_comparison, uncertainty_mapping]
+  - id: external_e3_governance_connectors
+    title: DataGov 目录、血缘和规模验证
+    repositories: [datahub, openmetadata, great_expectations]
+    deliverables: [catalog_connectors, lineage_emitters, offline_mocks, timeout_retry_audit]
+  - id: external_e4_market_simulation
+    title: DataMarket/Simulation 外部后端
+    repositories: [mesa, pysyft, ocean_py]
+    deliverables: [simulation_backend, owner_side_execution, market_connector, rights_checks]
+  - id: external_e5_query_integration
+    title: DataQuery 和生产化集成
+    repositories: [db_gpt, vanna]
+    deliverables: [query_connector, authorization_gate, result_guard, trace_lineage]
