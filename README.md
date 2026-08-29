@@ -467,7 +467,7 @@ Analysis 消费已经落盘并带版本的 artifact，负责统计分析和方�
 
 `ANALYZERS`、`RESULT_COMPARATORS`、`FRONTIER_ANALYZERS`。
 
-Stage 5 已将市场策略、有限轮仿真、welfare/revenue benchmark、bootstrap、paired comparison 和 Pareto 分析能力落位到这些接口。
+Stage 5 已将市场策略、有限轮仿真、welfare/revenue benchmark、bootstrap、paired comparison 和 Pareto 分析能力落位到这些接口。Stage 6 进一步提供 DataValor 原生 CLI、配置和插件加载入口。
 
 [返回模块索引](#module-index)
 

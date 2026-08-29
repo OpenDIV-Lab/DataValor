@@ -1,0 +1,8 @@
+{
+  "uri": "data/examples/text.jsonl",
+  "product": {
+    "product_id": "text-demo",
+    "title": "DataValor text example",
+    "owner_id": "div-lab"
+  }
+}

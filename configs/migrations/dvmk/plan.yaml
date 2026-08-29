@@ -279,7 +279,7 @@ stages:
 
   - id: stage_06_native_integration
     title: DataValor 原生 CLI、示例、插件与发布集成
-    status: planned
+    status: completed
     scope: complete_source_files
     depends_on: [stage_05_market_benchmark_analysis]
     source_paths: [src/dvmk/cli.py, configs/, examples/, plugins/, tests/]

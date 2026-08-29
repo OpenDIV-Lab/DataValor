@@ -28,6 +28,9 @@ dev = ["pytest>=7", "ruff>=0.4"]
 Homepage = "https://github.com/DIV-Lab/DataValor"
 Repository = "https://github.com/DIV-Lab/DataValor"
 
+[project.scripts]
+datavalor = "datavalor.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

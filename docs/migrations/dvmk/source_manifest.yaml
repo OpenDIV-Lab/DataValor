@@ -135,3 +135,29 @@ batches:
       - ported bootstrap, paired comparison and Pareto frontier helpers
     tests_migrated: [tests/test_stage45_pricing_market_analysis.py]
     status: completed
+  - batch_id: stage_06_native_integration_v1
+    source_paths:
+      - src/dvmk/cli.py
+      - configs/
+      - examples/
+      - plugins/
+      - tests/
+    target_paths:
+      - src/datavalor/cli/
+      - configs/cli/
+      - examples/
+      - plugins/
+      - tests/test_stage6_cli.py
+    target_interfaces:
+      - datavalor.core.PipelineRunner
+      - datavalor.core.Registry
+      - datavalor.toolkit.benchmark.BenchmarkSpec
+    changes:
+      - rebuilt the command line entry point as datavalor CLI
+      - added JSON/YAML configuration loading and local plugin loading
+      - added profile and evaluate commands using DataValor public interfaces
+      - migrated runnable configuration and example documentation
+      - added CLI smoke tests and removed source command naming
+    tests_migrated:
+      - tests/test_stage6_cli.py
+    status: completed
