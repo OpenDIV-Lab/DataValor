@@ -101,3 +101,37 @@ batches:
     tests_migrated:
       - tests/test_stage23_evaluation_valuation.py
     status: completed
+  - batch_id: stage_04_pricing_mechanisms_v1
+    source_paths: [src/dvmk/pricing/]
+    target_paths: [src/datavalor/data_price/mechanisms.py]
+    target_interfaces:
+      - datavalor.data_price.PricingMechanism
+      - datavalor.data_price.PriceConstraint
+      - datavalor.data_price.OnlinePricingModel
+    changes:
+      - ported auction, posted-price, VCG, procurement and projection implementations
+      - normalized monetary arithmetic to Decimal-backed Money
+    tests_migrated: [tests/test_stage45_pricing_market_analysis.py]
+    status: completed
+  - batch_id: stage_05_market_benchmark_analysis_v1
+    source_paths:
+      - src/dvmk/simulation/
+      - src/dvmk/benchmark/
+      - src/dvmk/analysis/
+    target_paths:
+      - src/datavalor/data_market/simulation/
+      - src/datavalor/toolkit/benchmark/market.py
+      - src/datavalor/toolkit/analysis/
+    target_interfaces:
+      - datavalor.data_market.simulation.ParticipantStrategy
+      - datavalor.data_market.simulation.MarketSimulator
+      - datavalor.toolkit.benchmark.BenchmarkMetric
+      - datavalor.toolkit.benchmark.BenchmarkRunner
+      - datavalor.toolkit.analysis.Analyzer
+      - datavalor.toolkit.analysis.FrontierAnalyzer
+    changes:
+      - ported participant strategy families and finite multi-round simulation
+      - ported welfare/revenue benchmark measurements and repetition matrix runner
+      - ported bootstrap, paired comparison and Pareto frontier helpers
+    tests_migrated: [tests/test_stage45_pricing_market_analysis.py]
+    status: completed

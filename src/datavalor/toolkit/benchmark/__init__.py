@@ -11,6 +11,7 @@ from .data_sources import (
     SklearnGeneratorProvider,
 )
 from .interfaces import BenchmarkDataProvider, BenchmarkMetric, BenchmarkRunner, DataPerturbation
+from .market import MarketOutcomeMetric, MatrixBenchmarkRunner
 from .models import BenchmarkCase, BenchmarkObservation, BenchmarkReport, BenchmarkSpec
 from .registry import (
     BENCHMARK_DATA_PROVIDERS,
@@ -41,4 +42,6 @@ __all__ = [
     "SklearnGeneratorProvider",
     "apply_perturbations",
     "split_records",
+    "MarketOutcomeMetric",
+    "MatrixBenchmarkRunner",
 ]

@@ -312,7 +312,7 @@ DataPrice 回答“在给定估值证据、权利、报价、供需和机制规�
 
 `PRICING_MODELS`、`ONLINE_PRICING_MODELS`、`PRICE_CONSTRAINTS`、`PRICING_MECHANISMS`。
 
-DataPrice 不负责：listing 生命周期、参与者数据库、数据交付和结算执行。未来 DVMK 的 VCG、McAfee、posted price、procurement、core-selecting 和 contextual-bandit pricing 应迁入此模块。
+DataPrice 不负责：listing 生命周期、参与者数据库、数据交付和结算执行。Stage 4 已将 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束实现落位到此模块；后续继续补充机制性质测试。
 
 [返回模块索引](#module-index)
 
@@ -467,7 +467,7 @@ Analysis 消费已经落盘并带版本的 artifact，负责统计分析和方�
 
 `ANALYZERS`、`RESULT_COMPARATORS`、`FRONTIER_ANALYZERS`。
 
-未来 DVMK 的 paired bootstrap、统计汇总、failure witness 和 Pareto 分析可以按这些接口迁入。
+Stage 5 已将市场策略、有限轮仿真、welfare/revenue benchmark、bootstrap、paired comparison 和 Pareto 分析能力落位到这些接口。
 
 [返回模块索引](#module-index)
 

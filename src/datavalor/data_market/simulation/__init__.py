@@ -7,6 +7,17 @@ from .models import (
     SimulationStep,
     StrategyDecision,
 )
+from .runner import FiniteMarketSimulator
+from .strategies import (
+    AdaptiveShadingStrategy,
+    BestResponseGridStrategy,
+    BudgetPacingStrategy,
+    ContextualShadingStrategy,
+    EpsilonGreedyShadingStrategy,
+    FixedShadingStrategy,
+    MultiplicativeWeightsStrategy,
+    TruthfulStrategy,
+)
 
 __all__ = [
     "MarketObservation",
@@ -15,4 +26,13 @@ __all__ = [
     "SimulationReport",
     "SimulationStep",
     "StrategyDecision",
+    "FiniteMarketSimulator",
+    "AdaptiveShadingStrategy",
+    "BestResponseGridStrategy",
+    "BudgetPacingStrategy",
+    "ContextualShadingStrategy",
+    "EpsilonGreedyShadingStrategy",
+    "FixedShadingStrategy",
+    "MultiplicativeWeightsStrategy",
+    "TruthfulStrategy",
 ]

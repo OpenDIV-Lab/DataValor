@@ -4,7 +4,7 @@
 
 机器可读总计划：[configs/migrations/dvmk/plan.yaml](../../../configs/migrations/dvmk/plan.yaml)
 
-当前执行状态：Stage 0（完整文件盘点与公共契约）、Stage 1（基础设施、数据产品、数据源与扰动）、Stage 2（评估与任务效用的选定实现）和 Stage 3（估值与贡献度的选定实现）已完成；对应实现已经落位到 `src/datavalor`，后续阶段仍为计划状态。
+当前执行状态：Stage 0（完整文件盘点与公共契约）、Stage 1（基础设施、数据产品、数据源与扰动）、Stage 2（评估与任务效用的选定实现）、Stage 3（估值与贡献度的选定实现）、Stage 4（定价机制的选定实现）和 Stage 5（市场仿真、Benchmark 与分析的选定实现）已完成；对应实现已经落位到 `src/datavalor`，Stage 6 仍为计划状态。
 
 ## 1. 迁移原则
 

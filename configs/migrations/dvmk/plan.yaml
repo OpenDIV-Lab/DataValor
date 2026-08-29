@@ -180,6 +180,7 @@ stages:
         target_interface: datavalor.data_value.TrainableValuator
         refactor: separate_fit_from_value_and_record_expression_reflection_history
     tests:
+      - tests/test_stage45_pricing_market_analysis.py
       - data_value_market_kit/tests/test_advanced_pricing_valuation.py
       - data_value_market_kit/tests/test_remaining_phases.py
     acceptance:
@@ -189,8 +190,8 @@ stages:
 
   - id: stage_04_pricing_mechanisms
     title: 定价模型与市场机制
-    status: planned
-    scope: complete_source_files
+    status: completed
+    scope: selected_implementations
     depends_on: [stage_03_valuation_and_contribution]
     source_paths:
       - src/dvmk/pricing/base.py
@@ -234,8 +235,8 @@ stages:
 
   - id: stage_05_market_benchmark_analysis
     title: 市场仿真、Benchmark 与统计分析
-    status: planned
-    scope: complete_source_files
+    status: completed
+    scope: selected_implementations
     depends_on: [stage_04_pricing_mechanisms]
     source_paths:
       - src/dvmk/simulation/
@@ -267,6 +268,7 @@ stages:
         target_interface: datavalor.toolkit.analysis.Analyzer
         refactor: artifact_refs_assumptions_warnings_and_failure_witnesses
     tests:
+      - tests/test_stage45_pricing_market_analysis.py
       - data_value_market_kit/tests/test_market_benchmark_phase_three.py
       - data_value_market_kit/tests/test_simulation_analysis_phases_four_five.py
       - data_value_market_kit/tests/test_remaining_phases.py
