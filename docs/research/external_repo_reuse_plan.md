@@ -1,6 +1,6 @@
 # 外部开源仓库功能复用规划
 
-本文面向 DataValor 后续的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1–E5 仍只完成调研、接口设计和阶段规划，不新增具体外部后端、不复制外部仓库源码。
+本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
 
 ## 1. 复用边界
 
@@ -97,6 +97,22 @@ DataValor request/model
 - TorchMetrics 聚合指标；
 - 统一 `MetricResult`、`Evidence`、`GovernanceFinding`。
 
+当前实现位于 `src/datavalor/data_eval/backends/` 与
+`src/datavalor/data_prof/backends/`：
+
+| 适配器 | 外部 API 选择 | DataValor 输出 |
+|---|---|---|
+| `CleanlabQualityMetric` | 优先 `Datalab(data=..., labels=...).find_issues()`，旧版回退 `cleanlab.filter.find_label_issues` | issue rate、样本级 `Evidence` |
+| `GreatExpectationsMetric` | 注入 validator；否则 `great_expectations.validate` 或 `from_pandas(...).validate()` | expectation pass rate、失败证据 |
+| `GreatExpectationsPolicyEvaluator` | 复用上述验证并映射政策决策 | `GovernanceReport/Finding` |
+| `EvidentlyDriftMetric` | 注入 runner；否则 `Report(...).run(current_data, reference_data)` | drift-free rate、报告快照证据 |
+| `FgDataProfiler` | 注入 builder；否则 `ydata_profiling.ProfileReport` 的 `to_dict/get_description/to_json` | `DatasetProfile/FieldProfile` |
+| `TorchMetricsAdapter` | 外部 `Metric.update(...); compute()` 生命周期 | `MetricResult` |
+
+每个适配器的外部模块都通过 `require_capability` 在执行方法内延迟导入；测试使用
+callable 注入，不需要联网或预装第三方包。适配器只暴露 DataValor 模型，外部
+DataFrame、报告和 metric state 不会泄漏到公共接口。
+
 验收：每个 adapter 都能在依赖缺失时安全导入，在依赖存在时返回 DataValor schema，并保留样本/字段证据。
 
 ### 阶段 E2：DataValue 和估值 Benchmark
@@ -178,5 +194,18 @@ class ExternalQualityAdapter(QualityMetric):
 - 依赖安装和联网调用在具体集成批次中按配置执行。
 
 ## 7. 当前结论
+
+截至 E1，已完成的运行时代码与验证如下：
+
+- `data_eval.backends.cleanlab`：Cleanlab `Datalab`/旧版 `find_label_issues` 双路径；
+- `data_eval.backends.great_expectations` 与 `data_gov.backends.great_expectations`：验证指标及治理决策适配；
+- `data_eval.backends.evidently`：报告运行、drift 指标递归提取和快照证据；
+- `data_prof.backends.fg_profile`：ProfileReport 的字典/描述/JSON 多种输出格式转换；
+- `data_eval.backends.torchmetrics`：`update(preds, target)` 与 `compute()` 生命周期桥接；
+- 4 个离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 76 项通过。
+
+所有实现均不在模块导入阶段加载第三方库；未安装依赖时仅在选中适配器执行时报告
+`CapabilityUnavailableError`。这些适配器不会把外部 DataFrame、报告对象或 metric state
+暴露给 DataValor 调用方。
 
 第一优先级是 E1 的 Cleanlab/Great Expectations/Evidently 与 E2 的 pyDVL/OpenDataVal；它们可以显著扩充 DataEval、DataValue 和 Benchmark，同时保持 DataValor 核心模型稳定。Mesa 适合在市场仿真复杂度超过当前有限轮模拟器后接入。DataHub、OpenMetadata、PySyft、Ocean.py、DB-GPT 属于平台或服务级能力，继续放在 connector 边界。Vanna、AI Economist 等归档项目列入观察名单。

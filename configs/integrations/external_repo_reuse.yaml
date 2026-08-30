@@ -1,6 +1,6 @@
 schema_version: datavalor.external_repo_reuse_plan/v1
-status: e0_completed
-runtime_changes_in_this_plan: capability_infrastructure_only
+status: e1_completed
+runtime_changes_in_this_plan: e0_capability_boundary_and_e1_eval_profile_adapters
 base_install_requires_external_repos: false
 adapter_rules:
   import_inside_adapter_method: true
@@ -118,7 +118,18 @@ stages:
     title: DataEval/DataProf 外部算子
     repositories: [cleanlab, great_expectations, evidently, fg_data_profiling, torchmetrics]
     deliverables: [quality_adapters, evidence_mapping, profile_adapter, metric_tests]
-    status: planned
+    status: completed
+    implementation:
+      adapters:
+        - datavalor.data_eval.backends.cleanlab.CleanlabQualityMetric
+        - datavalor.data_eval.backends.great_expectations.GreatExpectationsMetric
+        - datavalor.data_eval.backends.great_expectations.GreatExpectationsPolicyEvaluator
+        - datavalor.data_eval.backends.evidently.EvidentlyDriftMetric
+        - datavalor.data_prof.backends.fg_profile.FgDataProfiler
+        - datavalor.data_eval.backends.torchmetrics.TorchMetricsAdapter
+      import_policy: delayed_require_capability_or_injected_runner
+      output_models: [MetricResult, Evidence, GovernanceReport, GovernanceFinding, DatasetProfile, FieldProfile]
+      offline_test_mode: callable_injection
   - id: external_e2_value_benchmark
     title: DataValue 与估值 Benchmark
     repositories: [pydvl, opendataval, wilds]

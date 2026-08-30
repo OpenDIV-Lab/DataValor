@@ -249,6 +249,17 @@ DataEval 回答“数据在明确维度、粒度和任务下表现如何”。�
 
 DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别在 DataValue、DataMarket 与 DataPrice 中生成。Stage 2 已将代表性的文本指标、字段统计和 task utility 能力落位到此处；其余评估算子按相同 DataEval 契约继续扩展。
 
+### E1 外部评估适配器
+
+`datavalor.data_eval.backends` 提供可选的外部算子封装：
+
+- `CleanlabQualityMetric`：将 Cleanlab 的 label issue/outlier 结果转为 issue rate 与样本级 `Evidence`；
+- `GreatExpectationsMetric`：将 expectation/checkpoint 验证转为 pass rate；`GreatExpectationsPolicyEvaluator` 可进一步生成 `GovernanceReport`；
+- `EvidentlyDriftMetric`：将 `Report.run` 的 drift 结果转为 drift-free rate，并保留报告快照；
+- `TorchMetricsAdapter`：桥接 TorchMetrics 的 `update`/`compute` 状态生命周期。
+
+这些类只在执行方法中加载第三方包，也支持注入 validator、runner、detector 或 metric，便于离线测试和跨版本适配。未安装 optional extra 时，核心包仍可导入，执行时会抛出明确的 `CapabilityUnavailableError`。
+
 [返回模块索引](#module-index)
 
 <a id="module-datavalue"></a>
@@ -587,7 +598,7 @@ ruff check src tests
 
 参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-外部仓库的 adapter、optional dependency、SDK 和服务接入均处于设计阶段，详见[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)。这些依赖将在明确集成方案后按需启用。
+E0 的可选依赖边界与 capability probe、E1 的 DataEval/DataProf 适配器已经落地；后续 E2–E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)分阶段启用。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
 
 DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
 

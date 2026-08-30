@@ -12,6 +12,10 @@ from .operators import FieldSummaryMetric, LexicalDiversityMetric, lexical_diver
 from .registry import EVALUATORS, QUALITY_METRICS, TASK_UTILITY_EVALUATORS
 from .task_utility import CallableTaskUtility, RecordCountUtility
 
+# Optional backends are imported lazily by users from ``data_eval.backends``;
+# these names are intentionally not imported here to keep the core import
+# dependency-free.
+
 __all__ = [
     "EVALUATORS",
     "QUALITY_METRICS",

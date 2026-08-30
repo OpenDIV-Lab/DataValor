@@ -1,6 +1,6 @@
 # DataValor GitHub 开源项目调研
 
-> 本报告记录候选项目及其在 DataValor 中的 adapter、optional dependency、SDK 或服务边界。具体 import 形态、模块映射和阶段交付见[外部仓库功能复用规划](external_repo_reuse_plan.md)及[机器可读阶段配置](../../configs/integrations/external_repo_reuse.yaml)。当前处于设计阶段，依赖会在选型确认后按需引入。
+> 本报告记录候选项目及其在 DataValor 中的 adapter、optional dependency、SDK 或服务边界。具体 import 形态、模块映射和阶段交付见[外部仓库功能复用规划](external_repo_reuse_plan.md)及[机器可读阶段配置](../../configs/integrations/external_repo_reuse.yaml)。E0/E1 的能力边界与评估/画像适配器已实现，其余依赖会在选型确认后按阶段引入。
 
 ## 一、筛选标准
 
