@@ -2,6 +2,7 @@
 
 from .artifact import ArtifactEnvelope, ArtifactRef, ArtifactStatus, Evidence
 from .artifact_store import LocalArtifactStore
+from .capabilities import CapabilityStatus, probe_capabilities, probe_capability, require_capability
 from .component import BaseComponent, Component, ComponentSpec
 from .context import RunContext
 from .exceptions import (
@@ -49,6 +50,7 @@ __all__ = [
     "LocalArtifactStore",
     "BaseComponent",
     "CapabilityUnavailableError",
+    "CapabilityStatus",
     "Component",
     "ComponentNotFoundError",
     "ComponentSpec",
@@ -82,4 +84,7 @@ __all__ = [
     "start_run",
     "write_json",
     "write_jsonl",
+    "probe_capability",
+    "probe_capabilities",
+    "require_capability",
 ]

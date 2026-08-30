@@ -1,6 +1,6 @@
 schema_version: datavalor.external_repo_reuse_plan/v1
-status: design_only
-runtime_changes_in_this_plan: false
+status: e0_completed
+runtime_changes_in_this_plan: capability_infrastructure_only
 base_install_requires_external_repos: false
 adapter_rules:
   import_inside_adapter_method: true
@@ -113,23 +113,29 @@ stages:
     title: 依赖边界与 capability probe
     repositories: [pydvl, opendataval, cleanlab, great_expectations, evidently, fg_data_profiling, torchmetrics, mesa]
     deliverables: [optional_extras, capability_probe, missing_dependency_errors, import_audit]
+    status: completed
   - id: external_e1_eval_profile
     title: DataEval/DataProf 外部算子
     repositories: [cleanlab, great_expectations, evidently, fg_data_profiling, torchmetrics]
     deliverables: [quality_adapters, evidence_mapping, profile_adapter, metric_tests]
+    status: planned
   - id: external_e2_value_benchmark
     title: DataValue 与估值 Benchmark
     repositories: [pydvl, opendataval, wilds]
     deliverables: [valuation_adapters, benchmark_cases, paired_comparison, uncertainty_mapping]
+    status: planned
   - id: external_e3_governance_connectors
     title: DataGov 目录、血缘和规模验证
     repositories: [datahub, openmetadata, great_expectations]
     deliverables: [catalog_connectors, lineage_emitters, offline_mocks, timeout_retry_audit]
+    status: planned
   - id: external_e4_market_simulation
     title: DataMarket/Simulation 外部后端
     repositories: [mesa, pysyft, ocean_py]
     deliverables: [simulation_backend, owner_side_execution, market_connector, rights_checks]
+    status: planned
   - id: external_e5_query_integration
     title: DataQuery 和生产化集成
     repositories: [db_gpt, vanna]
     deliverables: [query_connector, authorization_gate, result_guard, trace_lineage]
+    status: planned

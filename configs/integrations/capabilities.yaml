@@ -1,0 +1,39 @@
+schema_version: datavalor.capabilities/v1
+base_install_requires_external_repos: false
+probe_policy:
+  import_only_at_execution: true
+  no_network_calls: true
+  no_silent_fallback: true
+capabilities:
+  - name: pydvl
+    module: pydvl
+    distribution: pydvl
+    extra: pydvl
+  - name: opendataval
+    module: opendataval
+    distribution: opendataval
+    extra: valuation
+  - name: cleanlab
+    module: cleanlab
+    distribution: cleanlab
+    extra: quality
+  - name: great_expectations
+    module: great_expectations
+    distribution: great-expectations
+    extra: quality
+  - name: evidently
+    module: evidently
+    distribution: evidently
+    extra: quality
+  - name: fg_data_profiling
+    module: ydata_profiling
+    distribution: ydata-profiling
+    extra: profiling
+  - name: torchmetrics
+    module: torchmetrics
+    distribution: torchmetrics
+    extra: torch
+  - name: mesa
+    module: mesa
+    distribution: mesa
+    extra: simulation

@@ -23,3 +23,6 @@ __all__ = [
     "Registry",
     "RunContext",
 ]
+from .capabilities import DEFAULT_EXTERNAL_CAPABILITIES, probe_external_capabilities
+
+__all__ = ["DEFAULT_EXTERNAL_CAPABILITIES", "probe_external_capabilities"]

@@ -1,6 +1,6 @@
 # 外部开源仓库功能复用规划
 
-本文面向 DataValor 后续的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。当前完成调研、接口设计和阶段规划，外部依赖将在方案确定后按需接入。
+本文面向 DataValor 后续的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1–E5 仍只完成调研、接口设计和阶段规划，不新增具体外部后端、不复制外部仓库源码。
 
 ## 1. 复用边界
 
@@ -85,6 +85,8 @@ DataValor request/model
 - 增加 optional dependency group，但不改变基础安装；
 - 定义缺少依赖、版本不兼容、服务不可达时的明确异常；
 - 增加 import audit，确保核心包不加载外部重型依赖。
+
+当前实现：`datavalor.core.capabilities` 提供 `probe_capability`、`probe_capabilities`、`require_capability` 和 `CapabilityStatus`；`datavalor.toolkit.probe_external_capabilities` 提供统一清单探测。对应配置见 `configs/integrations/capabilities.yaml`。
 
 ### 阶段 E1：DataEval/DataProf 外部算子
 
