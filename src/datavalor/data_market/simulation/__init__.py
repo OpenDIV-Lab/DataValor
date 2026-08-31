@@ -1,5 +1,6 @@
 """Reproducible market and participant simulations."""
 
+from .backends import MesaMarketSimulator
 from .interfaces import MarketSimulator, ParticipantStrategy
 from .models import (
     MarketObservation,
@@ -35,4 +36,5 @@ __all__ = [
     "FixedShadingStrategy",
     "MultiplicativeWeightsStrategy",
     "TruthfulStrategy",
+    "MesaMarketSimulator",
 ]

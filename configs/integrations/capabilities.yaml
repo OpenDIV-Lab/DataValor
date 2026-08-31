@@ -61,3 +61,11 @@ capabilities:
     module: pydeequ
     distribution: pydeequ
     extra: governance
+  - name: syft
+    module: syft
+    distribution: syft
+    extra: governance
+  - name: ocean_py
+    module: ocean_lib
+    distribution: ocean-lib
+    extra: market

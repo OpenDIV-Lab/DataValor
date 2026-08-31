@@ -1,6 +1,6 @@
 schema_version: datavalor.external_repo_reuse_plan/v1
-status: e3_completed
-runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_e2_value_benchmark_and_e3_governance_connectors
+status: e4_completed
+runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_e2_value_benchmark_e3_governance_and_e4_market_backends
 base_install_requires_external_repos: false
 adapter_rules:
   import_inside_adapter_method: true
@@ -175,7 +175,20 @@ stages:
     title: DataMarket/Simulation 外部后端
     repositories: [mesa, pysyft, ocean_py]
     deliverables: [simulation_backend, owner_side_execution, market_connector, rights_checks]
-    status: planned
+    status: completed
+    implementation:
+      adapters:
+        - datavalor.data_market.simulation.backends.mesa.MesaMarketSimulator
+        - datavalor.data_gov.backends.syft.SyftOwnerExecution
+        - datavalor.data_gov.backends.syft.SyftPolicyEvaluator
+        - datavalor.data_market.backends.syft.SyftTransactionProcessor
+        - datavalor.data_market.backends.ocean.OceanMarketCatalog
+        - datavalor.data_market.backends.ocean.OceanTransactionProcessor
+      import_policy: delayed_require_capability_or_injected_client
+      output_models: [MarketSnapshot, SimulationStep, SimulationReport, GovernanceReport, TransactionRecord, Listing]
+      transport_controls: [timeout, bounded_retry, rights_check, audit_diagnostics]
+      offline_test_mode: injected_model_client_executor
+      external_object_leakage: prohibited
   - id: external_e5_query_integration
     title: DataQuery 和生产化集成
     repositories: [db_gpt, vanna]

@@ -18,6 +18,8 @@ DEFAULT_EXTERNAL_CAPABILITIES = (
     {"name": "datahub_mcp", "module": "datahub.emitter.mcp", "distribution": "acryl-datahub"},
     {"name": "openmetadata", "module": "metadata.ingestion.ometa.ometa_api", "distribution": "openmetadata-ingestion"},
     {"name": "pydeequ", "module": "pydeequ", "distribution": "pydeequ"},
+    {"name": "syft", "module": "syft", "distribution": "syft"},
+    {"name": "ocean_py", "module": "ocean_lib", "distribution": "ocean-lib"},
 )
 
 

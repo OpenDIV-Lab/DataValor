@@ -393,6 +393,22 @@ DataMarket 回答“数据产品如何注册和发现，市场参与者如何行
 
 DataMarket 负责市场流程、参与者互动、激励、交易和收入分配，并沿用 DataEval、DataValue 与 DataPrice 的结果模型。
 
+### E4 外部市场与仿真适配器
+
+可选 backend 位于 `datavalor.data_market.simulation.backends`、
+`datavalor.data_market.backends` 和 `datavalor.data_gov.backends`：
+
+- `MesaMarketSimulator`：使用 Mesa 的 `Model.step` 作为调度层，但每轮仍通过 DataValor 的 `MarketObservation`、`StrategyDecision`、`PricingRequest` 和 `SimulationStep` 完成；
+- `SyftOwnerExecution`：把 owner-side 远程执行限制在显式 executor/client 边界；
+- `SyftPolicyEvaluator`：先依据 `RightsBundle.purposes` 做本地权限判断，再可选调用 PySyft checker；
+- `SyftTransactionProcessor`：将 PySyft 执行状态转换为 `TransactionRecord`；
+- `OceanMarketCatalog`：将 Ocean asset 注册、发现和下架流程映射为 `Listing`；
+- `OceanTransactionProcessor`：将 Ocean consume 结果映射为 `TransactionRecord`。
+
+Mesa/PySyft/Ocean 的 Agent、Domain、Datasite、asset 和 service 对象不会暴露给 DataValor
+公共 API。区块链写入、远程执行和数据消费必须由调用方注入 client/executor，不会在
+构造或导入阶段自动联网。
+
 [返回模块索引](#module-index)
 
 <a id="module-dataquery"></a>
@@ -609,6 +625,8 @@ ruff check src tests
 
 ```bash
 python -m pip install -e ".[governance]"
+python -m pip install -e ".[simulation]"  # Mesa
+python -m pip install -e ".[market]"      # Ocean.py/ocean-lib
 ```
 
 该 extra 包含 DataHub、OpenMetadata 和 PyDeequ SDK；Spark 集群、DataHub/OpenMetadata
@@ -639,7 +657,7 @@ python -m pip install -e ".[governance]"
 
 参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器、E2 的 DataValue/Benchmark 适配器和 E3 的 DataGov connector 已经落地；后续 E4–E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)分阶段启用。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
+E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器、E2 的 DataValue/Benchmark 适配器、E3 的 DataGov connector 和 E4 的 DataMarket/Simulation connector 已经落地；后续 E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)推进。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
 
 DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
 

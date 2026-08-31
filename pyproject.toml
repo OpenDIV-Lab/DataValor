@@ -30,6 +30,7 @@ benchmark = ["wilds>=2.0"]
 governance = ["acryl-datahub>=0.13", "openmetadata-ingestion>=1.5", "pydeequ>=1.2"]
 torch = ["torchmetrics>=1.0"]
 simulation = ["mesa>=2.0"]
+market = ["ocean-lib>=0.1"]
 
 [project.urls]
 Homepage = "https://github.com/DIV-Lab/DataValor"

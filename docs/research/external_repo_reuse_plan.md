@@ -1,6 +1,6 @@
 # 外部开源仓库功能复用规划
 
-本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器；E3 已落地 DataHub、OpenMetadata 与 Deequ/Spark 的治理 connector。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
+本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器；E3 已落地 DataHub、OpenMetadata 与 Deequ/Spark 的治理 connector；E4 已落地 Mesa、PySyft 与 Ocean.py 的市场和仿真 adapter。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
 
 ## 1. 复用边界
 
@@ -172,6 +172,22 @@ pyDVL 结果中的 `indices`、`values` 和可选 `stderr` 会分别进入目标
 - Ocean.py asset/service market adapter；
 - 与 DataValor `MarketSimulator`、`TransactionProcessor` 和 rights 模型对齐。
 
+当前实现：
+
+| 适配器 | 复用方式 | DataValor 输出 |
+|---|---|---|
+| `MesaMarketSimulator` | 复用 Mesa `Model.step` 调度；participant 决策、价格机制和快照仍由 DataValor 处理 | `SimulationStep/SimulationReport` |
+| `SyftOwnerExecution` | 注入 owner-side executor；真实部署才延迟加载 `syft` | 普通 mapping（供受治理执行链消费） |
+| `SyftPolicyEvaluator` | rights/purpose 本地硬检查，可选调用 owner-side checker | `GovernanceReport/GovernanceFinding` |
+| `SyftTransactionProcessor` | 注入 PySyft execute/client，封装远程交付状态 | `TransactionRecord` |
+| `OceanMarketCatalog` | 注入 Ocean client；真实环境延迟加载 `ocean_lib`，仅映射 asset 注册/发现/下架 | `Listing` |
+| `OceanTransactionProcessor` | 注入 consume/client，封装链上消费结果 | `TransactionRecord` |
+
+Mesa 的 Agent/Model/collector、PySyft 的 Domain/Datasite 对象以及 Ocean 的 asset/service
+对象均不进入 DataValor 公共模型。市场 connector 使用有限重试与 timeout；区块链写入、
+数据消费和 owner-side 执行都必须由调用方显式配置 client/executor，不会在导入或构造阶段
+自动联网。
+
 验收：外部仿真结果转换为 `SimulationStep` 和 `PricingOutcome`，用户侧统一使用 DataValor schema。
 
 ### 阶段 E5：DataQuery 和生产化集成
@@ -238,10 +254,13 @@ class ExternalQualityAdapter(QualityMetric):
 - `toolkit.benchmark.backends.wilds`：官方数据集/split 与可移植 artifact；
 - `data_gov.backends.datahub` 与 `openmetadata`：目录、字段和 ownership 映射；
 - `data_gov.backends.deequ`：Spark/Deequ 约束 artifact 与治理决策；
-- E1/E2/E3 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 82 项通过。
+- `data_market.simulation.backends.mesa`：Mesa 调度与 DataValor 市场快照桥接；
+- `data_gov.backends.syft`、`data_market.backends.syft`：owner-side 权限和交易执行边界；
+- `data_market.backends.ocean`：资产目录与消费 connector；
+- E1–E4 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 85 项通过。
 
 所有实现均不在模块导入阶段加载第三方库；未安装依赖时仅在选中适配器执行时报告
 `CapabilityUnavailableError`。这些适配器不会把外部 DataFrame、报告对象或 metric state
 暴露给 DataValor 调用方。
 
-E1、E2 和 E3 已分别扩充 DataEval/DataProf、DataValue/Benchmark 与 DataGov，同时保持 DataValor 核心模型稳定。下一阶段是 E4 的 Mesa/PySyft/Ocean.py 市场仿真和交易 connector。DB-GPT 属于 DataQuery 服务级能力，继续放在 connector 边界；Vanna、AI Economist 等归档项目列入观察名单。
+E1–E4 已分别扩充 DataEval/DataProf、DataValue/Benchmark、DataGov 与 DataMarket，同时保持 DataValor 核心模型稳定。下一阶段是 E5 的 DB-GPT/Vanna successor DataQuery connector；Vanna、AI Economist 等归档项目列入观察名单。
