@@ -41,3 +41,23 @@ capabilities:
     module: wilds
     distribution: wilds
     extra: benchmark
+  - name: datahub
+    module: datahub.emitter.rest_emitter
+    distribution: acryl-datahub
+    extra: governance
+  - name: datahub_mce_builder
+    module: datahub.emitter.mce_builder
+    distribution: acryl-datahub
+    extra: governance
+  - name: datahub_mcp
+    module: datahub.emitter.mcp
+    distribution: acryl-datahub
+    extra: governance
+  - name: openmetadata
+    module: metadata.ingestion.ometa.ometa_api
+    distribution: openmetadata-ingestion
+    extra: governance
+  - name: pydeequ
+    module: pydeequ
+    distribution: pydeequ
+    extra: governance

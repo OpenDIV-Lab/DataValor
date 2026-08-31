@@ -179,6 +179,20 @@ DataGov 回答“这份数据是否有明确来源、元数据、权利和处理
 | `SecurityScanner` | `scan` | 检测敏感字段、泄露、隐私和安全风险 |
 | `PolicyEvaluator` | `evaluate` | 针对具体 operation 返回 allow、deny 或 review |
 
+### E3 外部治理 Connector
+
+DataGov 的可选 backend 位于 `datavalor.data_gov.backends`：
+
+- `DataHubMetadataCatalog` / `DataHubMetadataExtractor`：将 DataHub emitter、URN 和字段/ownership 元数据映射为 `MetadataRecord`；
+- `OpenMetadataCatalog` / `OpenMetadataExtractor`：将 OpenMetadata SDK/REST client 的 catalog 实体映射为 `MetadataRecord`；
+- `DeequValidationAdapter`：消费外部 PyDeequ/Spark job 的约束结果，封装为版本化 `ArtifactEnvelope`；
+- `DeequPolicyEvaluator`：将 constraint status/message 转为 `GovernanceFinding` 和 `GovernanceReport`。
+
+DataHub、OpenMetadata 和 Spark/Deequ 都属于可选能力。真实 SDK 只在 adapter 执行时延迟加载；
+更推荐在服务部署中注入已配置的 client、emitter 或 Spark runner。connector 统一支持
+timeout、有限 retry 和审计诊断，外部 URN、entity、DataFrame 和 constraint 对象不会
+暴露给 DataValor 上层。
+
 ### 关键模型
 
 `FieldSchema`、`MetadataRecord`、`GovernanceFinding`、`GovernanceReport`、`StandardDefinition`、`TransformationStep`、`TransformationPlan`、`TransformationResult`、`SecurityReport`、`CatalogQuery`。
@@ -591,6 +605,15 @@ pytest -q
 ruff check src tests
 ```
 
+按需启用外部治理 connector：
+
+```bash
+python -m pip install -e ".[governance]"
+```
+
+该 extra 包含 DataHub、OpenMetadata 和 PyDeequ SDK；Spark 集群、DataHub/OpenMetadata
+服务地址和凭据仍由部署环境注入，DataValor 不会在安装或导入时自动连接这些服务。
+
 当前契约测试覆盖：
 
 - 所有公共模块在可选依赖缺席时仍可导入；
@@ -616,7 +639,7 @@ ruff check src tests
 
 参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器和 E2 的 DataValue/Benchmark 适配器已经落地；后续 E3–E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)分阶段启用。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
+E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器、E2 的 DataValue/Benchmark 适配器和 E3 的 DataGov connector 已经落地；后续 E4–E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)分阶段启用。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
 
 DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
 

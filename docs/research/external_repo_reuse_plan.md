@@ -1,6 +1,6 @@
 # 外部开源仓库功能复用规划
 
-本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
+本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器；E3 已落地 DataHub、OpenMetadata 与 Deequ/Spark 的治理 connector。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
 
 ## 1. 复用边界
 
@@ -147,6 +147,22 @@ pyDVL 结果中的 `indices`、`values` 和可选 `stderr` 会分别进入目标
 - Deequ Spark job artifact；
 - 统一 ingestion 状态、重试、权限和 lineage。
 
+当前实现：
+
+| 适配器 | 复用方式 | DataValor 输出 |
+|---|---|---|
+| `DataHubMetadataCatalog` | 注入 `DatahubRestEmitter`/client；真实环境延迟加载 `datahub.emitter.rest_emitter` 与 `mce_builder` | `MetadataRecord`，保留 connector/run 诊断 |
+| `DataHubMetadataExtractor` | 从 `DataProduct` 生成 DataHub 兼容的技术元数据，不改变产品数据 | `MetadataRecord/FieldSchema` |
+| `OpenMetadataCatalog` | 注入 SDK/REST client；默认延迟构造 `OpenMetadata`，兼容 `create_or_update/upsert/get_by_name/search` | `MetadataRecord` |
+| `OpenMetadataExtractor` | DataValor 产品到 OpenMetadata 通用实体字段的映射 | `MetadataRecord/FieldSchema` |
+| `DeequValidationAdapter` | 不在 DataValor 内启动 Spark；消费注入的 PyDeequ/Spark job runner | `ArtifactEnvelope`（版本化约束结果） |
+| `DeequPolicyEvaluator` | 将 Deequ constraint status/message 转换为治理 finding 与 allow/review 决策 | `GovernanceReport/GovernanceFinding` |
+
+三类 connector 共用 `data_gov.backends._connector`：有限重试、超时关键字透传、
+外部异常统一为 `ConnectorError`、映射对象的 JSON/dict 兼容解析。SDK/client/transport
+均可注入，因而测试不需要网络；DataHub URN、OpenMetadata entity、Spark DataFrame
+和 Deequ constraint 对象不会进入 DataValor 公共模型。
+
 验收：连接器可以离线 mock；真实服务调用均有超时、审计和失败诊断，不影响核心包导入。
 
 ### 阶段 E4：DataMarket/Simulation 外部后端
@@ -220,10 +236,12 @@ class ExternalQualityAdapter(QualityMetric):
 - `data_value.backends.pydvl`：贡献估值、influence/target 分值、索引及标准误转换；
 - `data_value.backends.opendataval`：估值生命周期和 benchmark measurement 适配；
 - `toolkit.benchmark.backends.wilds`：官方数据集/split 与可移植 artifact；
-- E1/E2 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 79 项通过。
+- `data_gov.backends.datahub` 与 `openmetadata`：目录、字段和 ownership 映射；
+- `data_gov.backends.deequ`：Spark/Deequ 约束 artifact 与治理决策；
+- E1/E2/E3 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 82 项通过。
 
 所有实现均不在模块导入阶段加载第三方库；未安装依赖时仅在选中适配器执行时报告
 `CapabilityUnavailableError`。这些适配器不会把外部 DataFrame、报告对象或 metric state
 暴露给 DataValor 调用方。
 
-E1 和 E2 已分别扩充 DataEval/DataProf 与 DataValue/Benchmark，同时保持 DataValor 核心模型稳定。下一阶段是 E3 的 DataHub、OpenMetadata 和规模验证 connector；Mesa 仍适合在市场仿真复杂度超过当前有限轮模拟器后接入。PySyft、Ocean.py、DB-GPT 属于平台或服务级能力，继续放在 connector 边界。Vanna、AI Economist 等归档项目列入观察名单。
+E1、E2 和 E3 已分别扩充 DataEval/DataProf、DataValue/Benchmark 与 DataGov，同时保持 DataValor 核心模型稳定。下一阶段是 E4 的 Mesa/PySyft/Ocean.py 市场仿真和交易 connector。DB-GPT 属于 DataQuery 服务级能力，继续放在 connector 边界；Vanna、AI Economist 等归档项目列入观察名单。

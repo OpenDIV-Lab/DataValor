@@ -1,6 +1,6 @@
 schema_version: datavalor.external_repo_reuse_plan/v1
-status: e2_completed
-runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_and_e2_value_benchmark_adapters
+status: e3_completed
+runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_e2_value_benchmark_and_e3_governance_connectors
 base_install_requires_external_repos: false
 adapter_rules:
   import_inside_adapter_method: true
@@ -80,6 +80,13 @@ repositories:
     import_hint: REST_client
     components: [catalog, lineage, governance]
     target_interfaces: [datavalor.data_gov.MetadataCatalog, datavalor.data_query.QueryAuthorizer]
+  - id: deequ
+    modules: [data_gov, data_eval]
+    priority: B
+    reuse_mode: spark_job_artifact_adapter
+    import_hint: pydeequ_or_spark_job_artifact
+    components: [constraints, analyzers, verification_suite]
+    target_interfaces: [datavalor.data_gov.PolicyEvaluator, datavalor.core.ArtifactEnvelope]
   - id: pysyft
     modules: [data_gov, data_market]
     priority: B
@@ -148,9 +155,22 @@ stages:
       external_object_leakage: prohibited
   - id: external_e3_governance_connectors
     title: DataGov 目录、血缘和规模验证
-    repositories: [datahub, openmetadata, great_expectations]
+    repositories: [datahub, openmetadata, great_expectations, deequ]
     deliverables: [catalog_connectors, lineage_emitters, offline_mocks, timeout_retry_audit]
-    status: planned
+    status: completed
+    implementation:
+      adapters:
+        - datavalor.data_gov.backends.datahub.DataHubMetadataCatalog
+        - datavalor.data_gov.backends.datahub.DataHubMetadataExtractor
+        - datavalor.data_gov.backends.openmetadata.OpenMetadataCatalog
+        - datavalor.data_gov.backends.openmetadata.OpenMetadataExtractor
+        - datavalor.data_gov.backends.deequ.DeequValidationAdapter
+        - datavalor.data_gov.backends.deequ.DeequPolicyEvaluator
+      import_policy: delayed_require_capability_or_injected_client
+      output_models: [MetadataRecord, FieldSchema, GovernanceReport, GovernanceFinding, ArtifactEnvelope]
+      transport_controls: [timeout, bounded_retry, audit_diagnostics]
+      offline_test_mode: injected_client_or_runner
+      external_object_leakage: prohibited
   - id: external_e4_market_simulation
     title: DataMarket/Simulation 外部后端
     repositories: [mesa, pysyft, ocean_py]

@@ -13,6 +13,11 @@ DEFAULT_EXTERNAL_CAPABILITIES = (
     {"name": "fg_data_profiling", "module": "ydata_profiling", "distribution": "ydata-profiling"},
     {"name": "torchmetrics", "module": "torchmetrics", "distribution": "torchmetrics"},
     {"name": "mesa", "module": "mesa", "distribution": "mesa"},
+    {"name": "datahub", "module": "datahub.emitter.rest_emitter", "distribution": "acryl-datahub"},
+    {"name": "datahub_mce_builder", "module": "datahub.emitter.mce_builder", "distribution": "acryl-datahub"},
+    {"name": "datahub_mcp", "module": "datahub.emitter.mcp", "distribution": "acryl-datahub"},
+    {"name": "openmetadata", "module": "metadata.ingestion.ometa.ometa_api", "distribution": "openmetadata-ingestion"},
+    {"name": "pydeequ", "module": "pydeequ", "distribution": "pydeequ"},
 )
 
 

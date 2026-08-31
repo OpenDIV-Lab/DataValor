@@ -1,7 +1,17 @@
-"""Optional DataGov backends.
+"""Optional DataGov backends."""
 
-The re-export below is intentionally lightweight; the Great Expectations
-package itself is imported only when its adapter executes.
-"""
+from ._connector import ConnectorError
+from .datahub import DataHubMetadataCatalog, DataHubMetadataExtractor
+from .deequ import DeequPolicyEvaluator, DeequValidationAdapter
+from .great_expectations import (
+    GreatExpectationsAdapter,
+    GreatExpectationsMetric,
+    GreatExpectationsPolicyEvaluator,
+)
+from .openmetadata import OpenMetadataCatalog, OpenMetadataExtractor
 
-__all__: list[str] = []
+__all__ = [
+    "ConnectorError", "DataHubMetadataCatalog", "DataHubMetadataExtractor", "DeequPolicyEvaluator",
+    "DeequValidationAdapter", "GreatExpectationsAdapter", "GreatExpectationsMetric",
+    "GreatExpectationsPolicyEvaluator", "OpenMetadataCatalog", "OpenMetadataExtractor",
+]
