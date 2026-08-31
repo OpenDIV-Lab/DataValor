@@ -1,8 +1,20 @@
 """Optional DataEval backends.
 
-Backends are deliberately not imported here: importing :mod:`datavalor.data_eval`
-must remain safe when optional dependencies are absent.  Import a class from its
-concrete module when it is selected in a pipeline.
+The imports below are adapter-only imports; no external package is loaded until
+an adapter method executes.
 """
 
-__all__: list[str] = []
+from .cleanlab import CleanlabAdapter, CleanlabQualityMetric
+from .evidently import EvidentlyAdapter, EvidentlyDriftMetric
+from .great_expectations import (
+    GreatExpectationsAdapter,
+    GreatExpectationsMetric,
+    GreatExpectationsPolicyEvaluator,
+)
+from .torchmetrics import TorchMetricAdapter, TorchMetricsAdapter
+
+__all__ = [
+    "CleanlabAdapter", "CleanlabQualityMetric", "EvidentlyAdapter", "EvidentlyDriftMetric",
+    "GreatExpectationsAdapter", "GreatExpectationsMetric", "GreatExpectationsPolicyEvaluator",
+    "TorchMetricAdapter", "TorchMetricsAdapter",
+]

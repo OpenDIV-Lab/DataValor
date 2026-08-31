@@ -292,6 +292,16 @@ DataValue 回答“这份数据或其中某个单位对特定用户、任务或�
 
 DataValue 聚焦用户、任务和模型相关的效用与贡献估计，交易报价和清算由 DataPrice 根据市场信息处理。Stage 3 已将 weighted user-task、requirements、LOO、Shapley 和 Monte Carlo Shapley 的实现落位到此模块；learned/symbolic valuation 按相同契约继续扩展。
 
+### E2 外部估值适配器
+
+`datavalor.data_value.backends` 提供：
+
+- `PyDVLContributionValuator` / `PyDVLValuator`：将 pyDVL 的 Shapley、semivalue 或 influence 结果转换为 `ContributionReport`、`ValuationReport` 和 `ValueEstimate`；
+- `OpenDataValValuator`：兼容 OpenDataVal 的 callable 以及 `input_data → train → data_values` 生命周期；
+- `OpenDataValBenchmarkMetric`：将外部方法结果接入 Benchmark 的 measurement 接口。
+
+适配器会保留外部结果中的索引和标准误，并映射为 DataValor 的目标 ID 与不确定性字段。没有安装 `valuation` extra 时，模块仍可导入，只有执行适配器才会报告 capability 缺失。
+
 [返回模块索引](#module-index)
 
 <a id="module-dataprice"></a>
@@ -456,6 +466,14 @@ component × case × repetition × metric
 
 Stage 1 已将数据 provider、shift/扰动和 split 能力落位到此处；后续市场 benchmark 与 pyDVL、OpenDataVal 等外部算法继续通过统一 benchmark 比较。
 
+### E2 外部 Benchmark 数据源
+
+`datavalor.toolkit.benchmark.backends.wilds.WILDSDataProvider` 使用 WILDS 的
+`get_dataset` 和官方 `get_subset(split)`，将样本（包括 Tensor/array）转换为普通
+Python records 后封装进 `ArtifactEnvelope`。默认不下载数据，可通过 case 参数显式开启；
+也可以设置 `max_records` 或 `materialize=false` 控制物化范围。外部 Dataset 对象不会直接
+成为 DataValor 公共 payload。
+
 [返回模块索引](#module-index)
 
 <a id="module-analysis"></a>
@@ -598,7 +616,7 @@ ruff check src tests
 
 参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-E0 的可选依赖边界与 capability probe、E1 的 DataEval/DataProf 适配器已经落地；后续 E2–E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)分阶段启用。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
+E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器和 E2 的 DataValue/Benchmark 适配器已经落地；后续 E3–E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)分阶段启用。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
 
 DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
 

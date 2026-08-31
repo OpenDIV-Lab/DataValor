@@ -1,6 +1,6 @@
 schema_version: datavalor.external_repo_reuse_plan/v1
-status: e1_completed
-runtime_changes_in_this_plan: e0_capability_boundary_and_e1_eval_profile_adapters
+status: e2_completed
+runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_and_e2_value_benchmark_adapters
 base_install_requires_external_repos: false
 adapter_rules:
   import_inside_adapter_method: true
@@ -134,7 +134,18 @@ stages:
     title: DataValue 与估值 Benchmark
     repositories: [pydvl, opendataval, wilds]
     deliverables: [valuation_adapters, benchmark_cases, paired_comparison, uncertainty_mapping]
-    status: planned
+    status: completed
+    implementation:
+      adapters:
+        - datavalor.data_value.backends.pydvl.PyDVLContributionValuator
+        - datavalor.data_value.backends.pydvl.PyDVLValuator
+        - datavalor.data_value.backends.opendataval.OpenDataValValuator
+        - datavalor.data_value.backends.opendataval.OpenDataValBenchmarkMetric
+        - datavalor.toolkit.benchmark.backends.wilds.WILDSDataProvider
+      import_policy: delayed_require_capability_or_injected_runner
+      output_models: [ValueEstimate, ValuationReport, ContributionReport, BenchmarkObservation, ArtifactEnvelope]
+      offline_test_mode: callable_or_estimator_injection
+      external_object_leakage: prohibited
   - id: external_e3_governance_connectors
     title: DataGov 目录、血缘和规模验证
     repositories: [datahub, openmetadata, great_expectations]

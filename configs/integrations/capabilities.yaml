@@ -37,3 +37,7 @@ capabilities:
     module: mesa
     distribution: mesa
     extra: simulation
+  - name: wilds
+    module: wilds
+    distribution: wilds
+    extra: benchmark

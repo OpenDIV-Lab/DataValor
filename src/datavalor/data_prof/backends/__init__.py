@@ -1,3 +1,5 @@
-"""Optional DataProf backends; concrete adapters are imported explicitly."""
+"""Optional DataProf backends."""
 
-__all__: list[str] = []
+from .fg_profile import FgDataProfiler, FgDataProfilingAdapter, YDataProfilingAdapter
+
+__all__ = ["FgDataProfiler", "FgDataProfilingAdapter", "YDataProfilingAdapter"]

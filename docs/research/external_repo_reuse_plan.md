@@ -1,6 +1,6 @@
 # 外部开源仓库功能复用规划
 
-本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
+本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
 
 ## 1. 复用边界
 
@@ -123,6 +123,21 @@ DataFrame、报告和 metric state 不会泄漏到公共接口。
 - WILDS/DataPerf 数据和 split provider；
 - 与 Stage 3 的内部估值实现进行 paired benchmark。
 
+当前实现：
+
+| 适配器 | 外部 API 与兼容边界 | DataValor 输出 |
+|---|---|---|
+| `PyDVLContributionValuator` | 支持注入 runner/estimator；兼容函数式 valuation 和 estimator `fit`/`values` 结果 | `ContributionReport`、含标准误的 `ValueEstimate` |
+| `PyDVLValuator` | 面向 influence 等模型相关分值，runner 显式接收 `ValuationRequest` | `ValuationReport` |
+| `OpenDataValValuator` | 支持 callable，也支持 `input_data → train → data_values` 生命周期；按 AME/DVRL/KNN-Shapley/LAVA/Data-OOB 名称解析 | `ValuationReport` |
+| `OpenDataValBenchmarkMetric` | 将一次外部方法评估映射为命名 measurements | `BenchmarkMetric.measure` 的纯量字典 |
+| `WILDSDataProvider` | 调用 `wilds.get_dataset`，默认禁止下载，使用 `get_subset` 官方 split，并把样本转成可移植 records | `ArtifactEnvelope` |
+
+pyDVL 结果中的 `indices`、`values` 和可选 `stderr` 会分别进入目标 ID、数值和
+`ValueEstimate.uncertainty`。WILDS 的 Tensor/array 通过 `tolist()` 转为普通 Python
+数据，未物化模式只返回数据集描述符，不把外部 Dataset 对象放入 DataValor payload。
+所有 adapter 均支持 callable/estimator/loader 注入，因此测试和离线部署不需要网络。
+
 验收：外部算法结果进入 `ValueEstimate`/`BenchmarkObservation`，`PriceQuote` 与 `Payment` 仍由 DataPrice 流程生成。
 
 ### 阶段 E3：DataGov 目录、血缘和规模验证
@@ -195,17 +210,20 @@ class ExternalQualityAdapter(QualityMetric):
 
 ## 7. 当前结论
 
-截至 E1，已完成的运行时代码与验证如下：
+截至 E2，已完成的运行时代码与验证如下：
 
 - `data_eval.backends.cleanlab`：Cleanlab `Datalab`/旧版 `find_label_issues` 双路径；
 - `data_eval.backends.great_expectations` 与 `data_gov.backends.great_expectations`：验证指标及治理决策适配；
 - `data_eval.backends.evidently`：报告运行、drift 指标递归提取和快照证据；
 - `data_prof.backends.fg_profile`：ProfileReport 的字典/描述/JSON 多种输出格式转换；
 - `data_eval.backends.torchmetrics`：`update(preds, target)` 与 `compute()` 生命周期桥接；
-- 4 个离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 76 项通过。
+- `data_value.backends.pydvl`：贡献估值、influence/target 分值、索引及标准误转换；
+- `data_value.backends.opendataval`：估值生命周期和 benchmark measurement 适配；
+- `toolkit.benchmark.backends.wilds`：官方数据集/split 与可移植 artifact；
+- E1/E2 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 79 项通过。
 
 所有实现均不在模块导入阶段加载第三方库；未安装依赖时仅在选中适配器执行时报告
 `CapabilityUnavailableError`。这些适配器不会把外部 DataFrame、报告对象或 metric state
 暴露给 DataValor 调用方。
 
-第一优先级是 E1 的 Cleanlab/Great Expectations/Evidently 与 E2 的 pyDVL/OpenDataVal；它们可以显著扩充 DataEval、DataValue 和 Benchmark，同时保持 DataValor 核心模型稳定。Mesa 适合在市场仿真复杂度超过当前有限轮模拟器后接入。DataHub、OpenMetadata、PySyft、Ocean.py、DB-GPT 属于平台或服务级能力，继续放在 connector 边界。Vanna、AI Economist 等归档项目列入观察名单。
+E1 和 E2 已分别扩充 DataEval/DataProf 与 DataValue/Benchmark，同时保持 DataValor 核心模型稳定。下一阶段是 E3 的 DataHub、OpenMetadata 和规模验证 connector；Mesa 仍适合在市场仿真复杂度超过当前有限轮模拟器后接入。PySyft、Ocean.py、DB-GPT 属于平台或服务级能力，继续放在 connector 边界。Vanna、AI Economist 等归档项目列入观察名单。

@@ -26,6 +26,7 @@ dev = ["pytest>=7", "ruff>=0.4"]
 quality = ["cleanlab>=2.0", "great-expectations>=0.18", "evidently>=0.4"]
 profiling = ["ydata-profiling>=4.0"]
 valuation = ["pydvl>=0.9", "opendataval>=1.0"]
+benchmark = ["wilds>=2.0"]
 torch = ["torchmetrics>=1.0"]
 simulation = ["mesa>=2.0"]
 
