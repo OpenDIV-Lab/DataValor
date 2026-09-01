@@ -20,6 +20,8 @@ DEFAULT_EXTERNAL_CAPABILITIES = (
     {"name": "pydeequ", "module": "pydeequ", "distribution": "pydeequ"},
     {"name": "syft", "module": "syft", "distribution": "syft"},
     {"name": "ocean_py", "module": "ocean_lib", "distribution": "ocean-lib"},
+    {"name": "db_gpt", "module": "dbgpt", "distribution": "dbgpt"},
+    {"name": "vanna", "module": "vanna", "distribution": "vanna"},
 )
 
 

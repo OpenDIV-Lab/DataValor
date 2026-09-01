@@ -69,3 +69,11 @@ capabilities:
     module: ocean_lib
     distribution: ocean-lib
     extra: market
+  - name: db_gpt
+    module: dbgpt
+    distribution: dbgpt
+    extra: query
+  - name: vanna
+    module: vanna
+    distribution: vanna
+    extra: query

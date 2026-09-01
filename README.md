@@ -453,6 +453,29 @@ QueryRequest
 
 DataQuery 的执行始终沿用 DataGov 的产品权利和授权结果，模型生成的 SQL 也需经过同一条执行链。未来 DB-GPT、数据库 connector 或 LLM 能力可通过这些接口接入。
 
+### E5 外部 Query/Agent 适配器
+
+`datavalor.data_query.backends` 已提供一条可组合的标准链路：
+
+```text
+RightsQueryAuthorizer
+    -> DBGPTQueryPlanner / VannaQueryPlanner
+    -> ExternalQueryExecutor
+    -> QueryResultGuard
+    -> GovernedDataAgent
+```
+
+- `RightsQueryAuthorizer`：依据产品 `RightsBundle.purposes` 和可选 policy callback 产生 `QueryAuthorization`；
+- `DBGPTQueryPlanner`：封装 DB-GPT 的 `generate_sql`、`ask` 或 `generate` 入口；
+- `VannaQueryPlanner`：封装 Vanna 的 `generate_sql`/`ask` 入口；
+- `ExternalQueryExecutor`：把 `run_sql`、`execute` 或 `query` 结果转换为 `QueryResult`；
+- `QueryResultGuard`：执行最大行数、字段脱敏和 truncation 标记；
+- `GovernedDataAgent`：固定执行 `authorize → plan → execute → guard`，未授权时不会调用外部 agent。
+
+DB-GPT/Vanna 的 SQL、DataFrame、agent state 和服务响应不会成为 DataValor 公共类型。
+适配器支持注入 generator/client/executor，便于离线测试与多版本 SDK；真实包仅在执行时
+通过 capability probe 加载。
+
 [返回模块索引](#module-index)
 
 <a id="module-toolkit"></a>
@@ -627,6 +650,7 @@ ruff check src tests
 python -m pip install -e ".[governance]"
 python -m pip install -e ".[simulation]"  # Mesa
 python -m pip install -e ".[market]"      # Ocean.py/ocean-lib
+python -m pip install -e ".[query]"        # DB-GPT/Vanna
 ```
 
 该 extra 包含 DataHub、OpenMetadata 和 PyDeequ SDK；Spark 集群、DataHub/OpenMetadata
@@ -657,7 +681,7 @@ python -m pip install -e ".[market]"      # Ocean.py/ocean-lib
 
 参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器、E2 的 DataValue/Benchmark 适配器、E3 的 DataGov connector 和 E4 的 DataMarket/Simulation connector 已经落地；后续 E5 仍按[外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)推进。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
+E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器、E2 的 DataValue/Benchmark 适配器、E3 的 DataGov connector、E4 的 DataMarket/Simulation connector 和 E5 的 DataQuery connector 已经落地。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
 
 DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
 

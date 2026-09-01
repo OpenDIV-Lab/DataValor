@@ -27,10 +27,11 @@ quality = ["cleanlab>=2.0", "great-expectations>=0.18", "evidently>=0.4"]
 profiling = ["ydata-profiling>=4.0"]
 valuation = ["pydvl>=0.9", "opendataval>=1.0"]
 benchmark = ["wilds>=2.0"]
-governance = ["acryl-datahub>=0.13", "openmetadata-ingestion>=1.5", "pydeequ>=1.2"]
+governance = ["acryl-datahub>=0.13", "openmetadata-ingestion>=1.5", "pydeequ>=1.2", "syft>=0.8"]
 torch = ["torchmetrics>=1.0"]
 simulation = ["mesa>=2.0"]
 market = ["ocean-lib>=0.1"]
+query = ["dbgpt>=0.6", "vanna>=0.0"]
 
 [project.urls]
 Homepage = "https://github.com/DIV-Lab/DataValor"

@@ -1,6 +1,6 @@
 schema_version: datavalor.external_repo_reuse_plan/v1
-status: e4_completed
-runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_e2_value_benchmark_e3_governance_and_e4_market_backends
+status: e5_completed
+runtime_changes_in_this_plan: e0_boundary_e1_eval_profile_e2_value_benchmark_e3_governance_e4_market_and_e5_query_backends
 base_install_requires_external_repos: false
 adapter_rules:
   import_inside_adapter_method: true
@@ -108,6 +108,13 @@ repositories:
     import_hint: HTTP_or_SDK_client
     components: [connector, text_to_sql, agent_service]
     target_interfaces: [datavalor.data_query.QueryPlanner, datavalor.data_query.DataAgent]
+  - id: vanna
+    modules: [data_query]
+    priority: B
+    reuse_mode: planner_or_connector_adapter
+    import_hint: import vanna
+    components: [text_to_sql, retrieval_augmented_generation, sql_execution]
+    target_interfaces: [datavalor.data_query.QueryPlanner, datavalor.data_query.QueryExecutor]
   - id: wilds
     modules: [toolkit.benchmark, data_eval]
     priority: B
@@ -193,4 +200,18 @@ stages:
     title: DataQuery 和生产化集成
     repositories: [db_gpt, vanna]
     deliverables: [query_connector, authorization_gate, result_guard, trace_lineage]
-    status: planned
+    status: completed
+    implementation:
+      adapters:
+        - datavalor.data_query.backends.governed.RightsQueryAuthorizer
+        - datavalor.data_query.backends.external.DBGPTQueryPlanner
+        - datavalor.data_query.backends.external.VannaQueryPlanner
+        - datavalor.data_query.backends.external.ExternalQueryExecutor
+        - datavalor.data_query.backends.governed.QueryResultGuard
+        - datavalor.data_query.backends.governed.GovernedDataAgent
+      import_policy: delayed_require_capability_or_injected_client
+      output_models: [QueryAuthorization, QueryPlan, QueryResult, QueryTraceEvent]
+      execution_order: [authorize, plan, execute, guard]
+      controls: [rights_check, sql_plan_inspection, row_limit, field_redaction, trace_lineage]
+      offline_test_mode: injected_generator_or_executor
+      external_object_leakage: prohibited

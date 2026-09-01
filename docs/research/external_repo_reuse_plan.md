@@ -1,6 +1,6 @@
 # 外部开源仓库功能复用规划
 
-本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器；E3 已落地 DataHub、OpenMetadata 与 Deequ/Spark 的治理 connector；E4 已落地 Mesa、PySyft 与 Ocean.py 的市场和仿真 adapter。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
+本文面向 DataValor 的**外部依赖封装**，与 DVMK 的内部实现迁移分开规划。E0 已完成 capability probe、optional extra 声明和适配器错误边界；E1 已落地 DataEval/DataProf 的五类可选适配器；E2 已落地 pyDVL、OpenDataVal 与 WILDS 的估值和基准适配器；E3 已落地 DataHub、OpenMetadata 与 Deequ/Spark 的治理 connector；E4 已落地 Mesa、PySyft 与 Ocean.py 的市场和仿真 adapter；E5 已落地 DB-GPT/Vanna 风格的 DataQuery 规划、执行和结果防护链路。外部仓库只在适配器边界被局部调用，不复制整仓库源码。
 
 ## 1. 复用边界
 
@@ -197,6 +197,22 @@ Mesa 的 Agent/Model/collector、PySyft 的 Domain/Datasite 对象以及 Ocean �
 - QueryAuthorizer、QueryPlanner、ResultGuard 全链路策略闸门；
 - Web UI 消费统一的 DataValor view model。
 
+当前实现：
+
+| 适配器 | 复用方式 | DataValor 输出 |
+|---|---|---|
+| `RightsQueryAuthorizer` | 基于 `RightsBundle.purposes` 做本地硬授权，可选注入额外 policy | `QueryAuthorization` |
+| `DBGPTQueryPlanner` | 注入 DB-GPT client/generator；兼容 `generate_sql`、`ask`、`generate`，真实 SDK 执行时延迟加载 `dbgpt` | `QueryPlan/QueryPlanStep` |
+| `VannaQueryPlanner` | 注入 Vanna client/generator；兼容 `generate_sql` 与 `ask` | `QueryPlan/QueryPlanStep` |
+| `ExternalQueryExecutor` | 注入数据库/服务 executor；兼容 `run_sql`、`execute`、`query` | `QueryResult` |
+| `QueryResultGuard` | 统一执行最大行数、字段脱敏与 truncation 标记 | `QueryResult` + `QueryTraceEvent` |
+| `GovernedDataAgent` | 固定 authorize → plan → execute → guard 顺序，拒绝时不调用外部 agent | `QueryResult` + 全链路 trace |
+
+DB-GPT/Vanna 的自然语言响应、SQL、DataFrame 和 agent state 会在 adapter 内转换为
+DataValor 的 `QueryPlan`、`QueryResult` 和 `QueryTraceEvent`。外部 agent 不能绕过
+`RightsQueryAuthorizer`；SQL 只能作为待检查的 `QueryPlanStep.statement` 进入执行器；
+原始结果必须经过 `QueryResultGuard` 才能返回调用方。
+
 验收：请求先经过授权检查，再调用外部 agent；trace 包含查询、执行目标、脱敏和下游 lineage。
 
 ## 5. 适配器模板
@@ -242,7 +258,7 @@ class ExternalQualityAdapter(QualityMetric):
 
 ## 7. 当前结论
 
-截至 E2，已完成的运行时代码与验证如下：
+截至 E4，已完成的运行时代码与验证如下：
 
 - `data_eval.backends.cleanlab`：Cleanlab `Datalab`/旧版 `find_label_issues` 双路径；
 - `data_eval.backends.great_expectations` 与 `data_gov.backends.great_expectations`：验证指标及治理决策适配；
@@ -257,10 +273,11 @@ class ExternalQualityAdapter(QualityMetric):
 - `data_market.simulation.backends.mesa`：Mesa 调度与 DataValor 市场快照桥接；
 - `data_gov.backends.syft`、`data_market.backends.syft`：owner-side 权限和交易执行边界；
 - `data_market.backends.ocean`：资产目录与消费 connector；
-- E1–E4 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 85 项通过。
+- `data_query.backends`：授权、DB-GPT/Vanna 规划、外部执行、结果防护和 DataAgent 编排；
+- E1–E5 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 89 项通过。
 
 所有实现均不在模块导入阶段加载第三方库；未安装依赖时仅在选中适配器执行时报告
 `CapabilityUnavailableError`。这些适配器不会把外部 DataFrame、报告对象或 metric state
 暴露给 DataValor 调用方。
 
-E1–E4 已分别扩充 DataEval/DataProf、DataValue/Benchmark、DataGov 与 DataMarket，同时保持 DataValor 核心模型稳定。下一阶段是 E5 的 DB-GPT/Vanna successor DataQuery connector；Vanna、AI Economist 等归档项目列入观察名单。
+E1–E5 已分别扩充 DataEval/DataProf、DataValue/Benchmark、DataGov、DataMarket 与 DataQuery，同时保持 DataValor 核心模型稳定。DB-GPT/Vanna 的生产化部署仍需由具体环境提供 client、数据库连接、凭据和网络策略；Vanna 的后续版本与 AI Economist 等项目继续列入观察名单。

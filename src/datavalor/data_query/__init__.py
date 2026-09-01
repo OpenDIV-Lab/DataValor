@@ -1,5 +1,13 @@
 """DataQuery: natural-language data access and data agents."""
 
+from .backends import (
+    DBGPTQueryPlanner,
+    ExternalQueryExecutor,
+    GovernedDataAgent,
+    QueryResultGuard,
+    RightsQueryAuthorizer,
+    VannaQueryPlanner,
+)
 from .interfaces import DataAgent, QueryAuthorizer, QueryExecutor, QueryPlanner, ResultGuard
 from .models import (
     AuthorizationDecision,
@@ -36,4 +44,10 @@ __all__ = [
     "QueryResult",
     "QueryTraceEvent",
     "ResultGuard",
+    "DBGPTQueryPlanner",
+    "ExternalQueryExecutor",
+    "GovernedDataAgent",
+    "QueryResultGuard",
+    "RightsQueryAuthorizer",
+    "VannaQueryPlanner",
 ]
