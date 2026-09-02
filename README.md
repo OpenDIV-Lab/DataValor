@@ -2,9 +2,9 @@
 
 **A Toolkit for Data Valorization**
 
-数据智能与价值化实验室（Data Intelligence and Valorization Laboratory，DIV Lab）发起的开源研究工具箱。
+DataValor 是 DIV Lab 维护的一套数据估值、定价和流通实验工具。它把治理、画像、质量评估、任务效用、贡献度、报价、交易和受控查询放在同一组 Python 契约下，便于把论文方法接进真实数据产品流程。
 
-> 当前状态：`pre-alpha / interface scaffold`。仓库已经完成模块边界、公共模型、抽象接口、registry、benchmark 和扩展路线的搭建，具体算法与生产化能力将按计划逐步补齐。
+当前版本是 `pre-alpha`：公共模型、接口、registry、基准实验工具和一批可运行基线已经具备；生产级存储、调度和外部服务连接需要由部署方实现。先用示例跑通流程，再按项目需要替换算法和后端。
 
 DataValor 面向数据从“可管理”到“可使用、可交易、可定价”的完整价值链，将研究对象分成三个阶段：
 
@@ -42,6 +42,7 @@ DataValor 面向数据从“可管理”到“可使用、可交易、可定价�
 - [模块间语义边界](#semantic-boundaries)
 - [最小扩展方式](#extension-example)
 - [安装与验证](#installation)
+- [可运行示例](examples/README.md)
 - [文档与调研资料](#documentation)
 - [开发原则](#development-principles)
 
@@ -676,6 +677,7 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - [外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)
 - [外部仓库复用阶段配置](configs/integrations/external_repo_reuse.yaml)
 - [data_value_market_kit 代码筛选、迁移与改造方案](docs/research/dvmk_reuse.md)
+- [数据估值定价调研与 DataValor 能力地图](docs/research/data_valuation_pricing_landscape.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 

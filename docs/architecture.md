@@ -2,7 +2,9 @@
 
 ## 1. Scope
 
-DataValor is an umbrella research toolkit composed of focused modules. Each module can be used on its own, while versioned artifacts connect modules and keep experiments reproducible without loading every optional dependency.
+DataValor 把一条数据产品流程拆成几个可以独立替换的模块。研究者可以只使用估值或定价部分，也可以把治理、评估、交易和受控查询串起来。模块之间通过带版本的 artifact 连接；可选依赖只在真正执行对应能力时加载。
+
+这份文档描述的是当前代码的边界，不是对某个行业系统的部署承诺。表格中的 candidate output 是接口约定，具体算法、存储和服务连接由应用项目提供。
 
 | Stage | Module | Primary question | Candidate output |
 |---|---|---|---|
