@@ -6,6 +6,8 @@
 
 ```bash
 PYTHONPATH=src python examples/00_unified_value_chain.py
+PYTHONPATH=src python examples/05_stage1_governance_profile_eval.py
+PYTHONPATH=src python examples/06_stage1_unified_workflow.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -15,13 +17,18 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `00_unified_value_chain.py` 是阶段 0 的主链路示例：它读取
 `configs/workflows/stage0_unified.json`，把一份数据产品依次送入治理、画像、评估、估值、定价、交易、查询、使用计量和分析阶段。每个阶段都会在 `outputs/stage0-unified/` 写出一个带 `parents`、`schema_version`、`producer`、`status` 和 `diagnostics` 的 JSON artifact；运行摘要写入 `summary.json`。如果中途失败，runner 会额外写出 `workflow.failure` artifact，摘要会标记 `failed_stage`，默认不会继续执行后续必需阶段。
 
-四个脚本分别覆盖：
+`05_stage1_governance_profile_eval.py` 是阶段 1 的独立质量工作流：读取包含重复、缺失值和类型错误的合成客户记录，实际运行元数据提取、内存目录、用途策略、敏感字段扫描、统计画像、版本差异和三项质量指标，结果写入 `outputs/stage1-quality-summary.json`。
+
+`06_stage1_unified_workflow.py` 使用 `configs/workflows/stage1_quality.json` 和阶段 0 相同的统一 runner，将 DataGov、DataProf、DataEval 串成三个可追溯 stage；结果和每个阶段的 artifact 写入 `outputs/stage1-workflow/`。
+
+这些脚本分别覆盖：
 
 1. 统一主链路：治理、画像、评估、估值、定价、市场、查询、使用计量和分析；
 2. 面向任务的效用估值与样本边际贡献（LOO、精确 Shapley、Monte Carlo Shapley）；
 3. 将估值转成买方 bid，比较二价、McAfee 双边拍卖和预算可行采购；
 4. 在查询前做用途/权利检查，查询后做字段脱敏和行数限制；
 5. 在有限轮市场中比较真实出价、固定 shading 和预算 pacing 的成交与福利。
+6. 用统一 runner 将阶段 1 的治理、画像、评估结果写成可追溯 artifact。
 
 脚本输出 JSON，方便直接接入 notebook、CI 或后续的 artifact store。示例中的数据都是合成数据；接入真实数据时，应在 `DataReference` 中补充 schema、checksum、来源和许可证信息。
 

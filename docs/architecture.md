@@ -52,6 +52,12 @@ Before adding concrete algorithms, each module should agree on four small concep
 
 本地 JSON store 使用原子写入和 SHA-256 校验：写入返回带文件 URI/checksum 的 `ArtifactRef`，读取时如果调用方提供 checksum 且不匹配会立即失败。完整链路配置和合成输入分别位于 `configs/workflows/stage0_unified.json` 与 `data/examples/stage0_records.jsonl`，可运行入口为 `examples/00_unified_value_chain.py`。链路中的 `UsageEvent` 记录查询次数、返回行数、计算时间和隐私预算等计量信息，供后续按量计费和实际收益校准使用；它不改变 `PriceQuote` 或 `Payment`。
 
+### 3.2 Stage-1 本地基线
+
+阶段 1 的本地实现位于各模块的 `builtins.py`，不需要第三方依赖：`LocalMetadataExtractor` 生成字段 schema、敏感字段分类、记录数和 canonical checksum；`InMemoryMetadataCatalog` 提供可检索的元数据目录；`RightsPolicyEvaluator` 检查用途、商业使用、再分发和有效期；`SensitiveFieldScanner` 输出字段级治理证据；`BasicDataProfiler`/`BasicProfileComparator` 生成并比较描述性画像；`CompletenessMetric`、`DuplicateRateMetric`、`FieldValidityMetric` 与 `CompositeEvaluator` 生成带 evidence 的质量报告。它们只输出 metadata/profile/evaluation，不把质量指标转换成价格。完整说明见 [阶段 1 实现说明](research/stage1_data_product_governance.md)。
+
+阶段 1 同样提供统一 runner 配置 `configs/workflows/stage1_quality.json` 和入口 `examples/06_stage1_unified_workflow.py`。治理阶段把 metadata、policy、security 作为一个 bundle 保留，画像阶段输出描述性事实，评估阶段接收前两阶段结果并输出质量指标；三阶段 artifact 都写入本地 store，评估 artifact 的 parents 同时记录初始数据和治理/画像阶段，方便后续估值模块按证据引用而不是重新读取原始数据。
+
 External third-party libraries should normally be wrapped behind adapters that translate their native results into DataValor artifacts. The adapter records the external package/version and preserves native details rather than flattening all outputs prematurely. DVMK is a deliberate exception because it is an existing in-scope codebase: selected DVMK source will be ported, attributed, and substantially refactored into native `datavalor.*` modules, with no runtime dependency on `dvmk`.
 
 ## 4. Data and output policy

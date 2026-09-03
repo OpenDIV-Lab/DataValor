@@ -1,0 +1,45 @@
+{
+  "workflow_id": "stage1.governance_profile_evaluation",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "DataProduct → DataGov → DataProf → DataEval 的质量准入链路",
+    "owner": "DIV Lab",
+    "purpose": "stage-1 reproducible quality gate",
+    "boundary": "不生成估值、报价或支付"
+  },
+  "initial_inputs": ["product", "records"],
+  "stages": [
+    {
+      "stage_id": "governance",
+      "handler": "stage1.governance",
+      "artifact_kind": "governance_bundle",
+      "schema_version": "datavalor.governance.bundle/v1alpha1",
+      "inputs": {"product": "product", "records": "records"},
+      "parameters": {"operation": "quality_assessment"}
+    },
+    {
+      "stage_id": "profile",
+      "handler": "stage1.profile",
+      "artifact_kind": "dataset_profile",
+      "schema_version": "datavalor.profile/v1alpha1",
+      "inputs": {"product": "product", "records": "records"},
+      "parameters": {"sample_size": null}
+    },
+    {
+      "stage_id": "evaluation",
+      "handler": "stage1.evaluation",
+      "artifact_kind": "evaluation_report",
+      "schema_version": "datavalor.evaluation/v1alpha1",
+      "inputs": {
+        "product": "product",
+        "records": "records",
+        "governance": "governance",
+        "profile": "profile"
+      },
+      "parameters": {
+        "required_fields": ["id", "email", "region", "score"],
+        "field_types": {"score": "number"}
+      }
+    }
+  ]
+}
