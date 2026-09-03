@@ -645,6 +645,14 @@ pytest -q
 ruff check src tests
 ```
 
+阶段 0 的统一主链路可以直接离线运行：
+
+```bash
+PYTHONPATH=src python examples/00_unified_value_chain.py
+```
+
+它使用 `configs/workflows/stage0_unified.json` 依次执行治理、画像、评估、估值、定价、市场、查询、使用计量和分析，并把每个阶段的 artifact 与运行摘要写入 `outputs/stage0-unified/`。
+
 按需启用外部治理 connector：
 
 ```bash

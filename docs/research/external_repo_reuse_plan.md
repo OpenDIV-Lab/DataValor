@@ -274,7 +274,7 @@ class ExternalQualityAdapter(QualityMetric):
 - `data_gov.backends.syft`、`data_market.backends.syft`：owner-side 权限和交易执行边界；
 - `data_market.backends.ocean`：资产目录与消费 connector；
 - `data_query.backends`：授权、DB-GPT/Vanna 规划、外部执行、结果防护和 DataAgent 编排；
-- E1–E5 的离线 mock/injection 测试覆盖输出 schema，整个仓库测试为 89 项通过。
+- E1–E5 的离线 mock/injection 测试覆盖输出 schema；随着阶段 0 workflow 和 usage event 测试加入，当前仓库测试为 94 项通过。
 
 所有实现均不在模块导入阶段加载第三方库；未安装依赖时仅在选中适配器执行时报告
 `CapabilityUnavailableError`。这些适配器不会把外部 DataFrame、报告对象或 metric state

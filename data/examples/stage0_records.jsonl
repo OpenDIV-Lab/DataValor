@@ -1,0 +1,3 @@
+{"id":"r-001","text":"traffic demand rises near station","email":"alice@example.test","region":"east","label":1}
+{"id":"r-002","text":"traffic demand falls after rain","email":"bob@example.test","region":"south","label":0}
+{"id":"r-003","text":"station demand remains stable","email":"chen@example.test","region":"east","label":1}

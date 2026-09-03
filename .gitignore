@@ -14,6 +14,6 @@ outputs/*
 # Data directories contain documentation only until redistribution rights are checked.
 data/examples/*
 !data/examples/README.md
+!data/examples/stage0_records.jsonl
 data/dataflow_data/*
 !data/dataflow_data/README.md
-

@@ -39,6 +39,15 @@ from .models import (
 from .pipeline import PipelineNode, PipelineResult, PipelineRunner, PipelineSpec
 from .registry import Registry
 from .run_metadata import add_input_artifact, finish_run, start_run
+from .workflow import (
+    StageContext,
+    StageExecution,
+    UnifiedWorkflowRunner,
+    WorkflowRunResult,
+    WorkflowSpec,
+    WorkflowStage,
+    load_workflow_config,
+)
 
 __all__ = [
     "ActorProfile",
@@ -87,4 +96,11 @@ __all__ = [
     "probe_capability",
     "probe_capabilities",
     "require_capability",
+    "StageContext",
+    "StageExecution",
+    "UnifiedWorkflowRunner",
+    "WorkflowRunResult",
+    "WorkflowSpec",
+    "WorkflowStage",
+    "load_workflow_config",
 ]

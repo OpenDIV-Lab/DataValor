@@ -116,6 +116,22 @@ Registry 接收 `ComponentSpec + factory`，在 `create(name)` 时实例化组�
 
 `PipelineSpec` 声明节点、输入引用、输出名和参数；`PipelineRunner` 负责校验和执行；`ArtifactStore` 负责保存与加载。输出目录由运行配置统一管理。
 
+阶段 0 提供了一个不改变上述业务模块边界的顺序执行器：
+
+```python
+from datavalor.core import LocalArtifactStore, RunContext, UnifiedWorkflowRunner, load_workflow_config
+
+spec = load_workflow_config("configs/workflows/stage0_unified.json")
+runner = UnifiedWorkflowRunner(
+    LocalArtifactStore("outputs/run-001"),
+    {"my.governance": governance_handler, "my.profile": profile_handler},
+)
+result = runner.run(spec, {"product": product_artifact, "records": records_artifact}, RunContext("run-001", seed=42))
+```
+
+`WorkflowStage.inputs` 将本地参数名映射到初始 artifact key 或前序 `stage_id`；handler 只返回业务 payload，由 runner 统一创建 envelope 和 `parents`。成功结果的 artifact ID 形如 `{workflow_id}/{run_id}/{stage_id}`。必需阶段异常时会写出 `workflow.failure` artifact，并在 `WorkflowRunResult.diagnostics.failed_stage` 中标明失败位置；`required: false` 的可选阶段会记录失败但允许链路继续。handler 不得返回嵌套 `ArtifactEnvelope`，这样可以避免不同模块各自包装结果导致 schema 和 lineage 混乱。
+配置中的 `initial_inputs` 声明运行时必须提供的初始 artifact key；缺少其中任意一个会在第一阶段执行前报错。这样可以把“配置写了什么”和“调用方传了什么”之间的错误尽早暴露。
+
 ## 四、七个业务模块的具体接口
 
 ### 1. DataGov
@@ -198,6 +214,7 @@ Registry 接收 `ComponentSpec + factory`，在 `create(name)` 时实例化组�
 | `DataAgent` | `run` | 编排上述阶段，不绕过政策门 |
 
 `QueryAuthorization` 是执行前置条件。`QueryResult.trace` 应记录 planning、execution 和 guarding 发生的实际变化。
+查询或数据交付完成后可生成 `UsageEvent`，记录 operation、quantity、返回行数、计算时间和隐私预算；该事件只描述实际消耗，后续由 DataPrice/Analysis 使用，不修改 `PriceQuote` 或 `Payment`。
 
 ## 五、Toolkit 接口
 

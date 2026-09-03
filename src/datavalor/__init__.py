@@ -1,7 +1,18 @@
 """DataValor: a toolkit for data valorization."""
 
 from ._catalog import MODULES, ModuleSpec, ValueStage
-from .core import ArtifactEnvelope, ArtifactRef, ComponentSpec, Registry, RunContext
+from .core import (
+    ArtifactEnvelope,
+    ArtifactRef,
+    ComponentSpec,
+    Registry,
+    RunContext,
+    UnifiedWorkflowRunner,
+    WorkflowRunResult,
+    WorkflowSpec,
+    WorkflowStage,
+    load_workflow_config,
+)
 
 __all__ = [
     "MODULES",
@@ -11,6 +22,11 @@ __all__ = [
     "ModuleSpec",
     "Registry",
     "RunContext",
+    "UnifiedWorkflowRunner",
+    "WorkflowRunResult",
+    "WorkflowSpec",
+    "WorkflowStage",
+    "load_workflow_config",
     "ValueStage",
     "__version__",
 ]

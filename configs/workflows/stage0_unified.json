@@ -1,0 +1,89 @@
+{
+  "workflow_id": "stage0.unified_value_chain",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "DataProduct → governance → profile → evaluation → valuation → pricing → market → query → analysis",
+    "owner": "DIV Lab",
+    "purpose": "stage-0 local end-to-end contract"
+  },
+  "initial_inputs": ["product", "records"],
+  "stages": [
+    {
+      "stage_id": "governance",
+      "handler": "example.governance",
+      "artifact_kind": "governance_report",
+      "schema_version": "datavalor.governance/v1alpha1",
+      "inputs": {"product": "product"},
+      "parameters": {"operation": "valuation_and_query"}
+    },
+    {
+      "stage_id": "profile",
+      "handler": "example.profile",
+      "artifact_kind": "dataset_profile",
+      "schema_version": "datavalor.profile/v1alpha1",
+      "inputs": {"product": "product", "records": "records"}
+    },
+    {
+      "stage_id": "evaluation",
+      "handler": "example.evaluation",
+      "artifact_kind": "evaluation_report",
+      "schema_version": "datavalor.evaluation/v1alpha1",
+      "inputs": {"product": "product", "records": "records", "profile": "profile"},
+      "parameters": {"text_field": "text"}
+    },
+    {
+      "stage_id": "valuation",
+      "handler": "example.valuation",
+      "artifact_kind": "valuation_report",
+      "schema_version": "datavalor.valuation/v1alpha1",
+      "inputs": {"product": "product", "evaluation": "evaluation"},
+      "parameters": {"base_value": 1000, "currency": "CNY", "adoption_cost": "35"}
+    },
+    {
+      "stage_id": "pricing",
+      "handler": "example.pricing",
+      "artifact_kind": "pricing_outcome",
+      "schema_version": "datavalor.pricing/v1alpha1",
+      "inputs": {"product": "product", "valuation": "valuation"},
+      "parameters": {"mechanism": "second_price"}
+    },
+    {
+      "stage_id": "market",
+      "handler": "example.market",
+      "artifact_kind": "transaction_record",
+      "schema_version": "datavalor.market/v1alpha1",
+      "inputs": {"product": "product", "pricing": "pricing"}
+    },
+    {
+      "stage_id": "query",
+      "handler": "example.query",
+      "artifact_kind": "query_result",
+      "schema_version": "datavalor.query/v1alpha1",
+      "inputs": {"product": "product", "market": "market", "records": "records"},
+      "parameters": {"max_rows": 2, "redact_fields": ["email"]}
+    },
+    {
+      "stage_id": "usage",
+      "handler": "example.usage",
+      "artifact_kind": "usage_event",
+      "schema_version": "datavalor.usage/v1alpha1",
+      "inputs": {"product": "product", "query": "query"}
+    },
+    {
+      "stage_id": "analysis",
+      "handler": "example.analysis",
+      "artifact_kind": "analysis_result",
+      "schema_version": "datavalor.analysis/v1alpha1",
+      "inputs": {
+        "governance": "governance",
+        "profile": "profile",
+        "evaluation": "evaluation",
+        "valuation": "valuation",
+        "pricing": "pricing",
+        "market": "market",
+        "query": "query",
+        "usage": "usage"
+      }
+    }
+  ]
+}

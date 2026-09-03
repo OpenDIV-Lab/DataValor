@@ -4,6 +4,18 @@
 > [DVMK 源码迁移执行手册](../migrations/dvmk/README.md)；机器可读计划见
 > [configs/migrations/dvmk/plan.yaml](../../configs/migrations/dvmk/plan.yaml)。
 
+## 阶段 0 落地状态
+
+公共契约和统一链路的第一版已经落到 `datavalor.core.workflow`：
+
+- `WorkflowSpec.from_mapping` / `load_workflow_config` 读取并校验有序阶段、输入 artifact 和参数；
+- `UnifiedWorkflowRunner` 负责按顺序解析输入、调用业务 handler、创建带 `parents` 和诊断信息的 `ArtifactEnvelope`；
+- `LocalArtifactStore` 使用原子 JSON 写入，并在读取时校验调用方提供的 SHA-256 checksum；
+- 必需阶段失败会写出 `workflow.failure` artifact 并标记 `failed_stage`，可选阶段可以记录失败后继续；
+- `configs/workflows/stage0_unified.json`、`data/examples/stage0_records.jsonl` 和 `examples/00_unified_value_chain.py` 提供了治理→画像→评估→估值→定价→市场→查询→使用计量→分析的完整离线链路。
+
+该实现只负责编排和产物边界，不把 DVMK 或任何外部库的内部对象引入公共 API；领域算法仍通过 handler 或现有 DataValor 模块提供。
+
 
 ## 一、已明确的复用方式
 
