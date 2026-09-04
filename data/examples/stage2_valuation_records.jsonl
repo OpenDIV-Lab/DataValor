@@ -1,0 +1,5 @@
+{"id":"r01","segment":"urban","label":1,"fresh":0.98}
+{"id":"r02","segment":"urban","label":0,"fresh":0.95}
+{"id":"r03","segment":"rural","label":1,"fresh":0.83}
+{"id":"r04","segment":"rural","label":0,"fresh":0.80}
+{"id":"r05","segment":"urban","label":1,"fresh":0.72}

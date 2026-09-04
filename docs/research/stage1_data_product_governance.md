@@ -108,6 +108,8 @@ duplicate_rate = (record_count - unique_count) / record_count
 
 阶段 1 输出给 DataValue 的应该是 `MetadataRecord`、`DatasetProfile` 和 `EvaluationReport` 的 artifact 引用。DataValue 再根据 buyer/task/utility 估值；DataPrice 再根据估值、市场规则和 bid/ask 计算报价与支付。阶段 1 本身不会因为 completeness=0.95 就直接生成 95 元或 950 元价格。
 
+阶段 2 的估值入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。它把阶段 1 的治理、画像和质量评估作为上游证据，再显式传入买方、任务和 adoption cost，生成 `ValuationReport`；同时对每个样本运行 Monte Carlo Shapley，生成带 `std_error`、样本数和随机种子的 `ContributionReport`。阶段 2 的输出仍不包含 bid、quote、allocation 或 payment，价格计算继续由 DataPrice 负责。
+
 ## 6. 已知边界
 
 - 当前本地 profiler 面向普通 Python records，不负责大规模分布式计算；Spark/Deequ 应通过已有 adapter 接入。

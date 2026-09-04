@@ -16,5 +16,6 @@ data/examples/*
 !data/examples/README.md
 !data/examples/stage0_records.jsonl
 !data/examples/stage1_quality_records.jsonl
+!data/examples/stage2_valuation_records.jsonl
 data/dataflow_data/*
 !data/dataflow_data/README.md

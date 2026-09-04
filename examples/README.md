@@ -8,6 +8,7 @@
 PYTHONPATH=src python examples/00_unified_value_chain.py
 PYTHONPATH=src python examples/05_stage1_governance_profile_eval.py
 PYTHONPATH=src python examples/06_stage1_unified_workflow.py
+PYTHONPATH=src python examples/07_stage2_task_valuation.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -29,6 +30,7 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 4. 在查询前做用途/权利检查，查询后做字段脱敏和行数限制；
 5. 在有限轮市场中比较真实出价、固定 shading 和预算 pacing 的成交与福利。
 6. 用统一 runner 将阶段 1 的治理、画像、评估结果写成可追溯 artifact。
+7. 在阶段 1 证据之上运行买方任务估值、LOO/Shapley 类贡献度和价值解释。
 
 脚本输出 JSON，方便直接接入 notebook、CI 或后续的 artifact store。示例中的数据都是合成数据；接入真实数据时，应在 `DataReference` 中补充 schema、checksum、来源和许可证信息。
 

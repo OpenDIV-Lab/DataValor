@@ -58,6 +58,8 @@ Before adding concrete algorithms, each module should agree on four small concep
 
 阶段 1 同样提供统一 runner 配置 `configs/workflows/stage1_quality.json` 和入口 `examples/06_stage1_unified_workflow.py`。治理阶段把 metadata、policy、security 作为一个 bundle 保留，画像阶段输出描述性事实，评估阶段接收前两阶段结果并输出质量指标；三阶段 artifact 都写入本地 store，评估 artifact 的 parents 同时记录初始数据和治理/画像阶段，方便后续估值模块按证据引用而不是重新读取原始数据。
 
+阶段 2 的统一入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。它在同一条链路中追加任务上下文、买方偏好和成本，调用 `WeightedUserTaskValuator` 生成价值估计，并用 `TabularTaskUtility` 驱动 Monte Carlo Shapley 生成样本贡献。估值和贡献 artifact 记录 utility 假设、随机种子、标准误和父引用，但不生成价格或支付。
+
 External third-party libraries should normally be wrapped behind adapters that translate their native results into DataValor artifacts. The adapter records the external package/version and preserves native details rather than flattening all outputs prematurely. DVMK is a deliberate exception because it is an existing in-scope codebase: selected DVMK source will be ported, attributed, and substantially refactored into native `datavalor.*` modules, with no runtime dependency on `dvmk`.
 
 ## 4. Data and output policy

@@ -6,3 +6,4 @@
 
 - `stage0_records.jsonl`：统一价值链示例使用的交通记录，字段包括 `id`、`text`、`region` 和 `label`。
 - `stage1_quality_records.jsonl`：阶段 1 质量门禁样本（4 条合成记录）。其中包含一条完全重复记录、一个缺失 `email` 和一个 `score` 类型错误，许可证标识为 `CC-BY-4.0-DEMO`，仅用于离线演示，不代表真实客户数据。
+- `stage2_valuation_records.jsonl`：阶段 2 任务估值样本（5 条合成记录），包含城市分组、二元标签和新鲜度字段，用于演示任务效用与 Shapley 贡献度，不代表真实业务数据。

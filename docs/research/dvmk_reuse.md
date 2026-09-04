@@ -16,6 +16,12 @@
 
 该实现只负责编排和产物边界，不把 DVMK 或任何外部库的内部对象引入公共 API；领域算法仍通过 handler 或现有 DataValor 模块提供。
 
+## 阶段 2 落地状态：DataValue 估值与贡献度
+
+在阶段 1 的治理、画像和质量证据基础上，DataValue 已补充可直接运行的任务效用与贡献分析链路：`TabularTaskUtility` 提供 coverage、diversity、balance、freshness 四项可解释效用；`WeightedUserTaskValuator` 将显式的 buyer/task/rights/costs 和评估向量转换为 `ValueEstimate`；LOO、精确 Shapley、Monte Carlo Shapley 和 Banzhaf 均有 DataValor 原生 wrapper，并在 registry 中可发现。Monte Carlo 结果保留 seed、样本数和标准误，精确方法有最大规模保护，重复 unit ID 会被拒绝。
+
+统一入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。该链路会先运行 governance/profile/evaluation，再产出 valuation 和 contribution artifact；金额是任务条件下的价值估计，不代表市场报价或成交支付。具体公式、复杂度和适用边界见 [阶段 2 实现说明](stage2_data_valuation.md)。
+
 
 ## 一、已明确的复用方式
 

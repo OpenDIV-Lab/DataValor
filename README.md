@@ -653,6 +653,30 @@ PYTHONPATH=src python examples/00_unified_value_chain.py
 
 它使用 `configs/workflows/stage0_unified.json` 依次执行治理、画像、评估、估值、定价、市场、查询、使用计量和分析，并把每个阶段的 artifact 与运行摘要写入 `outputs/stage0-unified/`。
 
+阶段 1 的数据产品与质量基线可以单独运行：
+
+```bash
+PYTHONPATH=src python examples/05_stage1_governance_profile_eval.py
+```
+
+该示例会读取含有重复、缺失值和类型错误的合成记录，生成元数据、权利决策、敏感字段发现、统计画像、版本差异和质量评估结果。
+
+阶段 1 也提供与阶段 0 相同的统一 runner 入口：
+
+```bash
+PYTHONPATH=src python examples/06_stage1_unified_workflow.py
+```
+
+该入口加载 `configs/workflows/stage1_quality.json`，依次落盘治理 bundle、`DatasetProfile` 和 `EvaluationReport` 三个 artifact。每个 artifact 都带有父引用、schema version、运行参数和文件 checksum，可直接作为后续 DataValue/DataPrice 的输入证据。
+
+阶段 2 在同一 runner 上继续执行任务相关估值和数据单元贡献分析：
+
+```bash
+PYTHONPATH=src python examples/07_stage2_task_valuation.py
+```
+
+该入口加载 `configs/workflows/stage2_valuation.json`，先复用阶段 1 的治理、画像和质量评估，再由买方任务上下文驱动 `WeightedUserTaskValuator`，并用 `TabularTaskUtility` 和 Monte Carlo Shapley 计算样本边际贡献。结果写入 `outputs/stage2-valuation/`；这些金额是显式 buyer/task/cost 假设下的价值估计，不是报价、成交价或支付。
+
 按需启用外部治理 connector：
 
 ```bash
@@ -686,6 +710,8 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - [外部仓库复用阶段配置](configs/integrations/external_repo_reuse.yaml)
 - [data_value_market_kit 代码筛选、迁移与改造方案](docs/research/dvmk_reuse.md)
 - [数据估值定价调研与 DataValor 能力地图](docs/research/data_valuation_pricing_landscape.md)
+- [阶段 1：数据产品、治理、画像与质量评估实现说明](docs/research/stage1_data_product_governance.md)
+- [阶段 2：任务效用、估值与数据单元贡献实现说明](docs/research/stage2_data_valuation.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 

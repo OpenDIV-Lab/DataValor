@@ -1,0 +1,18 @@
+{
+  "workflow_id": "stage2.task_valuation_contribution",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "阶段1质量证据 → 买方任务效用 → 数据单元贡献度",
+    "owner": "DIV Lab",
+    "purpose": "stage-2 valuation evidence",
+    "boundary": "输出效用价值与贡献度，不执行报价、拍卖或支付"
+  },
+  "initial_inputs": ["product", "records", "task", "buyer"],
+  "stages": [
+    {"stage_id": "governance", "handler": "stage2.governance", "artifact_kind": "governance_bundle", "inputs": {"product": "product", "records": "records"}, "parameters": {"operation": "valuation"}},
+    {"stage_id": "profile", "handler": "stage2.profile", "artifact_kind": "dataset_profile", "inputs": {"product": "product", "records": "records"}},
+    {"stage_id": "evaluation", "handler": "stage2.evaluation", "artifact_kind": "evaluation_report", "inputs": {"product": "product", "records": "records", "profile": "profile", "governance": "governance"}},
+    {"stage_id": "valuation", "handler": "stage2.valuation", "artifact_kind": "valuation_report", "inputs": {"product": "product", "task": "task", "buyer": "buyer", "evaluation": "evaluation", "governance": "governance"}, "parameters": {"base_value": 1000, "currency": "CNY"}},
+    {"stage_id": "contribution", "handler": "stage2.contribution", "artifact_kind": "contribution_report", "inputs": {"product": "product", "records": "records", "task": "task", "profile": "profile", "evaluation": "evaluation"}, "parameters": {"method": "shapley_monte_carlo", "samples": 512, "seed": 23}}
+  ]
+}

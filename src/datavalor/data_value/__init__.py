@@ -1,7 +1,10 @@
 """DataValue: task-aware and user-aware data valuation."""
 
 from .contribution import (
+    BanzhafValuator,
+    ExactShapleyValuator,
     LeaveOneOutValuator,
+    MonteCarloShapleyValuator,
     exact_shapley_values,
     leave_one_out_values,
     monte_carlo_shapley_values,
@@ -24,7 +27,19 @@ from .registry import (
     VALUATORS,
 )
 from .requirements import load_requirements, merge_requirement_bundles
+from .utilities import TabularTaskUtility
 from .valuators import WeightedUserTaskValuator
+
+for _component, _registry in (
+    (WeightedUserTaskValuator(), VALUATORS),
+    (TabularTaskUtility({},), UTILITY_FUNCTIONS),
+    (LeaveOneOutValuator(), CONTRIBUTION_VALUATORS),
+    (ExactShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (MonteCarloShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (BanzhafValuator(), CONTRIBUTION_VALUATORS),
+):
+    if _component.spec.name not in _registry:
+        _registry.register(_component.spec, type(_component))
 
 __all__ = [
     "CONTRIBUTION_VALUATORS",
@@ -43,11 +58,15 @@ __all__ = [
     "ValuationRequest",
     "ValuationTarget",
     "ValueEstimate",
+    "BanzhafValuator",
+    "ExactShapleyValuator",
     "LeaveOneOutValuator",
+    "MonteCarloShapleyValuator",
     "WeightedUserTaskValuator",
     "exact_shapley_values",
     "leave_one_out_values",
     "load_requirements",
     "merge_requirement_bundles",
     "monte_carlo_shapley_values",
+    "TabularTaskUtility",
 ]
