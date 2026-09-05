@@ -9,6 +9,7 @@ PYTHONPATH=src python examples/00_unified_value_chain.py
 PYTHONPATH=src python examples/05_stage1_governance_profile_eval.py
 PYTHONPATH=src python examples/06_stage1_unified_workflow.py
 PYTHONPATH=src python examples/07_stage2_task_valuation.py
+PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -22,6 +23,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 
 `06_stage1_unified_workflow.py` 使用 `configs/workflows/stage1_quality.json` 和阶段 0 相同的统一 runner，将 DataGov、DataProf、DataEval 串成三个可追溯 stage；结果和每个阶段的 artifact 写入 `outputs/stage1-workflow/`。
 
+`08_stage3_advanced_valuation.py` 在阶段 2 链路上增加质量调整估值、保守/基准/乐观情景、受限符号表达式、线性模型训练/预测、精确 Shapley、Group Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊总价值；结果写入 `outputs/stage3-valuation/`。
+
 这些脚本分别覆盖：
 
 1. 统一主链路：治理、画像、评估、估值、定价、市场、查询、使用计量和分析；
@@ -31,6 +34,7 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 5. 在有限轮市场中比较真实出价、固定 shading 和预算 pacing 的成交与福利。
 6. 用统一 runner 将阶段 1 的治理、画像、评估结果写成可追溯 artifact。
 7. 在阶段 1 证据之上运行买方任务估值、LOO/Shapley 类贡献度和价值解释。
+8. 使用阶段 3 的安全符号表达式、线性学习型估值、精确 Shapley 和贡献价值分摊。
 
 脚本输出 JSON，方便直接接入 notebook、CI 或后续的 artifact store。示例中的数据都是合成数据；接入真实数据时，应在 `DataReference` 中补充 schema、checksum、来源和许可证信息。
 

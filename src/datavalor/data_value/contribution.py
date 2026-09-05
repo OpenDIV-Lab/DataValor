@@ -13,6 +13,32 @@ from .interfaces import ContributionValuator, UtilityFunction
 from .models import ContributionReport, ContributionRequest, ValueEstimate
 
 
+def allocate_value_by_contribution(
+    total_value: float,
+    contributions: Sequence[ValueEstimate],
+    *,
+    negative_policy: str = "zero",
+) -> tuple[ValueEstimate, ...]:
+    """Allocate a monetary estimate proportionally to positive utility contributions.
+
+    This is an explicit accounting transformation, not a new valuation method:
+    the source report remains in utility units and the returned estimates carry
+    ``unit='monetary_allocation'`` plus the original contribution.  Negative
+    contributions are either zeroed (default) or retained in the denominator
+    when ``negative_policy='signed'``.
+    """
+    amount = float(total_value)
+    if not math.isfinite(amount) or amount < 0:
+        raise ValueError("total_value must be a finite non-negative number")
+    if negative_policy not in {"zero", "signed"}:
+        raise ValueError("negative_policy must be 'zero' or 'signed'")
+    weights = [float(item.value) if negative_policy == "signed" else max(0.0, float(item.value)) for item in contributions]
+    denominator = sum(weights)
+    if denominator == 0:
+        return tuple(ValueEstimate(item.target_id, 0.0, "monetary_allocation", components={"source_contribution": float(item.value), "allocation_total": amount}, explanation={"negative_policy": negative_policy}) for item in contributions)
+    return tuple(ValueEstimate(item.target_id, amount * weight / denominator, "monetary_allocation", components={"source_contribution": float(item.value), "allocation_total": amount}, explanation={"negative_policy": negative_policy}) for item, weight in zip(contributions, weights))
+
+
 def _ids(records: Sequence[Any]) -> tuple[str, ...]:
     result = []
     for index, item in enumerate(records):
@@ -147,4 +173,4 @@ class BanzhafValuator(ContributionValuator):
         return ContributionReport(request.product.product_id, "banzhaf", estimates, utility_calls=calls, converged=True, diagnostics={"max_records": max_records})
 
 
-__all__ = ["BanzhafValuator", "ExactShapleyValuator", "LeaveOneOutValuator", "MonteCarloShapleyValuator", "leave_one_out_values", "exact_shapley_values", "monte_carlo_shapley_values"]
+__all__ = ["BanzhafValuator", "ExactShapleyValuator", "LeaveOneOutValuator", "MonteCarloShapleyValuator", "allocate_value_by_contribution", "leave_one_out_values", "exact_shapley_values", "monte_carlo_shapley_values"]

@@ -60,6 +60,8 @@ Before adding concrete algorithms, each module should agree on four small concep
 
 阶段 2 的统一入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。它在同一条链路中追加任务上下文、买方偏好和成本，调用 `WeightedUserTaskValuator` 生成价值估计，并用 `TabularTaskUtility` 驱动 Monte Carlo Shapley 生成样本贡献。估值和贡献 artifact 记录 utility 假设、随机种子、标准误和父引用，但不生成价格或支付。
 
+阶段 3 的统一入口为 `examples/08_stage3_advanced_valuation.py`，配置为 `configs/workflows/stage3_advanced_valuation.json`。它进一步执行质量调整和情景估值、受限符号估值、线性模型训练/预测、精确与分组 Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊价值；结果保留公式、系数、RMSE、区间、规模边界和父引用，仍与 DataPrice 的报价和支付分离。
+
 External third-party libraries should normally be wrapped behind adapters that translate their native results into DataValor artifacts. The adapter records the external package/version and preserves native details rather than flattening all outputs prematurely. DVMK is a deliberate exception because it is an existing in-scope codebase: selected DVMK source will be ported, attributed, and substantially refactored into native `datavalor.*` modules, with no runtime dependency on `dvmk`.
 
 ## 4. Data and output policy

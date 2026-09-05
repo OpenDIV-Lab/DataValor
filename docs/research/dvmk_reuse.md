@@ -22,6 +22,10 @@
 
 统一入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。该链路会先运行 governance/profile/evaluation，再产出 valuation 和 contribution artifact；金额是任务条件下的价值估计，不代表市场报价或成交支付。具体公式、复杂度和适用边界见 [阶段 2 实现说明](stage2_data_valuation.md)。
 
+## 阶段 3 落地状态：高级估值与贡献分摊
+
+阶段 3 已在同一 DataValue 契约上补充 `SymbolicValuator`、`QualityAdjustedValuator`、`ScenarioValuator`、`LearnedLinearValuator`、`ExactShapleyValuator`、`MonteCarloShapleyValuator`、`BanzhafValuator`、`GroupShapleyValuator`、两两交互、Bootstrap LOO 和 `allocate_value_by_contribution`。符号表达式使用受限 AST，学习型估值提供 `fit → value` 和 RMSE 诊断，任务指标覆盖分类/回归/排序，贡献方法具备规模保护、重复 ID 校验、随机种子、标准误和区间，价值分摊明确区分 utility 与 monetary allocation。完整链路见 `configs/workflows/stage3_advanced_valuation.json` 与 `examples/08_stage3_advanced_valuation.py`，细节见 [阶段 3 实现说明](stage3_advanced_valuation.md)。
+
 
 ## 一、已明确的复用方式
 

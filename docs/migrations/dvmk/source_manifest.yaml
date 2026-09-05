@@ -89,6 +89,13 @@ batches:
       - src/datavalor/data_value/contribution.py
       - src/datavalor/data_value/requirements.py
       - src/datavalor/data_value/valuators.py
+      - src/datavalor/data_value/utilities.py
+      - src/datavalor/data_value/value_functions.py
+      - src/datavalor/data_value/task_metrics.py
+      - src/datavalor/data_value/contribution_advanced.py
+      - src/datavalor/data_value/advanced_valuation.py
+      - configs/workflows/stage3_advanced_valuation.json
+      - examples/08_stage3_advanced_valuation.py
     target_interfaces:
       - datavalor.data_value.ContributionValuator
       - datavalor.data_value.DataValuator
@@ -97,9 +104,15 @@ batches:
       - ported leave-one-out, exact Shapley and Monte Carlo Shapley calculations
       - ported requirement loading and bundle merging
       - ported transparent weighted user-task valuation
+      - added safe AST-based symbolic valuation and ridge linear trainable valuation
+      - added classification, regression, ranking and incremental-gain task metrics
+      - added group Shapley, pairwise interaction, bootstrap stability and quality/scenario valuation
+      - added Banzhaf contribution and proportional monetary allocation with negative policy
+      - added a complete artifact workflow and stage-3 regression tests
       - separated contribution reports and value estimates from prices and payments
     tests_migrated:
       - tests/test_stage23_evaluation_valuation.py
+      - tests/test_stage3_advanced_valuation.py
     status: completed
   - batch_id: stage_04_pricing_mechanisms_v1
     source_paths: [src/dvmk/pricing/]

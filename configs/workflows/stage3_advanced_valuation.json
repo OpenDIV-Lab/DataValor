@@ -1,0 +1,26 @@
+{
+  "workflow_id": "stage3.advanced_data_valuation",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "阶段1证据 → 符号/学习型估值 → 贡献度 → 贡献分摊",
+    "owner": "DIV Lab",
+    "purpose": "stage-3 valuation and contribution methods",
+    "boundary": "不执行报价、拍卖、支付或交易"
+  },
+  "initial_inputs": ["product", "records", "task", "buyer"],
+  "stages": [
+    {"stage_id": "governance", "handler": "stage3.governance", "artifact_kind": "governance_bundle", "inputs": {"product": "product", "records": "records"}, "parameters": {"operation": "valuation"}},
+    {"stage_id": "profile", "handler": "stage3.profile", "artifact_kind": "dataset_profile", "inputs": {"product": "product", "records": "records"}},
+    {"stage_id": "evaluation", "handler": "stage3.evaluation", "artifact_kind": "evaluation_report", "inputs": {"product": "product", "records": "records", "profile": "profile", "governance": "governance"}},
+    {"stage_id": "quality_adjusted", "handler": "stage3.quality_adjusted", "artifact_kind": "valuation_report", "inputs": {"product": "product", "task": "task", "buyer": "buyer", "evaluation": "evaluation", "governance": "governance"}, "parameters": {"base_value": 1000, "currency": "CNY", "quality_floor": 0.5}},
+    {"stage_id": "symbolic_valuation", "handler": "stage3.symbolic_valuation", "artifact_kind": "valuation_report", "inputs": {"product": "product", "task": "task", "buyer": "buyer", "evaluation": "evaluation", "governance": "governance"}, "parameters": {"expression": "base_value * (0.7 * quality + 0.3 * uniqueness) * buyer_multiplier - adoption_cost", "base_value": 1000, "currency": "CNY"}},
+    {"stage_id": "scenarios", "handler": "stage3.scenarios", "artifact_kind": "scenario_valuation_report", "inputs": {"product": "product", "task": "task", "buyer": "buyer", "evaluation": "evaluation"}, "parameters": {"base_value": 1000, "currency": "CNY"}},
+    {"stage_id": "model_training", "handler": "stage3.model_training", "artifact_kind": "training_report", "inputs": {"product": "product", "task": "task", "buyer": "buyer"}},
+    {"stage_id": "learned_valuation", "handler": "stage3.learned_valuation", "artifact_kind": "valuation_report", "inputs": {"product": "product", "task": "task", "buyer": "buyer", "evaluation": "evaluation", "training": "model_training"}},
+    {"stage_id": "contribution", "handler": "stage3.contribution", "artifact_kind": "contribution_report", "inputs": {"product": "product", "records": "records", "task": "task", "evaluation": "evaluation"}, "parameters": {"method": "shapley_exact", "max_records": 10}},
+    {"stage_id": "group_contribution", "handler": "stage3.group_contribution", "artifact_kind": "group_contribution_report", "inputs": {"product": "product", "records": "records", "task": "task"}, "parameters": {"max_groups": 8}},
+    {"stage_id": "interactions", "handler": "stage3.interactions", "artifact_kind": "interaction_report", "inputs": {"product": "product", "records": "records", "task": "task"}},
+    {"stage_id": "bootstrap", "handler": "stage3.bootstrap", "artifact_kind": "contribution_stability_report", "inputs": {"product": "product", "records": "records", "task": "task"}, "parameters": {"samples": 128, "seed": 31}},
+    {"stage_id": "allocation", "handler": "stage3.allocation", "artifact_kind": "contribution_value_allocation", "inputs": {"valuation": "symbolic_valuation", "contribution": "contribution"}, "parameters": {"negative_policy": "zero"}}
+  ]
+}

@@ -677,6 +677,14 @@ PYTHONPATH=src python examples/07_stage2_task_valuation.py
 
 该入口加载 `configs/workflows/stage2_valuation.json`，先复用阶段 1 的治理、画像和质量评估，再由买方任务上下文驱动 `WeightedUserTaskValuator`，并用 `TabularTaskUtility` 和 Monte Carlo Shapley 计算样本边际贡献。结果写入 `outputs/stage2-valuation/`；这些金额是显式 buyer/task/cost 假设下的价值估计，不是报价、成交价或支付。
 
+阶段 3 的高级估值与贡献分摊链路：
+
+```bash
+PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
+```
+
+该入口继续沿用统一 runner，追加安全符号估值、线性模型训练/预测、精确 Shapley 和贡献金额分摊，结果写入 `outputs/stage3-valuation/`。
+
 按需启用外部治理 connector：
 
 ```bash
@@ -712,6 +720,7 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - [数据估值定价调研与 DataValor 能力地图](docs/research/data_valuation_pricing_landscape.md)
 - [阶段 1：数据产品、治理、画像与质量评估实现说明](docs/research/stage1_data_product_governance.md)
 - [阶段 2：任务效用、估值与数据单元贡献实现说明](docs/research/stage2_data_valuation.md)
+- [阶段 3：符号估值、学习型估值与贡献分摊实现说明](docs/research/stage3_advanced_valuation.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 

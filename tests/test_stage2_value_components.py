@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datavalor.core import (
+    ActorProfile,
+    ActorRole,
     DataProduct,
     DataReference,
     DataScope,
@@ -14,9 +16,13 @@ from datavalor.data_value import (
     BanzhafValuator,
     ContributionRequest,
     ExactShapleyValuator,
+    LearnedLinearValuator,
     MonteCarloShapleyValuator,
+    SymbolicValuator,
     TabularTaskUtility,
+    ValuationRequest,
     ValuationTarget,
+    allocate_value_by_contribution,
 )
 
 
@@ -40,3 +46,24 @@ def test_tabular_utility_and_registered_contribution_methods():
     assert len(banzhaf.contributions) == 3 and banzhaf.utility_calls == 24
     assert isinstance(UTILITY_FUNCTIONS.create("utility.tabular_task"), TabularTaskUtility)
     assert "missing" not in VALUATORS
+
+
+def test_symbolic_and_learned_valuation_and_allocation():
+    product, task, _ = _request()
+    buyer = ActorProfile("buyer", ActorRole.BUYER, preferences={"value_multiplier": 1.1})
+    request = ValuationRequest(product, (ValuationTarget("dataset", product.product_id, DataScope.DATASET),), buyer, task, product.rights, options={"evaluation_vector": {"quality": 0.8, "uniqueness": 0.9}})
+    context = RunContext("v3")
+    symbolic = SymbolicValuator("base_value * (0.7 * quality + 0.3 * uniqueness) * buyer_multiplier", base_value=100)
+    assert symbolic.value(request, context).estimates[0].value == 91.3
+    model = LearnedLinearValuator(("quality", "uniqueness"))
+    requests = [request, ValuationRequest(product, request.targets, buyer, task, product.rights, options={"evaluation_vector": {"quality": 0.2, "uniqueness": 0.4}})]
+    model.fit(requests, [80.0, 40.0], context)
+    assert model.value(request, context).estimates[0].value > 0
+    allocations = allocate_value_by_contribution(100, symbolic.value(request, context).estimates)
+    assert allocations[0].unit == "monetary_allocation" and allocations[0].value == 100
+    try:
+        SymbolicValuator("__import__('os').system('echo bad')")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unsafe expression was accepted")
