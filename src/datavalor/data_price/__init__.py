@@ -1,5 +1,6 @@
 """DataPrice: pricing algorithms and mechanism design."""
 
+from .constraints import PriceBandConstraint, VolumeDiscountConstraint
 from .interfaces import OnlinePricingModel, PriceConstraint, PricingMechanism, PricingModel
 from .mechanisms import (
     BudgetFeasibleProcurement,
@@ -17,6 +18,11 @@ from .mechanisms import (
     SecondPriceAuction,
     VCGMechanism,
 )
+from .mechanisms_advanced import (
+    BudgetAwareProcurement,
+    MultiUnitUniformPriceAuction,
+    QualityAwareProcurement,
+)
 from .models import (
     Allocation,
     Ask,
@@ -29,12 +35,40 @@ from .models import (
     PricingRequest,
     QuoteRequest,
 )
+from .pricing_models import (
+    AdaptiveDemandPricingModel,
+    CostPlusPricingModel,
+    QualityFreshnessPricingModel,
+    UsageBasedPricingModel,
+    ValueBasedPricingModel,
+)
+from .properties import (
+    check_budget_feasibility,
+    check_capacity_feasibility,
+    check_individual_rationality,
+    evaluate_pricing_properties,
+)
 from .registry import (
     ONLINE_PRICING_MODELS,
     PRICE_CONSTRAINTS,
     PRICING_MECHANISMS,
     PRICING_MODELS,
 )
+
+for _component, _registry in (
+    (CostPlusPricingModel(), PRICING_MODELS),
+    (ValueBasedPricingModel(), PRICING_MODELS),
+    (UsageBasedPricingModel(), PRICING_MODELS),
+    (QualityFreshnessPricingModel(), PRICING_MODELS),
+    (AdaptiveDemandPricingModel(), ONLINE_PRICING_MODELS),
+    (PriceBandConstraint(), PRICE_CONSTRAINTS),
+    (VolumeDiscountConstraint(), PRICE_CONSTRAINTS),
+    (MultiUnitUniformPriceAuction(), PRICING_MECHANISMS),
+    (BudgetAwareProcurement(), PRICING_MECHANISMS),
+    (QualityAwareProcurement(), PRICING_MECHANISMS),
+):
+    if _component.spec.name not in _registry:
+        _registry.register(_component.spec, type(_component))
 
 __all__ = [
     "ONLINE_PRICING_MODELS",
@@ -69,4 +103,18 @@ __all__ = [
     "ProportionalShareProcurement",
     "SecondPriceAuction",
     "VCGMechanism",
+    "AdaptiveDemandPricingModel",
+    "CostPlusPricingModel",
+    "QualityFreshnessPricingModel",
+    "UsageBasedPricingModel",
+    "ValueBasedPricingModel",
+    "PriceBandConstraint",
+    "VolumeDiscountConstraint",
+    "MultiUnitUniformPriceAuction",
+    "BudgetAwareProcurement",
+    "QualityAwareProcurement",
+    "check_budget_feasibility",
+    "check_capacity_feasibility",
+    "check_individual_rationality",
+    "evaluate_pricing_properties",
 ]

@@ -23,7 +23,10 @@ def _money(value, currency="CNY") -> Money:
 def _outcome(name, allocations=(), payments=(), *, welfare=None, diagnostics=None):
     revenue = {}
     for payment in payments:
-        revenue[payment.payee_id] = Money(revenue.get(payment.payee_id, Money(Decimal("0"), payment.amount.currency)).amount + payment.amount.amount, payment.amount.currency)
+        previous = revenue.get(payment.payee_id)
+        if previous is not None and previous.currency != payment.amount.currency:
+            raise ValueError(f"mixed currencies for seller {payment.payee_id}")
+        revenue[payment.payee_id] = Money((previous.amount if previous else Decimal("0")) + payment.amount.amount, payment.amount.currency)
     return PricingOutcome(name, tuple(allocations), tuple(payments), welfare, revenue, diagnostics=diagnostics or {})
 
 
@@ -76,8 +79,15 @@ class FreshnessAdjustedPostedPrice(PostedPriceMechanism):
     name = "freshness_adjusted_posted_price"
 
     def price(self, request, context):
-        freshness = float(request.market_context.get("freshness", 1.0)); self.price_value = _money(self.price_value.amount * Decimal(str(freshness)), self.currency)
-        return super().price(request, context)
+        freshness = Decimal(str(request.market_context.get("freshness", 1.0)))
+        original = self.price_value
+        self.price_value = _money(original.amount * max(Decimal("0"), freshness), self.currency)
+        try:
+            return super().price(request, context)
+        finally:
+            # A mechanism instance may be reused across requests; freshness
+            # is request-local and must not compound over repeated calls.
+            self.price_value = original
 
 
 class MenuPricingMechanism(PostedPriceMechanism):

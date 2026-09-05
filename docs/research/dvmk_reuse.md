@@ -26,6 +26,12 @@
 
 阶段 3 已在同一 DataValue 契约上补充 `SymbolicValuator`、`QualityAdjustedValuator`、`ScenarioValuator`、`LearnedLinearValuator`、`ExactShapleyValuator`、`MonteCarloShapleyValuator`、`BanzhafValuator`、`GroupShapleyValuator`、两两交互、Bootstrap LOO 和 `allocate_value_by_contribution`。符号表达式使用受限 AST，学习型估值提供 `fit → value` 和 RMSE 诊断，任务指标覆盖分类/回归/排序，贡献方法具备规模保护、重复 ID 校验、随机种子、标准误和区间，价值分摊明确区分 utility 与 monetary allocation。完整链路见 `configs/workflows/stage3_advanced_valuation.json` 与 `examples/08_stage3_advanced_valuation.py`，细节见 [阶段 3 实现说明](stage3_advanced_valuation.md)。
 
+## 阶段 4 落地状态：报价、采购与机制性质
+
+阶段 4 将 DataValue 的估值证据接入 DataPrice，但不把估值结果冒充成交价。当前实现包括四种无第三方依赖的报价模型（成本加成、价值分成、按量计费、质量/新鲜度调整）和带接受反馈的在线需求调价；所有模型都输出 Decimal-backed `Money`、组成项、币种和有效期。价格带和阶梯量价折扣以独立约束组件投影报价并保留 provenance diagnostics。
+
+机制侧新增数量出价的多单位统一价格拍卖（支持部分成交、边际成交价、reserve、welfare）、可跳过不可负担 ask 的预算采购，以及按质量/成本比排序的采购。个体理性、预算可行和容量可行检查会返回具体违规 witness；数量竞价按单位 bid 与实际成交量比较，避免把单位价误判为总价。测试覆盖空市场、reserve 阻断、部分数量、预算尘埃、币种和非法折扣等边界。运行入口为 `examples/09_stage4_pricing_and_mechanisms.py`，配置为 `configs/workflows/stage4_pricing.json`，详细公式和生产边界见 [阶段 4 调研与实现说明](stage4_pricing_mechanisms.md)。
+
 
 ## 一、已明确的复用方式
 

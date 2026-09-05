@@ -198,7 +198,10 @@ stages:
       - src/dvmk/pricing/utils.py
       - src/dvmk/pricing/registry.py
       - src/dvmk/pricing/mechanisms/
-    target_paths: [src/datavalor/data_price/]
+    target_paths:
+      - src/datavalor/data_price/
+      - configs/workflows/stage4_pricing.json
+      - examples/09_stage4_pricing_and_mechanisms.py
     components:
       - name: quote_models
         source_symbols: [Bid, PricingResult, clean_money, value_of, capacity_of, demand_of]
@@ -225,9 +228,23 @@ stages:
         source_symbols: [ContextualBanditPostedPrice, NoArbitrageProjectionPricing]
         target_interface: datavalor.data_price.OnlinePricingModel
         refactor: split_quote_observe_and_log_exposure_state
+      - name: advanced_quote_models
+        source_symbols: [CostPlusPricingModel, ValueBasedPricingModel, UsageBasedPricingModel, QualityFreshnessPricingModel, AdaptiveDemandPricingModel]
+        target_interface: datavalor.data_price.PricingModel
+        refactor: explicit_cost_value_usage_quality_inputs_and_online_acceptance_feedback
+      - name: multi_unit_and_budget_mechanisms
+        source_symbols: [MultiUnitUniformPriceAuction, BudgetAwareProcurement, QualityAwareProcurement]
+        target_interface: datavalor.data_price.PricingMechanism
+        refactor: quantity_allocation_partial_fill_marginal_price_and_budget_guard
+      - name: executable_properties
+        source_symbols: [check_individual_rationality, check_budget_feasibility, check_capacity_feasibility]
+        target_interface: datavalor.data_price.PricingOutcome
+        refactor: return_property_status_and_violation_witnesses
     tests:
       - data_value_market_kit/tests/test_advanced_pricing_valuation.py
       - data_value_market_kit/tests/test_remaining_phases.py
+      - tests/test_stage4_pricing_models.py
+      - tests/test_stage4_mechanisms_properties.py
     acceptance:
       - ValueEstimate, Bid, PriceQuote and Payment are distinct types
       - all money arithmetic uses Decimal

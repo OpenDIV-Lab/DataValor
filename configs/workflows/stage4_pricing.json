@@ -1,0 +1,19 @@
+{
+  "workflow_id": "stage4.pricing_mechanisms",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "阶段3估值结果进入报价、约束、市场机制和性质检查",
+    "owner": "DIV Lab",
+    "purpose": "stage-4 pricing and mechanism design",
+    "boundary": "机制输出的是分配与应付金额，不包含支付清算、税务或反洗钱"
+  },
+  "initial_inputs": ["product", "quote_request", "market_request", "procurement_request"],
+  "stages": [
+    {"stage_id": "quote_models", "handler": "stage4.quote_models", "artifact_kind": "price_quote_bundle", "inputs": {"product": "product", "request": "quote_request"}, "parameters": {"models": ["cost_plus", "value_based", "usage_based", "quality_freshness"]}},
+    {"stage_id": "quote_constraints", "handler": "stage4.quote_constraints", "artifact_kind": "constrained_quote_bundle", "inputs": {"quotes": "quote_models"}, "parameters": {"floor": 300, "ceiling": 750, "volume_tiers": [[1, 0], [10, 0.05], [100, 0.15]]}},
+    {"stage_id": "auction", "handler": "stage4.multi_unit_auction", "artifact_kind": "pricing_outcome", "inputs": {"request": "market_request"}, "parameters": {"mechanism": "uniform_price", "supply": 100}},
+    {"stage_id": "budget_procurement", "handler": "stage4.budget_procurement", "artifact_kind": "pricing_outcome", "inputs": {"request": "procurement_request"}, "parameters": {"mechanism": "quality_aware", "partial_quantity": true}},
+    {"stage_id": "property_checks", "handler": "stage4.property_checks", "artifact_kind": "mechanism_property_report", "inputs": {"auction": "auction", "market_request": "market_request", "procurement": "budget_procurement", "procurement_request": "procurement_request"}},
+    {"stage_id": "analysis", "handler": "stage4.analysis", "artifact_kind": "pricing_analysis", "inputs": {"quotes": "quote_constraints", "auction": "auction", "procurement": "budget_procurement", "properties": "property_checks"}}
+  ]
+}

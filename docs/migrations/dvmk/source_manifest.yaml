@@ -116,7 +116,14 @@ batches:
     status: completed
   - batch_id: stage_04_pricing_mechanisms_v1
     source_paths: [src/dvmk/pricing/]
-    target_paths: [src/datavalor/data_price/mechanisms.py]
+    target_paths:
+      - src/datavalor/data_price/mechanisms.py
+      - src/datavalor/data_price/pricing_models.py
+      - src/datavalor/data_price/constraints.py
+      - src/datavalor/data_price/properties.py
+      - src/datavalor/data_price/mechanisms_advanced.py
+      - configs/workflows/stage4_pricing.json
+      - examples/09_stage4_pricing_and_mechanisms.py
     target_interfaces:
       - datavalor.data_price.PricingMechanism
       - datavalor.data_price.PriceConstraint
@@ -124,7 +131,17 @@ batches:
     changes:
       - ported auction, posted-price, VCG, procurement and projection implementations
       - normalized monetary arithmetic to Decimal-backed Money
-    tests_migrated: [tests/test_stage45_pricing_market_analysis.py]
+      - added cost-plus, value-based, usage-based and quality/freshness quote models
+      - added adaptive demand online pricing with acceptance feedback
+      - added price-band and volume-discount constraints with provenance diagnostics
+      - added multi-unit uniform-price auction with partial quantity and welfare
+      - added budget-aware and quality-aware procurement with numerical dust guard
+      - added executable individual-rationality, budget and capacity checks
+      - added stage-4 end-to-end example and declarative workflow configuration
+    tests_migrated:
+      - tests/test_stage45_pricing_market_analysis.py
+      - tests/test_stage4_pricing_models.py
+      - tests/test_stage4_mechanisms_properties.py
     status: completed
   - batch_id: stage_05_market_benchmark_analysis_v1
     source_paths:

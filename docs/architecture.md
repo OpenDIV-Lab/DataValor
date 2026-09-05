@@ -62,6 +62,12 @@ Before adding concrete algorithms, each module should agree on four small concep
 
 阶段 3 的统一入口为 `examples/08_stage3_advanced_valuation.py`，配置为 `configs/workflows/stage3_advanced_valuation.json`。它进一步执行质量调整和情景估值、受限符号估值、线性模型训练/预测、精确与分组 Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊价值；结果保留公式、系数、RMSE、区间、规模边界和父引用，仍与 DataPrice 的报价和支付分离。
 
+### 3.4 阶段 4：DataPrice 报价与机制基线
+
+阶段 4 沿用前述 artifact 链路，不重新设计 workflow：阶段 3 的 `estimated_value`、质量向量、权利和成本进入 `QuoteRequest`，由 `PricingModel` 产生 `PriceQuote`，随后由 `PriceConstraint` 做价格带/量价折扣投影，最后由 `PricingMechanism` 根据 bid、ask、supply 和预算计算 `PricingOutcome`。新增的 cost-plus、value-based、usage-based、quality/freshness 和在线需求调整模型都可独立替换；统一使用 Decimal-backed `Money` 并记录 quote 有效期、组成项和诊断。
+
+多单位统一价格拍卖支持数量出价、部分成交和边际成交价；预算采购支持跳过不可负担 ask、最后一个 ask 部分购买，质量感知采购按质量/成本比排序。性质检查组件输出个体理性、预算可行和容量可行的 witness，便于回放测试。该阶段只计算应付金额和收入，不承诺支付清算、税费、交付或激励相容；具体公式、复杂度、测试边界和生产替换点见 [阶段 4 调研与实现说明](research/stage4_pricing_mechanisms.md)。可运行入口为 `examples/09_stage4_pricing_and_mechanisms.py`，配置为 `configs/workflows/stage4_pricing.json`。
+
 External third-party libraries should normally be wrapped behind adapters that translate their native results into DataValor artifacts. The adapter records the external package/version and preserves native details rather than flattening all outputs prematurely. DVMK is a deliberate exception because it is an existing in-scope codebase: selected DVMK source will be ported, attributed, and substantially refactored into native `datavalor.*` modules, with no runtime dependency on `dvmk`.
 
 ## 4. Data and output policy

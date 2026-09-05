@@ -352,6 +352,8 @@ DataPrice 回答“在给定估值证据、权利、报价、供需和机制规�
 
 DataPrice 聚焦报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。Stage 4 已将 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束实现落位到此模块；后续继续补充机制性质测试。
 
+阶段 4 还提供可直接运行的 `CostPlusPricingModel`、`ValueBasedPricingModel`、`UsageBasedPricingModel`、`QualityFreshnessPricingModel` 和 `AdaptiveDemandPricingModel`，以及价格带、阶梯量价折扣、多单位统一价格拍卖、预算感知/质量感知采购。`evaluate_pricing_properties` 会对个体理性、预算和容量约束给出可审计的 violations witness。报价、估值、支付保持分离：报价模型可参考估值，但拍卖支付由边际出价或 ask reserve 决定。完整公式、复杂度和边界见 [阶段 4 调研与实现说明](docs/research/stage4_pricing_mechanisms.md)，端到端运行 `PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py`。
+
 [返回模块索引](#module-index)
 
 <a id="module-datamarket"></a>
