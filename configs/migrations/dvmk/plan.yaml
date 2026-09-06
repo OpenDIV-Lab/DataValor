@@ -263,6 +263,9 @@ stages:
       - src/datavalor/data_market/simulation/
       - src/datavalor/toolkit/benchmark/
       - src/datavalor/toolkit/analysis/
+      - src/datavalor/data_market/operations.py
+      - configs/workflows/stage5_market_benchmark.json
+      - examples/10_stage5_market_benchmark_analysis.py
     components:
       - name: participant_strategies
         source_symbols: [TruthfulStrategy, FixedShadingStrategy, AdaptiveShadingStrategy, EpsilonGreedyShadingStrategy, BudgetPacingStrategy, MultiplicativeWeightsStrategy, BestResponseGridStrategy, ContextualShadingStrategy]
@@ -284,11 +287,24 @@ stages:
         source_symbols: [bootstrap_mean_interval, pareto_frontier, scalarized_rank, run_analysis, _paired_comparisons]
         target_interface: datavalor.toolkit.analysis.Analyzer
         refactor: artifact_refs_assumptions_warnings_and_failure_witnesses
+      - name: market_operations
+        source_symbols: [MarketCatalog, ParticipantRepository, RevenueAllocator]
+        target_interface: datavalor.data_market.InMemoryMarketCatalog
+        refactor: rights_aware_discovery_role_filtered_participants_and_decimal_revenue_reconciliation
+      - name: advanced_strategy_learning
+        source_symbols: [AdaptiveShadingStrategy, EpsilonGreedyShadingStrategy, MultiplicativeWeightsStrategy, BestResponseGridStrategy, ContextualShadingStrategy]
+        target_interface: datavalor.data_market.simulation.ParticipantStrategy
+        refactor: implement_stateful_updates_and_expose_learning_diagnostics
+      - name: reproducible_experiment_matrix
+        source_symbols: [run_benchmark, _stable_seed, _aggregate]
+        target_interface: datavalor.toolkit.benchmark.BenchmarkRunner
+        refactor: deterministic_hash_seeds_raw_observations_and_failure_retention
     tests:
       - tests/test_stage45_pricing_market_analysis.py
       - data_value_market_kit/tests/test_market_benchmark_phase_three.py
       - data_value_market_kit/tests/test_simulation_analysis_phases_four_five.py
       - data_value_market_kit/tests/test_remaining_phases.py
+      - tests/test_stage5_market_benchmark_analysis.py
     acceptance:
       - simulation does not claim equilibrium or no-regret by default
       - benchmark stores raw observations before aggregates

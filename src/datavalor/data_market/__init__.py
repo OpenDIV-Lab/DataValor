@@ -18,6 +18,11 @@ from .models import (
     RevenueShare,
     TransactionRecord,
 )
+from .operations import (
+    ContributionRevenueAllocator,
+    InMemoryMarketCatalog,
+    InMemoryParticipantRepository,
+)
 from .registry import (
     INCENTIVE_POLICIES,
     MARKET_CATALOGS,
@@ -28,13 +33,41 @@ from .registry import (
     TRANSACTION_PROCESSORS,
 )
 from .simulation import (
+    AdaptiveShadingStrategy,
+    BestResponseGridStrategy,
+    BudgetPacingStrategy,
+    ContextualShadingStrategy,
+    EpsilonGreedyShadingStrategy,
+    FiniteMarketSimulator,
+    FixedReserveSellerStrategy,
+    FixedShadingStrategy,
     MarketObservation,
     MarketSimulator,
+    MultiplicativeWeightsStrategy,
     ParticipantStrategy,
     SimulationReport,
     SimulationStep,
     StrategyDecision,
+    TruthfulStrategy,
 )
+
+for _component, _registry in (
+    (InMemoryMarketCatalog(), MARKET_CATALOGS),
+    (InMemoryParticipantRepository(), PARTICIPANT_REPOSITORIES),
+    (ContributionRevenueAllocator(), REVENUE_ALLOCATORS),
+    (FiniteMarketSimulator(), MARKET_SIMULATORS),
+    (TruthfulStrategy(), PARTICIPANT_STRATEGIES),
+    (FixedShadingStrategy(), PARTICIPANT_STRATEGIES),
+    (AdaptiveShadingStrategy(), PARTICIPANT_STRATEGIES),
+    (EpsilonGreedyShadingStrategy(), PARTICIPANT_STRATEGIES),
+    (BudgetPacingStrategy(), PARTICIPANT_STRATEGIES),
+    (MultiplicativeWeightsStrategy(), PARTICIPANT_STRATEGIES),
+    (BestResponseGridStrategy(), PARTICIPANT_STRATEGIES),
+    (ContextualShadingStrategy(), PARTICIPANT_STRATEGIES),
+    (FixedReserveSellerStrategy(), PARTICIPANT_STRATEGIES),
+):
+    if _component.spec.name not in _registry:
+        _registry.register(_component.spec, type(_component))
 
 __all__ = [
     "INCENTIVE_POLICIES",
@@ -64,4 +97,17 @@ __all__ = [
     "StrategyDecision",
     "TransactionProcessor",
     "TransactionRecord",
+    "FiniteMarketSimulator",
+    "TruthfulStrategy",
+    "FixedShadingStrategy",
+    "AdaptiveShadingStrategy",
+    "EpsilonGreedyShadingStrategy",
+    "BudgetPacingStrategy",
+    "MultiplicativeWeightsStrategy",
+    "BestResponseGridStrategy",
+    "ContextualShadingStrategy",
+    "FixedReserveSellerStrategy",
+    "ContributionRevenueAllocator",
+    "InMemoryMarketCatalog",
+    "InMemoryParticipantRepository",
 ]

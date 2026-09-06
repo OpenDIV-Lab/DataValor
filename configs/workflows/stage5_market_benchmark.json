@@ -1,0 +1,18 @@
+{
+  "workflow_id": "stage5.market_benchmark_analysis",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "有限轮市场仿真、策略矩阵 benchmark、bootstrap 比较和 Pareto 分析",
+    "owner": "DIV Lab",
+    "purpose": "stage-5 market simulation and reproducible analysis",
+    "boundary": "结果是有限样本实验观察，不是均衡、因果或激励相容证明"
+  },
+  "initial_inputs": ["market_snapshot", "benchmark_spec"],
+  "stages": [
+    {"stage_id": "simulation", "handler": "stage5.market_simulation", "artifact_kind": "simulation_report", "inputs": {"market": "market_snapshot"}, "parameters": {"rounds": 12, "mechanism": "first_price"}},
+    {"stage_id": "benchmark", "handler": "stage5.matrix_benchmark", "artifact_kind": "benchmark_report", "inputs": {"spec": "benchmark_spec"}, "parameters": {"repetitions": 5, "retain_raw_observations": true}},
+    {"stage_id": "statistics", "handler": "stage5.bootstrap_analysis", "artifact_kind": "analysis_result", "inputs": {"benchmark": "benchmark"}, "parameters": {"confidence": 0.95, "resamples": 2000}},
+    {"stage_id": "comparison", "handler": "stage5.paired_comparison", "artifact_kind": "comparison_result", "inputs": {"benchmark": "benchmark", "statistics": "statistics"}, "parameters": {"paired_by": ["case_id", "repetition"]}},
+    {"stage_id": "frontier", "handler": "stage5.pareto_frontier", "artifact_kind": "frontier_result", "inputs": {"benchmark": "benchmark", "comparison": "comparison"}, "parameters": {"objectives": {"revenue": "max", "volatility": "min"}}}
+  ]
+}

@@ -152,6 +152,9 @@ batches:
       - src/datavalor/data_market/simulation/
       - src/datavalor/toolkit/benchmark/market.py
       - src/datavalor/toolkit/analysis/
+      - src/datavalor/data_market/operations.py
+      - configs/workflows/stage5_market_benchmark.json
+      - examples/10_stage5_market_benchmark_analysis.py
     target_interfaces:
       - datavalor.data_market.simulation.ParticipantStrategy
       - datavalor.data_market.simulation.MarketSimulator
@@ -163,7 +166,14 @@ batches:
       - ported participant strategy families and finite multi-round simulation
       - ported welfare/revenue benchmark measurements and repetition matrix runner
       - ported bootstrap, paired comparison and Pareto frontier helpers
-    tests_migrated: [tests/test_stage45_pricing_market_analysis.py]
+      - implemented participant-specific state transitions and explicit non-equilibrium diagnostics
+      - added adaptive, bandit, multiplicative-weights, UCB and contextual strategy updates
+      - added in-memory listing/participant operations and contribution revenue reconciliation
+      - added stable matrix seeds, simulation metrics, failure witnesses and directional Pareto analysis
+      - added executable stage-5 benchmark example and workflow configuration
+    tests_migrated:
+      - tests/test_stage45_pricing_market_analysis.py
+      - tests/test_stage5_market_benchmark_analysis.py
     status: completed
   - batch_id: stage_06_native_integration_v1
     source_paths:

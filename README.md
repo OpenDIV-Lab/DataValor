@@ -394,6 +394,8 @@ DataMarket 回答“数据产品如何注册和发现，市场参与者如何行
 
 `MARKET_CATALOGS`、`PARTICIPANT_REPOSITORIES`、`INCENTIVE_POLICIES`、`REVENUE_ALLOCATORS`、`TRANSACTION_PROCESSORS`、`PARTICIPANT_STRATEGIES`、`MARKET_SIMULATORS`。
 
+阶段 5 新增 `InMemoryMarketCatalog`（带用途/权利/标签/元数据过滤的挂牌发现）、`InMemoryParticipantRepository`（角色和属性筛选）和 `ContributionRevenueAllocator`（Decimal 金额、负贡献截断、分币种残差回补和总额精确对账）。有限轮仿真与策略学习的详细说明见 [阶段 5 调研与实现说明](docs/research/stage5_market_benchmark_analysis.md)。
+
 DataMarket 负责市场流程、参与者互动、激励、交易和收入分配，并沿用 DataEval、DataValue 与 DataPrice 的结果模型。
 
 ### E4 外部市场与仿真适配器

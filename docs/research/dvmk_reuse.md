@@ -32,6 +32,14 @@
 
 机制侧新增数量出价的多单位统一价格拍卖（支持部分成交、边际成交价、reserve、welfare）、可跳过不可负担 ask 的预算采购，以及按质量/成本比排序的采购。个体理性、预算可行和容量可行检查会返回具体违规 witness；数量竞价按单位 bid 与实际成交量比较，避免把单位价误判为总价。测试覆盖空市场、reserve 阻断、部分数量、预算尘埃、币种和非法折扣等边界。运行入口为 `examples/09_stage4_pricing_and_mechanisms.py`，配置为 `configs/workflows/stage4_pricing.json`，详细公式和生产边界见 [阶段 4 调研与实现说明](stage4_pricing_mechanisms.md)。
 
+## 阶段 5 落地状态：市场仿真、Benchmark 与统计分析
+
+阶段 5 消费阶段 4 的 `PricingOutcome`，用于可重复的有限轮市场实验，而不是重新定义价格。`FiniteMarketSimulator` 实现 participant-specific observation、策略决策、机制调用和下一轮快照转移，支持 truthful、固定/自适应 shading、epsilon-greedy、multiplicative weights、UCB 网格最佳响应、budget pacing、contextual shading 与 seller reserve 策略。每轮保留 decisions、bid/ask 数量、outcome 和 actor IDs，摘要提供 conversion、收入、报告福利和买方支出，并明确 `equilibrium_claimed: false`。
+
+`MatrixBenchmarkRunner` 对 component×case×repetition 生成稳定 SHA-256 seed，保留每个 raw observation 后再计算均值、标准差、极值和失败计数。`MarketOutcomeMetric` 与 `SimulationReportMetric` 分开测量单轮和多轮结果，避免把 seller revenue 误作 welfare。分析工具新增 bootstrap 均值区间、配对 bootstrap、regret summary、支持 max/min 方向的 Pareto frontier 和 scalarized score；分析结果包含 seed、方法、目标方向和空观测 warning。
+
+运行入口为 `examples/10_stage5_market_benchmark_analysis.py`，配置为 `configs/workflows/stage5_market_benchmark.json`。示例在相同 seller reserve 下比较三种买方策略，运行 5 次重复实验并输出 15 条原始观测、bootstrap 结果、成对差异和 Pareto 前沿。详细算法假设和生产边界见 [阶段 5 调研与实现说明](stage5_market_benchmark_analysis.md)。
+
 
 ## 一、已明确的复用方式
 

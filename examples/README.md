@@ -11,6 +11,7 @@ PYTHONPATH=src python examples/06_stage1_unified_workflow.py
 PYTHONPATH=src python examples/07_stage2_task_valuation.py
 PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
 PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py
+PYTHONPATH=src python examples/10_stage5_market_benchmark_analysis.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -27,6 +28,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `08_stage3_advanced_valuation.py` 在阶段 2 链路上增加质量调整估值、保守/基准/乐观情景、受限符号表达式、线性模型训练/预测、精确 Shapley、Group Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊总价值；结果写入 `outputs/stage3-valuation/`。
 
 `09_stage4_pricing_and_mechanisms.py` 将估值证据转换为四种可解释报价，依次执行价格带和阶梯折扣约束，再用数量出价运行多单位统一价格拍卖；同一产品还通过质量/成本比排序的预算采购完成部分购买。脚本最后检查个体理性、预算可行和容量可行，并把完整 quote、allocation、payment、seller revenue、welfare 与诊断写入 `outputs/stage4-pricing/result.json`。对应配置为 `configs/workflows/stage4_pricing.json`；配置描述稳定的阶段顺序，脚本中的 handler 展示如何将领域实现接入统一 runner。
+
+`10_stage5_market_benchmark_analysis.py` 在相同市场案例中运行 truthful、fixed shading、budget pacing 三种策略，使用稳定种子执行 5 次 × 3 个策略的矩阵实验，保留 15 条原始观测，再计算 bootstrap 区间、成对差异和收入/波动 Pareto 前沿。结果写入 `outputs/stage5-market/result.json`，对应配置为 `configs/workflows/stage5_market_benchmark.json`。这是一套有限样本实验工具，不将结果宣称为均衡或因果结论。
 
 这些脚本分别覆盖：
 
