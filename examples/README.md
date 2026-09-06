@@ -12,6 +12,7 @@ PYTHONPATH=src python examples/07_stage2_task_valuation.py
 PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
 PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py
 PYTHONPATH=src python examples/10_stage5_market_benchmark_analysis.py
+PYTHONPATH=src python examples/11_stage7_multimodal_evaluation.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -31,6 +32,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 
 `10_stage5_market_benchmark_analysis.py` 在相同市场案例中运行 truthful、fixed shading、budget pacing 三种策略，使用稳定种子执行 5 次 × 3 个策略的矩阵实验，保留 15 条原始观测，再计算 bootstrap 区间、成对差异和收入/波动 Pareto 前沿。结果写入 `outputs/stage5-market/result.json`，对应配置为 `configs/workflows/stage5_market_benchmark.json`。这是一套有限样本实验工具，不将结果宣称为均衡或因果结论。
 
+`11_stage7_multimodal_evaluation.py` 分别调用 tabular/text/image/audio/video/multimodal 文件中的指标，生成六组独立 `MetricResult`，保留各自的 score direction、统计量、证据和诊断。它覆盖表格 IQR 异常值与标签熵、文本重复率、图像像素范围、音频削波/静音、视频时序与隐私，以及多模态 checksum/时间对齐；结果写入 `outputs/stage7-evaluation/result.json`，对应配置为 `configs/workflows/stage7_multimodal_evaluation.json`。
+
 这些脚本分别覆盖：
 
 1. 统一主链路：治理、画像、评估、估值、定价、市场、查询、使用计量和分析；
@@ -41,6 +44,7 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 6. 用统一 runner 将阶段 1 的治理、画像、评估结果写成可追溯 artifact。
 7. 在阶段 1 证据之上运行买方任务估值、LOO/Shapley 类贡献度和价值解释。
 8. 使用阶段 3 的安全符号表达式、线性学习型估值、精确 Shapley 和贡献价值分摊。
+9. 按模态运行表格、文本、图像、音频、视频和多模态质量评估。
 
 脚本输出 JSON，方便直接接入 notebook、CI 或后续的 artifact store。示例中的数据都是合成数据；接入真实数据时，应在 `DataReference` 中补充 schema、checksum、来源和许可证信息。
 

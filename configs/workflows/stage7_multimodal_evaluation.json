@@ -1,0 +1,19 @@
+{
+  "workflow_id": "stage7.multimodal_evaluation",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "metadata": {
+    "description": "按模态执行 tabular/text/image/audio/video/multimodal DataEval 指标",
+    "owner": "DIV Lab",
+    "purpose": "stage-7 modality-specific data evaluation",
+    "boundary": "质量评估输出不是估值或价格；重型 CV/NLP 后端由 adapter 按需接入"
+  },
+  "initial_inputs": ["tabular_records", "text_records", "image_records", "audio_records", "video_records", "multimodal_records"],
+  "stages": [
+    {"stage_id": "tabular_evaluation", "handler": "stage7.tabular", "artifact_kind": "evaluation_report", "inputs": {"records": "tabular_records"}, "parameters": {"metrics": ["schema_consistency", "numeric_statistics", "outlier_rate", "label_balance"]}},
+    {"stage_id": "text_evaluation", "handler": "stage7.text", "artifact_kind": "evaluation_report", "inputs": {"records": "text_records"}, "parameters": {"metrics": ["lexical_diversity", "length_quality", "repetition_rate"]}},
+    {"stage_id": "image_evaluation", "handler": "stage7.image", "artifact_kind": "evaluation_report", "inputs": {"records": "image_records"}, "parameters": {"metrics": ["metadata_quality", "aspect_ratio_consistency", "pixel_validity"]}},
+    {"stage_id": "audio_evaluation", "handler": "stage7.audio", "artifact_kind": "evaluation_report", "inputs": {"records": "audio_records"}, "parameters": {"metrics": ["metadata_quality", "clipping_rate", "silence_rate"]}},
+    {"stage_id": "video_evaluation", "handler": "stage7.video", "artifact_kind": "evaluation_report", "inputs": {"records": "video_records"}, "parameters": {"metrics": ["format_probe", "motion", "scene_segmentation", "temporal_ssim", "privacy_cv"]}},
+    {"stage_id": "multimodal_evaluation", "handler": "stage7.multimodal", "artifact_kind": "evaluation_report", "inputs": {"records": "multimodal_records"}, "parameters": {"metrics": ["package_integrity", "alignment"]}}
+  ]
+}

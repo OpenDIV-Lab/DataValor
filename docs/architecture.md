@@ -58,6 +58,8 @@ Before adding concrete algorithms, each module should agree on four small concep
 
 阶段 1 同样提供统一 runner 配置 `configs/workflows/stage1_quality.json` 和入口 `examples/06_stage1_unified_workflow.py`。治理阶段把 metadata、policy、security 作为一个 bundle 保留，画像阶段输出描述性事实，评估阶段接收前两阶段结果并输出质量指标；三阶段 artifact 都写入本地 store，评估 artifact 的 parents 同时记录初始数据和治理/画像阶段，方便后续估值模块按证据引用而不是重新读取原始数据。
 
+本轮模态化扩展在不改变 `QualityMetric`/`MetricResult` 契约的前提下，将指标按输入形态拆到 `data_eval/tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py`。表格文件实现 schema 一致性、数值统计、IQR 异常值与标签熵；文本实现词汇多样性、长度和重复；图像实现元数据、宽高比和像素范围；音频实现时长/采样率、削波与静音；视频实现格式探测、采样帧运动、场景边界、时序 SSIM 与隐私风险；多模态实现必需模态、checksum、重复 ID 和时间对齐。六类指标均保留 scope、direction、statistics、evidence 与 diagnostics，核心运行不依赖重型 CV/NLP 库。入口为 `examples/11_stage7_multimodal_evaluation.py`，配置为 `configs/workflows/stage7_multimodal_evaluation.json`，详细算法与生产替换点见 [模态化 DataEval 扩展说明](research/stage7_modal_evaluation.md)。
+
 阶段 2 的统一入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。它在同一条链路中追加任务上下文、买方偏好和成本，调用 `WeightedUserTaskValuator` 生成价值估计，并用 `TabularTaskUtility` 驱动 Monte Carlo Shapley 生成样本贡献。估值和贡献 artifact 记录 utility 假设、随机种子、标准误和父引用，但不生成价格或支付。
 
 阶段 3 的统一入口为 `examples/08_stage3_advanced_valuation.py`，配置为 `configs/workflows/stage3_advanced_valuation.json`。它进一步执行质量调整和情景估值、受限符号估值、线性模型训练/预测、精确与分组 Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊价值；结果保留公式、系数、RMSE、区间、规模边界和父引用，仍与 DataPrice 的报价和支付分离。

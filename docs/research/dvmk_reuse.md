@@ -40,6 +40,10 @@
 
 运行入口为 `examples/10_stage5_market_benchmark_analysis.py`，配置为 `configs/workflows/stage5_market_benchmark.json`。示例在相同 seller reserve 下比较三种买方策略，运行 5 次重复实验并输出 15 条原始观测、bootstrap 结果、成对差异和 Pareto 前沿。详细算法假设和生产边界见 [阶段 5 调研与实现说明](stage5_market_benchmark_analysis.md)。
 
+## 模态化 DataEval 扩展落地状态
+
+参考 DVMK 的 `evaluation/text`、`image`、`audio`、`video` 与 `multimodal` 目录，本轮将 DataEval 质量指标拆分为 `tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py`。新增实现覆盖表格 schema/数值统计/IQR 异常值/标签熵、文本 lexical diversity/长度/重复、图像元数据/宽高比/像素有效性、音频时长采样率/削波/静音、视频格式探测/采样帧运动/场景边界/时序 SSIM/隐私风险，以及多模态完整性/checksum/重复 ID/时间对齐。核心代码不加载重型依赖，真实 CV/NLP/音频后端可通过 adapter 提供同名字段并保留版本和采样诊断。详细算法、复杂度和边界见 [模态化 DataEval 扩展说明](stage7_modal_evaluation.md)。
+
 
 ## 一、已明确的复用方式
 

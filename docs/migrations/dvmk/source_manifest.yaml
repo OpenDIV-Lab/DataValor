@@ -201,3 +201,36 @@ batches:
     tests_migrated:
       - tests/test_stage6_cli.py
     status: completed
+  - batch_id: stage_07_modal_evaluation_v1
+    source_paths:
+      - src/dvmk/evaluation/text/
+      - src/dvmk/evaluation/image/
+      - src/dvmk/evaluation/audio/
+      - src/dvmk/evaluation/video/
+      - src/dvmk/evaluation/multimodal/
+    target_paths:
+      - src/datavalor/data_eval/_modal_utils.py
+      - src/datavalor/data_eval/tabular.py
+      - src/datavalor/data_eval/text.py
+      - src/datavalor/data_eval/image.py
+      - src/datavalor/data_eval/audio.py
+      - src/datavalor/data_eval/video.py
+      - src/datavalor/data_eval/multimodal.py
+      - configs/workflows/stage7_multimodal_evaluation.json
+      - examples/11_stage7_multimodal_evaluation.py
+    target_interfaces:
+      - datavalor.data_eval.QualityMetric
+      - datavalor.data_eval.MetricResult
+    changes:
+      - split evaluation metrics into independent modality files
+      - added tabular schema, distribution, outlier and label-balance metrics
+      - added text lexical, length and repetition metrics
+      - added image metadata, aspect-ratio and pixel-validity metrics
+      - added audio metadata, clipping and silence metrics
+      - added video format, motion, scene, temporal and privacy metrics
+      - added multimodal package integrity, checksum and timestamp alignment
+      - preserved metric direction, scope, evidence and diagnostics
+      - added offline modality evaluation example and workflow configuration
+    tests_migrated:
+      - tests/test_stage7_modal_evaluation.py
+    status: completed

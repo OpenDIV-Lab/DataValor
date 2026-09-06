@@ -262,7 +262,7 @@ DataEval 回答“数据在明确维度、粒度和任务下表现如何”。�
 
 `QUALITY_METRICS`、`EVALUATORS`、`TASK_UTILITY_EVALUATORS`。
 
-DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别在 DataValue、DataMarket 与 DataPrice 中生成。Stage 2 已将代表性的文本指标、字段统计和 task utility 能力落位到此处；其余评估算子按相同 DataEval 契约继续扩展。
+DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别在 DataValue、DataMarket 与 DataPrice 中生成。当前除基础完整性/重复率/字段有效性外，还按模态拆分了 `tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py`：表格覆盖 schema、数值分布、IQR 异常值和标签熵；文本覆盖词汇多样性、长度和重复；图像覆盖尺寸/格式/通道、宽高比和像素范围；音频覆盖时长/采样率、削波和静音；视频覆盖格式探测、采样帧运动、场景边界、时序 SSIM 和隐私检测；多模态覆盖包完整性、重复 ID、checksum 和时间对齐。每个指标都返回独立方向、统计量、evidence 和 diagnostics，不把模态质量压成一个不可解释分数。统一运行入口为 `examples/11_stage7_multimodal_evaluation.py`，配置为 `configs/workflows/stage7_multimodal_evaluation.json`。
 
 ### E1 外部评估适配器
 

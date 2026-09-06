@@ -335,3 +335,51 @@ stages:
       - DataValor installs and runs without DVMK installed
       - examples and docs use datavalor names only
       - third-party notices and migration manifest are complete
+
+  - id: stage_07_modal_evaluation
+    title: 模态化数据质量评估扩展
+    status: completed
+    scope: selected_implementations
+    depends_on: [stage_06_native_integration]
+    source_paths:
+      - src/dvmk/evaluation/text/
+      - src/dvmk/evaluation/image/
+      - src/dvmk/evaluation/audio/
+      - src/dvmk/evaluation/video/
+      - src/dvmk/evaluation/multimodal/
+    target_paths:
+      - src/datavalor/data_eval/tabular.py
+      - src/datavalor/data_eval/text.py
+      - src/datavalor/data_eval/image.py
+      - src/datavalor/data_eval/audio.py
+      - src/datavalor/data_eval/video.py
+      - src/datavalor/data_eval/multimodal.py
+      - examples/11_stage7_multimodal_evaluation.py
+    components:
+      - name: tabular_metrics
+        source_symbols: [SchemaConsistency, NumericStatistics, OutlierRate, LabelBalance]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: iqr_entropy_schema_and_evidence_preserving_metrics
+      - name: text_metrics
+        source_symbols: [TextLexicalDiversity, TextLengthQuality, TextRepetitionRate]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: dependency_free_token_metrics_with_record_level_evidence
+      - name: image_audio_metrics
+        source_symbols: [ImageMetadataQuality, ImageAspectRatio, ImagePixelValidity, AudioMetadataQuality, AudioClipping, AudioSilence]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: manifest_and_signal_checks_without_mandatory_external_dependencies
+      - name: video_metrics
+        source_symbols: [get_video_metadata, iter_sampled_frames, VideoFormatProbe, VideoMotionMetadata, VideoOpticalFlowMotionScore, VideoSceneSegmentationScore, VideoTemporalSSIMConsistency, VideoPrivacyCVScore]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: sampled_frame_and_manifest_metrics_with_explicit_cv_backend_boundary
+      - name: multimodal_integrity
+        source_symbols: [MultimodalPackageIntegrity, MultimodalAlignment]
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: canonical_checksum_required_modalities_and_timestamp_alignment
+    tests:
+      - tests/test_stage7_modal_evaluation.py
+    acceptance:
+      - every metric declares scope direction unit statistics evidence and diagnostics
+      - modality implementations are separated into independent files
+      - heavy CV/NLP/audio dependencies remain optional adapters
+      - evaluation reports remain distinct from valuation and pricing
