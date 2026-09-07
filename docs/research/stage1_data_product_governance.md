@@ -118,3 +118,7 @@ duplicate_rate = (record_count - unique_count) / record_count
 - 缺失值只按 `None` 判断；空字符串、特殊缺失码和 NaN 需要在项目规则中显式标准化。
 - 画像 comparator 目前不计算分布距离；漂移可在后续接入 Evidently 或自定义 DataEval metric。
 - `CompositeEvaluator` 记录失败但不自动重试；重试和超时属于外部 runner 或 adapter 的职责。
+
+## 7. 本轮 DataGov 增量
+
+阶段 1 的治理边界现在还包括四个可直接调用的实现：`LineageGraph`、`RightsMatrixEvaluator`、`MetadataDiff` 和 `GovernanceAuditBundle`。它们只扩展已有模型，不改变统一 workflow：血缘图使用节点/边保存转换、配置 hash 和 checksum，并以 BFS 找出受影响的 evaluation、valuation、quote；权利矩阵把用途、商业使用、再分发、司法辖区、到期时间与 actor/task 约束合并为可解释决策；版本 diff 对字段删除、类型变化、checksum、记录数和权利收紧做 breaking/re-evaluation 分类；审计 bundle 保留报告、证据引用、血缘摘要和下游重算建议。完整规则和运行示例见 [DataGov 血缘、权利与版本扩展](datagov_lineage_rights_versioning.md)。

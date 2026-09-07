@@ -1,5 +1,6 @@
 """DataGov: governance, standards, cleaning, security, and metadata."""
 
+from .audit import GovernanceAuditBundle, audit_status, build_governance_audit, summarize_findings
 from .builtins import (
     InMemoryMetadataCatalog,
     LocalMetadataExtractor,
@@ -27,6 +28,16 @@ from .interfaces import (
     PolicyEvaluator,
     SecurityScanner,
 )
+from .lineage import (
+    LineageEdge,
+    LineageGraph,
+    LineageNode,
+    affected_artifacts,
+    build_lineage_graph,
+    compare_lineage,
+    trace_downstream,
+    trace_upstream,
+)
 from .models import (
     CatalogQuery,
     FieldSchema,
@@ -48,6 +59,21 @@ from .registry import (
     POLICY_EVALUATORS,
     SECURITY_SCANNERS,
     STANDARDIZERS,
+)
+from .rights_matrix import (
+    RightsEvaluation,
+    RightsMatrixEvaluator,
+    evaluate_rights_matrix,
+    explain_rights_failure,
+    rights_expiry_window,
+    rights_intersection,
+)
+from .version_diff import (
+    MetadataDiff,
+    compare_metadata_records,
+    compare_products,
+    quality_impact_summary,
+    requires_re_evaluation,
 )
 
 for _component, _registry in (
@@ -99,4 +125,8 @@ __all__ = [
     "LocalMetadataExtractor",
     "RightsPolicyEvaluator",
     "SensitiveFieldScanner",
+    "LineageNode", "LineageEdge", "LineageGraph", "build_lineage_graph", "trace_upstream", "trace_downstream", "affected_artifacts", "compare_lineage",
+    "RightsEvaluation", "RightsMatrixEvaluator", "evaluate_rights_matrix", "rights_intersection", "rights_expiry_window", "explain_rights_failure",
+    "MetadataDiff", "compare_metadata_records", "compare_products", "quality_impact_summary", "requires_re_evaluation",
+    "GovernanceAuditBundle", "build_governance_audit", "summarize_findings", "audit_status",
 ]

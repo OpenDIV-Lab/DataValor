@@ -7,6 +7,47 @@ note: >-
   这是完整实现文件迁移记录模板。每一批迁移填写 source_paths、target_paths、
   target_interfaces、changes、tests_migrated 和 status；迁入后源命名空间必须被替换。
 batches:
+  - batch_id: dataprof_statistics_drift_v1
+    source_paths:
+      - src/dvmk/evaluation/
+      - src/dvmk/distribution/
+    target_paths:
+      - src/datavalor/data_prof/advanced.py
+      - examples/13_dataprof_statistics_drift.py
+    target_interfaces:
+      - datavalor.data_prof.ProfileMetric
+      - datavalor.data_prof.DatasetProfile
+    changes:
+      - added robust quantile/IQR and concentration descriptors
+      - added pairwise correlation and deterministic stratified sampling
+      - added PSI and Jensen-Shannon distribution drift report
+      - kept descriptive profile facts separate from quality and valuation decisions
+    tests_migrated:
+      - tests/test_dataprof_extensions.py
+    status: completed
+  - batch_id: datagov_lineage_rights_versioning_v1
+    source_paths:
+      - src/dvmk/core/artifacts.py
+      - src/dvmk/data_product/
+      - src/dvmk/distribution/
+    target_paths:
+      - src/datavalor/data_gov/lineage.py
+      - src/datavalor/data_gov/rights_matrix.py
+      - src/datavalor/data_gov/version_diff.py
+      - src/datavalor/data_gov/audit.py
+      - examples/12_datagov_lineage_rights_audit.py
+    target_interfaces:
+      - datavalor.data_gov.MetadataRecord
+      - datavalor.data_gov.GovernanceReport
+      - datavalor.core.ArtifactRef
+    changes:
+      - deterministic graph traversal, cycle validation and impact analysis
+      - purpose/commercial/redistribution/jurisdiction/expiry rights matrix
+      - schema/checksum/statistics/rights version diff and rerun gates
+      - composed governance, security, lineage and diff evidence
+    tests_migrated:
+      - tests/test_datagov_extensions.py
+    status: completed
   - batch_id: stage_00_inventory_v1
     source_paths:
       - src/dvmk/core/

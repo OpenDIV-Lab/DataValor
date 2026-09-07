@@ -13,6 +13,8 @@ PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
 PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py
 PYTHONPATH=src python examples/10_stage5_market_benchmark_analysis.py
 PYTHONPATH=src python examples/11_stage7_multimodal_evaluation.py
+PYTHONPATH=src python examples/12_datagov_lineage_rights_audit.py
+PYTHONPATH=src python examples/13_dataprof_statistics_drift.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -33,6 +35,10 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `10_stage5_market_benchmark_analysis.py` 在相同市场案例中运行 truthful、fixed shading、budget pacing 三种策略，使用稳定种子执行 5 次 × 3 个策略的矩阵实验，保留 15 条原始观测，再计算 bootstrap 区间、成对差异和收入/波动 Pareto 前沿。结果写入 `outputs/stage5-market/result.json`，对应配置为 `configs/workflows/stage5_market_benchmark.json`。这是一套有限样本实验工具，不将结果宣称为均衡或因果结论。
 
 `11_stage7_multimodal_evaluation.py` 分别调用 tabular/text/image/audio/video/multimodal 文件中的指标，生成六组独立 `MetricResult`，保留各自的 score direction、统计量、证据和诊断。它覆盖表格 IQR 异常值与标签熵、文本重复率、图像像素范围、音频削波/静音、视频时序与隐私，以及多模态 checksum/时间对齐；结果写入 `outputs/stage7-evaluation/result.json`，对应配置为 `configs/workflows/stage7_multimodal_evaluation.json`。
+
+`12_datagov_lineage_rights_audit.py` 使用同一套 DataGov 模型构造 v1/v2 元数据，比较字段删除、checksum 和权利收紧；再从 source 经 evaluation、valuation 连接到 quote，运行上下游影响分析。RightsMatrixEvaluator 同时检查用途、商业使用和司法辖区，最后把决策、发现、版本差异、血缘摘要和重新评估建议汇总为审计 bundle，写入 `outputs/datagov-extension/result.json`。
+
+`13_dataprof_statistics_drift.py` 展示 DataProf 的描述性增强：对数值字段计算分位数、IQR、变异系数和 Tukey 异常围栏；对类别字段计算熵、Gini 集中度和 top-k 覆盖；对数值字段对计算 Pearson 相关；再用固定种子进行比例分层抽样，并以 PSI/JS divergence 比较两个快照的分布变化。结果写入 `outputs/dataprof-extension/result.json`，漂移报告只描述分布差异，不代替 DataEval 的质量结论。
 
 这些脚本分别覆盖：
 

@@ -204,6 +204,9 @@ timeout、有限 retry 和审计诊断，外部 URN、entity、DataFrame 和 con
 
 DataGov 聚焦来源、权利、处理规则与政策判断；统计画像、质量评估、估值和价格计算分别由 DataProf、DataEval、DataValue 与 DataPrice 承载。
 
+本模块还提供四个可直接运行的治理扩展：`LineageGraph` 用 BFS/拓扑排序追踪 source 到 evaluation、valuation、quote 的影响；`RightsMatrixEvaluator` 结合 actor、task、用途、商业使用、再分发、辖区和期限给出 allow/deny/review；`MetadataDiff` 比较 schema、checksum、统计量和权利并生成重新评估门禁；`GovernanceAuditBundle` 将上述证据聚合为可写入现有 artifact store 的 payload。详细规则见 [DataGov 血缘、权利与版本扩展说明](docs/research/datagov_lineage_rights_versioning.md)，完整示例为 `examples/12_datagov_lineage_rights_audit.py`。
+
+
 [返回模块索引](#module-index)
 
 <a id="module-dataprof"></a>
@@ -232,6 +235,8 @@ DataProf 回答“数据是什么样的”。它生成字段类型、缺失、�
 `PROFILE_METRICS`、`PROFILERS`、`PROFILE_COMPARATORS`。
 
 DataProf 聚焦数据的描述性画像；分布变化的可接受性由 DataEval metric 或 DataGov policy 结合具体场景判断。
+
+在基础画像之外，`advanced.py` 提供可注册的 `RobustStatisticsMetric`（分位数、IQR、变异系数和 Tukey 围栏）、`CategoricalConcentrationMetric`（熵、Gini 集中度与 top-k 覆盖）、`PairwiseCorrelationMetric`（Pearson 与协方差）、`stratified_sample`（固定种子的比例分层抽样）和 `DriftAnalyzer`（数值 PSI、类别 JS divergence）。这些输出仍是描述性事实；漂移阈值不等同于质量结论，具体门禁由 DataEval/DataGov 决定。完整示例为 `examples/13_dataprof_statistics_drift.py`，说明见 `docs/research/dataprof_statistics_drift.md`。
 
 [返回模块索引](#module-index)
 

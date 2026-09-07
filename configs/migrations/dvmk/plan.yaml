@@ -383,3 +383,69 @@ stages:
       - modality implementations are separated into independent files
       - heavy CV/NLP/audio dependencies remain optional adapters
       - evaluation reports remain distinct from valuation and pricing
+
+  - id: stage_08_datagov_lineage_rights_versioning
+    title: DataGov 血缘、权利矩阵与版本影响扩展
+    status: completed
+    scope: additive_implementations
+    depends_on: [stage_07_modal_evaluation]
+    source_paths: [src/dvmk/core/artifacts.py, src/dvmk/data_product/, src/dvmk/distribution/]
+    target_paths:
+      - src/datavalor/data_gov/lineage.py
+      - src/datavalor/data_gov/rights_matrix.py
+      - src/datavalor/data_gov/version_diff.py
+      - src/datavalor/data_gov/audit.py
+      - examples/12_datagov_lineage_rights_audit.py
+    components:
+      - name: lineage_graph_impact
+        target_interface: datavalor.data_gov.LineageGraph
+        refactor: bfs_upstream_downstream_topological_validation_and_digest
+      - name: rights_matrix
+        target_interface: datavalor.data_gov.RightsMatrixEvaluator
+        refactor: actor_task_operation_rights_and_expiry_decisions
+      - name: metadata_version_diff
+        target_interface: datavalor.data_gov.MetadataDiff
+        refactor: schema_checksum_statistics_rights_changes_and_rerun_gates
+      - name: governance_audit_bundle
+        target_interface: datavalor.data_gov.GovernanceAuditBundle
+        refactor: compose_metadata_security_policy_lineage_and_diff_evidence
+    tests: [tests/test_datagov_extensions.py]
+    acceptance:
+      - lineage impact identifies downstream evaluation valuation and quote artifacts
+      - unspecified rights produce review rather than implicit allow
+      - breaking schema and checksum changes trigger explicit re-evaluation flags
+      - audit payload is serializable without copying source data
+
+  - id: stage_09_dataprof_statistics_drift
+    title: DataProf 统计画像、抽样与漂移扩展
+    status: completed
+    scope: additive_implementations
+    depends_on: [stage_08_datagov_lineage_rights_versioning]
+    source_paths: [src/dvmk/evaluation/, src/dvmk/distribution/]
+    target_paths:
+      - src/datavalor/data_prof/advanced.py
+      - examples/13_dataprof_statistics_drift.py
+    target_interfaces:
+      - datavalor.data_prof.ProfileMetric
+      - datavalor.data_prof.DatasetProfile
+    components:
+      - name: robust_numeric_profile
+        target_interface: datavalor.data_prof.ProfileMetric
+        refactor: quantiles_iqr_fences_variance_and_outlier_descriptors
+      - name: categorical_concentration
+        target_interface: datavalor.data_prof.ProfileMetric
+        refactor: entropy_gini_cardinality_and_top_k_coverage
+      - name: pairwise_correlation
+        target_interface: datavalor.data_prof.ProfileMetric
+        refactor: pearson_covariance_with_small_sample_diagnostics
+      - name: stratified_sampling
+        target_interface: datavalor.data_prof.stratified_sample
+        refactor: deterministic_proportional_allocation_with_largest_remainder
+      - name: distribution_drift
+        target_interface: datavalor.data_prof.DriftAnalyzer
+        refactor: quantile_binned_psi_and_categorical_js_divergence
+    tests: [tests/test_dataprof_extensions.py]
+    acceptance:
+      - descriptive outputs remain separate from DataEval quality judgments
+      - same seed produces identical stratified samples
+      - drift report retains per-field method threshold counts and details
