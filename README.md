@@ -2,11 +2,11 @@
 
 **A Toolkit for Data Valorization**
 
-DataValor 是 DIV Lab 维护的一套数据估值、定价和流通实验工具。它把治理、画像、质量评估、任务效用、贡献度、报价、交易和受控查询放在同一组 Python 契约下，便于把论文方法接进真实数据产品流程。
+DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理、质量评估、估值、定价和流通实验。各模块共享一组简单的数据产品和产物接口，研究代码可以逐步接入，不必先搭一整套服务。
 
-当前版本是 `pre-alpha`：公共模型、接口、registry、基准实验工具和一批可运行基线已经具备；生产级存储、调度和外部服务连接需要由部署方实现。先用示例跑通流程，再按项目需要替换算法和后端。
+当前版本为 `pre-alpha`。仓库里已经有公共模型、接口、registry、基准实验工具和离线示例；生产环境所需的存储、调度、权限系统和外部服务连接，需要在接入项目中补齐。建议先运行 `examples/` 下的脚本，再替换成自己的数据和后端。
 
-DataValor 面向数据从“可管理”到“可使用、可交易、可定价”的完整价值链，将研究对象分成三个阶段：
+代码按数据流转过程分成三组：
 
 1. **价值发现（Value Discovery）**：DataGov、DataProf、DataEval、DataValue；
 2. **价值流通（Value Circulation）**：DataMarket、DataPrice；
@@ -16,7 +16,7 @@ DataValor 面向数据从“可管理”到“可使用、可交易、可定价�
 
 ## 模块索引
 
-下面的索引使用显式英文锚点，在 GitHub 和 IDE 预览中都能稳定跳转。
+下面列出主要模块和对应的源码入口。
 
 <table>
 <thead><tr><th>阶段</th><th>模块</th><th>核心职责</th><th>详细说明</th></tr></thead>
@@ -39,6 +39,7 @@ DataValor 面向数据从“可管理”到“可使用、可交易、可定价�
 其他常用位置：
 
 - [仓库结构](#repository-layout)
+- [当前功能概览](docs/repo_overview.md)
 - [模块间语义边界](#semantic-boundaries)
 - [最小扩展方式](#extension-example)
 - [安装与验证](#installation)
@@ -75,7 +76,7 @@ DataValor/
     └── research/                 # GitHub 调研与 DVMK 迁移分析
 ```
 
-目录采用 Python 可导入命名。例如方案中的 `DataValue` 对应 `datavalor.data_value`；展示顺序和阶段信息可从 `datavalor.MODULES` 读取。模块目录使用语义化名称，便于直接作为 Python import 路径。
+目录名就是 Python import 路径。例如 `DataValue` 对应 `datavalor.data_value`；模块展示顺序和阶段信息可以从 `datavalor.MODULES` 查看。
 
 每个业务模块默认采用相同的内部约定：
 
@@ -87,13 +88,13 @@ module/
 └── __init__.py     # 经过筛选的公共 API
 ```
 
-未来具体实现可以放入 `metrics/`、`valuators/`、`mechanisms/`、`providers/` 等子目录，公共模型继续作为稳定的语义基础。
+新增实现通常放在 `metrics/`、`valuators/`、`mechanisms/` 或 `providers/` 等子目录，公共模型和接口保持稳定。
 
 <a id="semantic-boundaries"></a>
 
 ## 模块间语义边界
 
-DataValor 让各模块保留各自的语义，并通过有版本的 artifact 连接：
+各模块通过带版本的 artifact 连接，但每种结果的含义不同：
 
 ```text
 DataGov 治理与可用性
@@ -105,7 +106,7 @@ DataGov 治理与可用性
   -> DataQuery 受治理的数据使用与结果
 ```
 
-必须保持以下区分：
+使用这些结果时，请区分：
 
 - profile 提供描述性事实；
 - evaluation 记录多维质量或任务表现；
@@ -162,7 +163,7 @@ Core 提供数据引用、上下文、产物和执行协议；数据读取、治
 
 源码入口：[src/datavalor/data_gov](src/datavalor/data_gov)
 
-DataGov 回答“这份数据是否有明确来源、元数据、权利和处理规则，以及某项操作是否允许执行”。它覆盖标准化、清洗、安全、元数据和政策决策，当前以可扩展接口为主，可与数据目录和合规平台衔接。
+DataGov 管理数据来源、元数据、权利和处理规则，并对具体操作做授权判断。它包含标准化、清洗、安全、元数据和政策接口，也可以接入外部数据目录或合规平台。
 
 ### 主要输入与输出
 
@@ -204,7 +205,7 @@ timeout、有限 retry 和审计诊断，外部 URN、entity、DataFrame 和 con
 
 DataGov 聚焦来源、权利、处理规则与政策判断；统计画像、质量评估、估值和价格计算分别由 DataProf、DataEval、DataValue 与 DataPrice 承载。
 
-本模块还提供四个可直接运行的治理扩展：`LineageGraph` 用 BFS/拓扑排序追踪 source 到 evaluation、valuation、quote 的影响；`RightsMatrixEvaluator` 结合 actor、task、用途、商业使用、再分发、辖区和期限给出 allow/deny/review；`MetadataDiff` 比较 schema、checksum、统计量和权利并生成重新评估门禁；`GovernanceAuditBundle` 将上述证据聚合为可写入现有 artifact store 的 payload。详细规则见 [DataGov 血缘、权利与版本扩展说明](docs/research/datagov_lineage_rights_versioning.md)，完整示例为 `examples/12_datagov_lineage_rights_audit.py`。
+DataGov 目录中还包括四个可单独使用的实现：`LineageGraph` 追踪 source 到 evaluation、valuation、quote 的影响；`RightsMatrixEvaluator` 检查用途、商业使用、再分发、辖区和期限；`MetadataDiff` 比较 schema、checksum、统计量和权利变化；`GovernanceAuditBundle` 汇总治理、安全、血缘和版本证据。规则和示例分别见 `docs/research/datagov_lineage_rights_versioning.md` 与 `examples/12_datagov_lineage_rights_audit.py`。
 
 
 [返回模块索引](#module-index)
@@ -215,7 +216,7 @@ DataGov 聚焦来源、权利、处理规则与政策判断；统计画像、质
 
 源码入口：[src/datavalor/data_prof](src/datavalor/data_prof)
 
-DataProf 回答“数据是什么样的”。它生成字段类型、缺失、基数、分布和数据集级属性，并支持不同时间或数据版本之间的画像比较。
+DataProf 生成字段类型、缺失、基数、分布和数据集级属性，并支持不同时间或数据版本之间的画像比较。
 
 ### 主要输入与输出
 
@@ -234,9 +235,9 @@ DataProf 回答“数据是什么样的”。它生成字段类型、缺失、�
 
 `PROFILE_METRICS`、`PROFILERS`、`PROFILE_COMPARATORS`。
 
-DataProf 聚焦数据的描述性画像；分布变化的可接受性由 DataEval metric 或 DataGov policy 结合具体场景判断。
+DataProf 只负责描述数据；分布变化是否可接受，由 DataEval 指标或 DataGov 规则结合具体场景判断。
 
-在基础画像之外，`advanced.py` 提供可注册的 `RobustStatisticsMetric`（分位数、IQR、变异系数和 Tukey 围栏）、`CategoricalConcentrationMetric`（熵、Gini 集中度与 top-k 覆盖）、`PairwiseCorrelationMetric`（Pearson 与协方差）、`stratified_sample`（固定种子的比例分层抽样）和 `DriftAnalyzer`（数值 PSI、类别 JS divergence）。这些输出仍是描述性事实；漂移阈值不等同于质量结论，具体门禁由 DataEval/DataGov 决定。完整示例为 `examples/13_dataprof_statistics_drift.py`，说明见 `docs/research/dataprof_statistics_drift.md`。
+`advanced.py` 增加了稳健分位数/IQR、类别熵和集中度、Pearson 相关性、固定种子的分层抽样，以及数值 PSI/类别 JS 漂移分析。它们仍返回描述性事实，示例和说明见 `examples/13_dataprof_statistics_drift.py`、`docs/research/dataprof_statistics_drift.md`。
 
 [返回模块索引](#module-index)
 
@@ -246,7 +247,7 @@ DataProf 聚焦数据的描述性画像；分布变化的可接受性由 DataEva
 
 源码入口：[src/datavalor/data_eval](src/datavalor/data_eval)
 
-DataEval 回答“数据在明确维度、粒度和任务下表现如何”。它保留每个指标的方向、单位、统计量、证据和诊断，方便下游按场景使用。
+DataEval 在明确的维度、粒度和任务下计算质量指标，并为每个指标保留方向、单位、统计量、证据和诊断。
 
 ### 主要输入与输出
 
@@ -267,9 +268,9 @@ DataEval 回答“数据在明确维度、粒度和任务下表现如何”。�
 
 `QUALITY_METRICS`、`EVALUATORS`、`TASK_UTILITY_EVALUATORS`。
 
-DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别在 DataValue、DataMarket 与 DataPrice 中生成。当前除基础完整性/重复率/字段有效性外，还按模态拆分了 `tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py`：表格覆盖 schema、数值分布、IQR 异常值和标签熵；文本覆盖词汇多样性、长度和重复；图像覆盖尺寸/格式/通道、宽高比和像素范围；音频覆盖时长/采样率、削波和静音；视频覆盖格式探测、采样帧运动、场景边界、时序 SSIM 和隐私检测；多模态覆盖包完整性、重复 ID、checksum 和时间对齐。每个指标都返回独立方向、统计量、evidence 和 diagnostics，不把模态质量压成一个不可解释分数。统一运行入口为 `examples/11_stage7_multimodal_evaluation.py`，配置为 `configs/workflows/stage7_multimodal_evaluation.json`。
+DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别由 DataValue、DataMarket 与 DataPrice 处理。`tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py` 分别放置各模态指标；每个指标返回自己的方向、统计量、evidence 和 diagnostics，不把不同模态压成一个分数。统一示例为 `examples/11_stage7_multimodal_evaluation.py`。
 
-新增的 `advanced.py` 还提供 `NumericRangeComplianceMetric`、`LabelConflictMetric`、`GroupCompletenessParityMetric` 和 `TextReadabilityMetric`，分别覆盖业务范围、重复实体标签一致性、群组完整性差距和无依赖文本可读性；`EvaluationThresholdGate` 按每个 `MetricResult` 的方向执行显式阈值验收。它们保持 evidence/statistics/diagnostics 输出，不改变 `CompositeEvaluator` 结构。运行入口为 `examples/14_dataeval_quality_gate.py`，详细规则见 `docs/research/dataeval_quality_extensions.md`。
+`advanced.py` 还包括业务范围合规、重复实体标签冲突、群组完整性差距和无依赖文本可读性指标；`EvaluationThresholdGate` 按各指标方向执行阈值验收。运行入口为 `examples/14_dataeval_quality_gate.py`，规则说明见 `docs/research/dataeval_quality_extensions.md`。
 
 ### E1 外部评估适配器
 
@@ -280,7 +281,7 @@ DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 
 - `EvidentlyDriftMetric`：将 `Report.run` 的 drift 结果转为 drift-free rate，并保留报告快照；
 - `TorchMetricsAdapter`：桥接 TorchMetrics 的 `update`/`compute` 状态生命周期。
 
-这些类只在执行方法中加载第三方包，也支持注入 validator、runner、detector 或 metric，便于离线测试和跨版本适配。未安装 optional extra 时，核心包仍可导入，执行时会抛出明确的 `CapabilityUnavailableError`。
+这些类在真正执行时才加载第三方包，也可以注入 validator、runner、detector 或 metric。没有安装对应 extra 时，核心包仍能导入，调用适配器会收到明确的 `CapabilityUnavailableError`。
 
 [返回模块索引](#module-index)
 
@@ -290,7 +291,7 @@ DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 
 
 源码入口：[src/datavalor/data_value](src/datavalor/data_value)
 
-DataValue 回答“这份数据或其中某个单位对特定用户、任务或模型的效用与贡献是多少”。估值对象可以是 sample、group、dataset 或 data product。
+DataValue 面向特定用户、任务或模型估计数据及其组成单元的效用和贡献。估值对象可以是 sample、group、dataset 或 data product。
 
 ### 主要输入与输出
 
@@ -312,7 +313,7 @@ DataValue 回答“这份数据或其中某个单位对特定用户、任务或�
 
 `UTILITY_FUNCTIONS`、`VALUATORS`、`TRAINABLE_VALUATORS`、`CONTRIBUTION_VALUATORS`。
 
-DataValue 聚焦用户、任务和模型相关的效用与贡献估计，交易报价和清算由 DataPrice 根据市场信息处理。Stage 3 已将 weighted user-task、requirements、LOO、Shapley 和 Monte Carlo Shapley 的实现落位到此模块；learned/symbolic valuation 按相同契约继续扩展。
+DataValue 只负责用户、任务和模型相关的效用与贡献估计，交易报价和清算由 DataPrice 处理。当前实现包括 weighted user-task、requirements、LOO、Shapley、Monte Carlo Shapley，以及 learned/symbolic valuation。
 
 ### E2 外部估值适配器
 
@@ -332,7 +333,7 @@ DataValue 聚焦用户、任务和模型相关的效用与贡献估计，交易�
 
 源码入口：[src/datavalor/data_price](src/datavalor/data_price)
 
-DataPrice 回答“在给定估值证据、权利、报价、供需和机制规则下，应给出什么 quote，以及如何计算 allocation 和 payment”。所有货币金额使用 `Decimal` 封装在 `Money` 中。
+DataPrice 根据估值证据、权利、供需和机制规则生成 quote，并计算 allocation 和 payment。所有货币金额使用 `Decimal` 封装在 `Money` 中。
 
 ### 主要输入与输出
 
@@ -357,7 +358,7 @@ DataPrice 回答“在给定估值证据、权利、报价、供需和机制规�
 
 `PRICING_MODELS`、`ONLINE_PRICING_MODELS`、`PRICE_CONSTRAINTS`、`PRICING_MECHANISMS`。
 
-DataPrice 聚焦报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。Stage 4 已将 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束实现落位到此模块；后续继续补充机制性质测试。
+DataPrice 负责报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。当前实现包括 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束。
 
 阶段 4 还提供可直接运行的 `CostPlusPricingModel`、`ValueBasedPricingModel`、`UsageBasedPricingModel`、`QualityFreshnessPricingModel` 和 `AdaptiveDemandPricingModel`，以及价格带、阶梯量价折扣、多单位统一价格拍卖、预算感知/质量感知采购。`evaluate_pricing_properties` 会对个体理性、预算和容量约束给出可审计的 violations witness。报价、估值、支付保持分离：报价模型可参考估值，但拍卖支付由边际出价或 ask reserve 决定。完整公式、复杂度和边界见 [阶段 4 调研与实现说明](docs/research/stage4_pricing_mechanisms.md)，端到端运行 `PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py`。
 
@@ -369,7 +370,7 @@ DataPrice 聚焦报价、分配与支付计算；listing 生命周期、参与�
 
 源码入口：[src/datavalor/data_market](src/datavalor/data_market)
 
-DataMarket 回答“数据产品如何注册和发现，市场参与者如何行动，定价结果如何转化为交易、激励和收入分配”。它消费 DataPrice 的 `PricingOutcome`，但不重新定义第二套价格、allocation 或 payment 对象。
+DataMarket 负责数据产品挂牌和发现、参与者行为、交易、激励和收入分配。它消费 DataPrice 的 `PricingOutcome`，不另定义价格、allocation 或 payment 对象。
 
 ### 主要输入与输出
 
@@ -401,7 +402,7 @@ DataMarket 回答“数据产品如何注册和发现，市场参与者如何行
 
 `MARKET_CATALOGS`、`PARTICIPANT_REPOSITORIES`、`INCENTIVE_POLICIES`、`REVENUE_ALLOCATORS`、`TRANSACTION_PROCESSORS`、`PARTICIPANT_STRATEGIES`、`MARKET_SIMULATORS`。
 
-阶段 5 新增 `InMemoryMarketCatalog`（带用途/权利/标签/元数据过滤的挂牌发现）、`InMemoryParticipantRepository`（角色和属性筛选）和 `ContributionRevenueAllocator`（Decimal 金额、负贡献截断、分币种残差回补和总额精确对账）。有限轮仿真与策略学习的详细说明见 [阶段 5 调研与实现说明](docs/research/stage5_market_benchmark_analysis.md)。
+`InMemoryMarketCatalog` 支持按用途、权利、标签和元数据筛选挂牌，`InMemoryParticipantRepository` 支持按角色和属性筛选参与者，`ContributionRevenueAllocator` 负责 Decimal 金额、负贡献截断、分币种残差回补和总额对账。有限轮仿真与策略学习的说明见 [阶段 5 调研与实现说明](docs/research/stage5_market_benchmark_analysis.md)。
 
 DataMarket 负责市场流程、参与者互动、激励、交易和收入分配，并沿用 DataEval、DataValue 与 DataPrice 的结果模型。
 
@@ -429,7 +430,7 @@ Mesa/PySyft/Ocean 的 Agent、Domain、Datasite、asset 和 service 对象不会
 
 源码入口：[src/datavalor/data_query](src/datavalor/data_query)
 
-DataQuery 回答“获授权用户或 Agent 如何安全地使用数据并获得可追溯结果”。授权在执行前作为硬接口校验，prompt 只承载用户意图。
+DataQuery 为获授权的用户或 Agent 提供可追溯的数据使用流程。授权在执行前校验，prompt 只承载用户意图。
 
 ### 标准执行链
 
@@ -529,7 +530,7 @@ component × case × repetition × metric
 
 `BENCHMARK_DATA_PROVIDERS`、`DATA_PERTURBATIONS`、`BENCHMARK_METRICS`、`BENCHMARK_RUNNERS`。
 
-Stage 1 已将数据 provider、shift/扰动和 split 能力落位到此处；后续市场 benchmark 与 pyDVL、OpenDataVal 等外部算法继续通过统一 benchmark 比较。
+数据 provider、shift/扰动和 split 能力都放在这一层；市场 benchmark 与 pyDVL、OpenDataVal 等外部算法也通过同一套 benchmark 接口比较。
 
 ### E2 外部 Benchmark 数据源
 
@@ -563,7 +564,7 @@ Analysis 消费已经落盘并带版本的 artifact，集中进行统计分析�
 
 `ANALYZERS`、`RESULT_COMPARATORS`、`FRONTIER_ANALYZERS`。
 
-Stage 5 已将市场策略、有限轮仿真、welfare/revenue benchmark、bootstrap、paired comparison 和 Pareto 分析能力落位到这些接口。Stage 6 进一步提供 DataValor 原生 CLI、配置和插件加载入口。
+这一层提供市场策略、有限轮仿真、welfare/revenue benchmark、bootstrap、paired comparison 和 Pareto 分析。CLI、配置和插件加载入口位于 DataValor 自己的命名空间下。
 
 [返回模块索引](#module-index)
 
@@ -656,45 +657,45 @@ pytest -q
 ruff check src tests
 ```
 
-阶段 0 的统一主链路可以直接离线运行：
+统一主链路可以直接离线运行：
 
 ```bash
 PYTHONPATH=src python examples/00_unified_value_chain.py
 ```
 
-它使用 `configs/workflows/stage0_unified.json` 依次执行治理、画像、评估、估值、定价、市场、查询、使用计量和分析，并把每个阶段的 artifact 与运行摘要写入 `outputs/stage0-unified/`。
+它使用 `configs/workflows/stage0_unified.json` 依次执行治理、画像、评估、估值、定价、市场、查询、使用计量和分析；每个阶段的 artifact 与运行摘要写入 `outputs/stage0-unified/`。
 
-阶段 1 的数据产品与质量基线可以单独运行：
+数据产品与质量基线可以单独运行：
 
 ```bash
 PYTHONPATH=src python examples/05_stage1_governance_profile_eval.py
 ```
 
-该示例会读取含有重复、缺失值和类型错误的合成记录，生成元数据、权利决策、敏感字段发现、统计画像、版本差异和质量评估结果。
+该示例读取含有重复、缺失值和类型错误的合成记录，生成元数据、权利决策、敏感字段发现、统计画像、版本差异和质量评估结果。
 
-阶段 1 也提供与阶段 0 相同的统一 runner 入口：
+也可以用统一 runner 运行同一组治理、画像和评估步骤：
 
 ```bash
 PYTHONPATH=src python examples/06_stage1_unified_workflow.py
 ```
 
-该入口加载 `configs/workflows/stage1_quality.json`，依次落盘治理 bundle、`DatasetProfile` 和 `EvaluationReport` 三个 artifact。每个 artifact 都带有父引用、schema version、运行参数和文件 checksum，可直接作为后续 DataValue/DataPrice 的输入证据。
+入口加载 `configs/workflows/stage1_quality.json`，依次落盘治理 bundle、`DatasetProfile` 和 `EvaluationReport`。每个 artifact 都带父引用、schema version、运行参数和文件 checksum，可以继续交给 DataValue/DataPrice 使用。
 
-阶段 2 在同一 runner 上继续执行任务相关估值和数据单元贡献分析：
+任务相关估值和数据单元贡献分析：
 
 ```bash
 PYTHONPATH=src python examples/07_stage2_task_valuation.py
 ```
 
-该入口加载 `configs/workflows/stage2_valuation.json`，先复用阶段 1 的治理、画像和质量评估，再由买方任务上下文驱动 `WeightedUserTaskValuator`，并用 `TabularTaskUtility` 和 Monte Carlo Shapley 计算样本边际贡献。结果写入 `outputs/stage2-valuation/`；这些金额是显式 buyer/task/cost 假设下的价值估计，不是报价、成交价或支付。
+入口加载 `configs/workflows/stage2_valuation.json`，复用治理、画像和质量评估结果，再由买方任务上下文驱动 `WeightedUserTaskValuator`，用 `TabularTaskUtility` 和 Monte Carlo Shapley 计算样本边际贡献。结果写入 `outputs/stage2-valuation/`；金额是给定 buyer/task/cost 假设下的价值估计，不是报价或支付。
 
-阶段 3 的高级估值与贡献分摊链路：
+高级估值与贡献分摊：
 
 ```bash
 PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
 ```
 
-该入口继续沿用统一 runner，追加安全符号估值、线性模型训练/预测、精确 Shapley 和贡献金额分摊，结果写入 `outputs/stage3-valuation/`。
+入口追加安全符号估值、线性模型训练/预测、精确 Shapley 和贡献金额分摊，结果写入 `outputs/stage3-valuation/`。
 
 按需启用外部治理 connector：
 
@@ -708,7 +709,7 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 该 extra 包含 DataHub、OpenMetadata 和 PyDeequ SDK；Spark 集群、DataHub/OpenMetadata
 服务地址和凭据仍由部署环境注入，DataValor 不会在安装或导入时自动连接这些服务。
 
-当前契约测试覆盖：
+测试目前覆盖：
 
 - 所有公共模块在可选依赖缺席时仍可导入；
 - 所有扩展接口均采用需要具体实现才能实例化的 ABC；
@@ -737,9 +738,9 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 
 参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
 
-E0 的可选依赖边界、E1 的 DataEval/DataProf 适配器、E2 的 DataValue/Benchmark 适配器、E3 的 DataGov connector、E4 的 DataMarket/Simulation connector 和 E5 的 DataQuery connector 已经落地。第三方依赖不会进入基础安装，适配器输出始终转换为 DataValor 公共模型。
+可选依赖边界、DataEval/DataProf 适配器、DataValue/Benchmark 适配器、DataGov connector、DataMarket/Simulation connector 和 DataQuery connector 均有对应实现。第三方依赖不进入基础安装，适配器输出统一转换为 DataValor 公共模型。
 
-DVMK 是实验室已有代码基础，将按完整实现文件迁入并重构为 `datavalor.*` 原生代码；迁入后的代码由 DataValor 独立维护，公共入口统一使用 DataValor 命名和协议。
+DVMK 是实验室已有的代码基础，相关实现会迁入并重构为 `datavalor.*` 原生代码。迁入后由 DataValor 独立维护，公共入口使用 DataValor 的命名和协议。
 
 <a id="development-principles"></a>
 
