@@ -7,6 +7,23 @@ note: >-
   这是完整实现文件迁移记录模板。每一批迁移填写 source_paths、target_paths、
   target_interfaces、changes、tests_migrated 和 status；迁入后源命名空间必须被替换。
 batches:
+  - batch_id: dataeval_quality_extensions_v1
+    source_paths:
+      - src/dvmk/evaluation/
+    target_paths:
+      - src/datavalor/data_eval/advanced.py
+      - examples/14_dataeval_quality_gate.py
+    target_interfaces:
+      - datavalor.data_eval.QualityMetric
+      - datavalor.data_eval.MetricResult
+    changes:
+      - added numeric range and contradictory-label checks
+      - added group completeness parity and text readability metrics
+      - added direction-aware threshold gate for explicit acceptance rules
+      - retained existing composite evaluator and modality metric structure
+    tests_migrated:
+      - tests/test_dataeval_advanced.py
+    status: completed
   - batch_id: dataprof_statistics_drift_v1
     source_paths:
       - src/dvmk/evaluation/

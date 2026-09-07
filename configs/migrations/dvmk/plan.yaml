@@ -449,3 +449,37 @@ stages:
       - descriptive outputs remain separate from DataEval quality judgments
       - same seed produces identical stratified samples
       - drift report retains per-field method threshold counts and details
+
+  - id: stage_10_dataeval_quality_extensions
+    title: DataEval 业务约束、标签一致性与质量门禁扩展
+    status: completed
+    scope: additive_implementations
+    depends_on: [stage_09_dataprof_statistics_drift]
+    source_paths: [src/dvmk/evaluation/]
+    target_paths:
+      - src/datavalor/data_eval/advanced.py
+      - examples/14_dataeval_quality_gate.py
+    target_interfaces:
+      - datavalor.data_eval.QualityMetric
+      - datavalor.data_eval.MetricResult
+    components:
+      - name: numeric_range_compliance
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: explicit_business_bounds_missing_and_out_of_range_evidence
+      - name: label_conflict_detection
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: duplicate_entity_contradictory_label_detection
+      - name: group_completeness_parity
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: group_gap_measurement_without_collapsing_to_global_score
+      - name: text_readability
+        target_interface: datavalor.data_eval.QualityMetric
+        refactor: dependency_free_flesch_style_record_evidence
+      - name: threshold_gate
+        target_interface: datavalor.data_eval.EvaluationThresholdGate
+        refactor: direction_aware_acceptance_checks_preserving_report_schema
+    tests: [tests/test_dataeval_advanced.py]
+    acceptance:
+      - new metrics are registered through QUALITY_METRICS
+      - metric direction and evidence remain explicit
+      - threshold gate does not mutate or replace EvaluationReport

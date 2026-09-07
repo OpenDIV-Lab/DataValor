@@ -66,6 +66,8 @@ DataGov 的增量治理能力位于同一模块边界内：`LineageGraph` 对 so
 
 DataProf 在基础画像契约之上提供增量统计算子：`RobustStatisticsMetric` 计算分位数、IQR、变异系数和 Tukey 围栏，`CategoricalConcentrationMetric` 计算熵、Gini 集中度与 top-k 覆盖，`PairwiseCorrelationMetric` 提供 Pearson/协方差，`stratified_sample` 提供固定种子的比例分层抽样，`DriftAnalyzer` 使用 PSI/JS divergence 比较两个数据快照。它们保留 per-field statistics/diagnostics，不把分布漂移直接解释为质量或价值；具体门禁仍由 DataEval/DataGov 决定。实现集中在 `src/datavalor/data_prof/advanced.py`，入口为 `examples/13_dataprof_statistics_drift.py`。
 
+DataEval 的增量指标集中在 `src/datavalor/data_eval/advanced.py`：`NumericRangeComplianceMetric` 检查业务范围，`LabelConflictMetric` 检测同一实体的矛盾标签，`GroupCompletenessParityMetric` 量化群组完整率差距，`TextReadabilityMetric` 计算无依赖 Flesch-style 可读性；`EvaluationThresholdGate` 按每个 metric 的 score direction 执行显式验收阈值。它们可以与现有 CompositeEvaluator 和模态指标混用，仍返回独立的 evidence/statistics/diagnostics，不修改报告结构。示例为 `examples/14_dataeval_quality_gate.py`。
+
 阶段 3 的统一入口为 `examples/08_stage3_advanced_valuation.py`，配置为 `configs/workflows/stage3_advanced_valuation.json`。它进一步执行质量调整和情景估值、受限符号估值、线性模型训练/预测、精确与分组 Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊价值；结果保留公式、系数、RMSE、区间、规模边界和父引用，仍与 DataPrice 的报价和支付分离。
 
 ### 3.4 阶段 4：DataPrice 报价与机制基线

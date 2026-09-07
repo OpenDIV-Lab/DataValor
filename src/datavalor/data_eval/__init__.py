@@ -1,5 +1,12 @@
 """DataEval: reproducible data-quality evaluation."""
 
+from .advanced import (
+    EvaluationThresholdGate,
+    GroupCompletenessParityMetric,
+    LabelConflictMetric,
+    NumericRangeComplianceMetric,
+    TextReadabilityMetric,
+)
 from .audio import AudioClippingRateMetric, AudioMetadataQualityMetric, AudioSilenceRateMetric
 from .builtins import (
     CompletenessMetric,
@@ -69,6 +76,10 @@ for _component, _registry in (
     (VideoBasicCleanliness, QUALITY_METRICS),
     (MultimodalPackageIntegrityMetric, QUALITY_METRICS),
     (MultimodalAlignmentMetric, QUALITY_METRICS),
+    (NumericRangeComplianceMetric, QUALITY_METRICS),
+    (LabelConflictMetric, QUALITY_METRICS),
+    (GroupCompletenessParityMetric, QUALITY_METRICS),
+    (TextReadabilityMetric, QUALITY_METRICS),
     (CompositeEvaluator, EVALUATORS),
 ):
     if _component().spec.name not in _registry:
@@ -123,4 +134,9 @@ __all__ = [
     "iter_sampled_frames",
     "MultimodalAlignmentMetric",
     "MultimodalPackageIntegrityMetric",
+    "NumericRangeComplianceMetric",
+    "LabelConflictMetric",
+    "GroupCompletenessParityMetric",
+    "TextReadabilityMetric",
+    "EvaluationThresholdGate",
 ]

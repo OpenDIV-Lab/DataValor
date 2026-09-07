@@ -15,6 +15,7 @@ PYTHONPATH=src python examples/10_stage5_market_benchmark_analysis.py
 PYTHONPATH=src python examples/11_stage7_multimodal_evaluation.py
 PYTHONPATH=src python examples/12_datagov_lineage_rights_audit.py
 PYTHONPATH=src python examples/13_dataprof_statistics_drift.py
+PYTHONPATH=src python examples/14_dataeval_quality_gate.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -39,6 +40,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `12_datagov_lineage_rights_audit.py` 使用同一套 DataGov 模型构造 v1/v2 元数据，比较字段删除、checksum 和权利收紧；再从 source 经 evaluation、valuation 连接到 quote，运行上下游影响分析。RightsMatrixEvaluator 同时检查用途、商业使用和司法辖区，最后把决策、发现、版本差异、血缘摘要和重新评估建议汇总为审计 bundle，写入 `outputs/datagov-extension/result.json`。
 
 `13_dataprof_statistics_drift.py` 展示 DataProf 的描述性增强：对数值字段计算分位数、IQR、变异系数和 Tukey 异常围栏；对类别字段计算熵、Gini 集中度和 top-k 覆盖；对数值字段对计算 Pearson 相关；再用固定种子进行比例分层抽样，并以 PSI/JS divergence 比较两个快照的分布变化。结果写入 `outputs/dataprof-extension/result.json`，漂移报告只描述分布差异，不代替 DataEval 的质量结论。
+
+`14_dataeval_quality_gate.py` 展示新增 DataEval 指标：数值业务范围合规、重复实体标签冲突、分组完整性差距、文本可读性，以及按照每个指标方向执行的 `EvaluationThresholdGate`。它保留每项指标的统计量和 evidence，最后输出是否通过验收门禁到 `outputs/dataeval-extension/result.json`。
 
 这些脚本分别覆盖：
 
