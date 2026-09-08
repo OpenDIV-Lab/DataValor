@@ -78,6 +78,8 @@ DataValue 的增量估值实现位于 `src/datavalor/data_value/extensions.py`�
 
 多单位统一价格拍卖支持数量出价、部分成交和边际成交价；预算采购支持跳过不可负担 ask、最后一个 ask 部分购买，质量感知采购按质量/成本比排序。性质检查组件输出个体理性、预算可行和容量可行的 witness，便于回放测试。该阶段只计算应付金额和收入，不承诺支付清算、税费、交付或激励相容；具体公式、复杂度、测试边界和生产替换点见 [阶段 4 调研与实现说明](research/stage4_pricing_mechanisms.md)。可运行入口为 `examples/09_stage4_pricing_and_mechanisms.py`，配置为 `configs/workflows/stage4_pricing.json`。
 
+`src/datavalor/data_price/extensions.py` 在相同接口上增加 progressive tiered usage、subscription overage、risk-adjusted quote 和 elasticity-based online pricing，并提供 quote calibration 与 pricing-outcome accounting audit。它们只处理报价和结果校验，不管理挂牌或参与者策略；这些工作仍由 `src/datavalor/data_market/` 负责。可运行入口为 `examples/16_data_price_models_audit.py`。
+
 ### 3.5 阶段 5：市场仿真、Benchmark 与统计分析
 
 阶段 5 不重复实现定价，而是消费 `PricingOutcome` 做有限轮实验。`FiniteMarketSimulator` 为每个策略绑定独立参与者、记录每轮 decisions/outcome/next market，并提供转化率、收入、报告福利和买方支出摘要；truthful、fixed/adaptive shading、epsilon-greedy、multiplicative weights、UCB best-response、budget pacing、contextual shading 和 fixed reserve seller 均有实际决策/更新逻辑。`MatrixBenchmarkRunner` 按 component×case×repetition 生成稳定 seed，先保存 raw observations 再聚合均值/标准差/失败计数；`SimulationReportMetric` 和 `MarketOutcomeMetric` 分别测量多轮与单轮结果。分析层补充 bootstrap 区间、配对 bootstrap、regret、max/min 方向 Pareto 和 scalarized ranking。完整边界、假设和复杂度见 [阶段 5 调研与实现说明](research/stage5_market_benchmark_analysis.md)，运行入口为 `examples/10_stage5_market_benchmark_analysis.py`，配置为 `configs/workflows/stage5_market_benchmark.json`。

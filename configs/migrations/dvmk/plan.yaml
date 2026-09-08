@@ -514,3 +514,39 @@ stages:
       - risk adjustment records monetary uncertainty and penalty components
       - counterfactual and portfolio estimates remain separate from quotes/payments
       - curve output exposes marginal values and calibration validates finite inputs
+
+  - id: stage_12_dataprice_pricing_extensions
+    title: DataPrice 分段、订阅、风险与弹性定价扩展
+    status: completed
+    scope: additive_implementations
+    depends_on: [stage_11_datavalue_risk_counterfactual_portfolio]
+    source_paths: [src/dvmk/pricing/]
+    target_paths:
+      - src/datavalor/data_price/extensions.py
+      - examples/16_data_price_models_audit.py
+    target_interfaces:
+      - datavalor.data_price.PricingModel
+      - datavalor.data_price.OnlinePricingModel
+      - datavalor.data_price.PriceQuote
+    components:
+      - name: tiered_usage_pricing
+        target_interface: datavalor.data_price.PricingModel
+        refactor: progressive_tier_boundaries_and_component_level_bill_breakdown
+      - name: subscription_overage_pricing
+        target_interface: datavalor.data_price.PricingModel
+        refactor: period_fee_included_usage_overage_and_commitment_discount
+      - name: risk_adjusted_pricing
+        target_interface: datavalor.data_price.PricingModel
+        refactor: value_uncertainty_rights_factor_and_floor_ceiling_projection
+      - name: elasticity_online_pricing
+        target_interface: datavalor.data_price.OnlinePricingModel
+        refactor: quantity_feedback_bounded_elasticity_update
+      - name: quote_outcome_audit
+        target_interface: datavalor.data_price.PricingOutcome
+        refactor: quote_error_metrics_and_payment_revenue_reconciliation
+    tests: [tests/test_data_price_extensions.py]
+    acceptance:
+      - pricing extensions remain separate from DataMarket listing and participant simulation
+      - progressive tiers expose per-tier quantity and charge components
+      - online elasticity updates are deterministic and non-negative
+      - quote calibration validates currencies and outcome audit checks accounting invariants

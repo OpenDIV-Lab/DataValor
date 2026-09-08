@@ -14,12 +14,14 @@
 
 ### 1.1 在线论文、标准和行业实践资料
 
-以下来源在 2026-09-08 前通过 OpenAlex/Crossref 或官方页面核对过题名、DOI/入口；论文中的算法结构可以作为方法依据，但论文实验数值不直接迁移到本厂。
+以下来源按“同行评审论文、标准/官方框架、行业公开案例入口”分层整理。论文题名和 DOI 已通过 OpenAlex/Crossref 元数据核对，标准和框架使用发布方页面；行业案例页只作为机制线索，不能替代完整案例报告、现场日志或供应商验收。论文中的算法结构可以作为方法依据，但论文实验数值不直接迁移到本厂。
 
 |来源|对本项目有用的结论|不能直接照搬的部分|
 |---|---|---|
 |[Smart Manufacturing and Intelligent Manufacturing: A Comparative Review](https://doi.org/10.1016/j.eng.2020.07.017)|智能制造不等于单点设备自动化，需要数据、系统、设备和组织协同|综述没有给出本厂旧设备接口和人工异常处置方案|
 |NIST，[Current Standards Landscape for Smart Manufacturing Systems](https://www.nist.gov/publications/current-standards-landscape-smart-manufacturing-systems)，NIST IR 8107|互操作、标准边界和棕地系统的接口分层应先于算法上线|标准不会替现场决定字段、时间戳和责任人|
+|NIST，[Smart Manufacturing](https://www.nist.gov/programs-projects/smart-manufacturing)|NIST 的实践框架强调测量、互操作、网络安全和可验证的制造性能；适合用来检查“先接数据、再自动执行”的改造顺序|NIST 的参考架构不是本厂 MES/AGV/PLC 的接口协议，也不提供工艺配方和安全许可|
+|世界经济论坛，[Global Lighthouse Network Insights Hub](https://www.weforum.org/publications/global-lighthouse-network-insights-hub/)|作为公开案例索引，反复呈现端到端追溯、预测性维护、自动物流和岗位技能重构等机制；本厂可迁移的是机制组合和分阶段治理|该入口页不是本厂可复现实验数据；灯塔工厂通常经过长期资本投入和供应链协同，案例中的节拍、投资回收期和自动化比例不能作为本厂承诺|
 |[Development of manufacturing execution systems in accordance with Industry 4.0 requirements](https://doi.org/10.1016/j.compind.2020.103300)|MES 需要对象、事件、语义和接口层的统一，不能靠多个 Excel 互相拷贝|论文不定义 F11/F8/P1 的开工字段和本厂数据质量阈值|
 |[A Review of the High-Mix, Low-Volume Manufacturing Industry](https://doi.org/10.3390/app13031687)|高混流低批量应先建工件—工序—人员—设备事实层，再做反应式计划|不提供本厂产品路线、技能矩阵和返工分布|
 |[Design of a Digital Twin in Low-Volume, High-Mix Job Allocation and Scheduling](https://doi.org/10.3390/systems11090454)|数字孪生可作为人工经验和调度仿真的连接层|没有经现场校准的事件和周期，不能直接上线孪生决策|
@@ -32,16 +34,26 @@
 |[Robotical Automation in CNC Machine Tools: A Review](https://doi.org/10.2478/ama-2024-0048)|机器人上下料要连同机床握手、工装、异常取件和循环时间评估|额定负载和空载速度不能代替本厂节拍和安全验证|
 |[A deep learning-enhanced Digital Twin framework for ... human–robot collaborative manufacturing](https://doi.org/10.1016/j.rcim.2023.102608)|人机协作的安全、可靠性和数字孪生验证应同时考虑|不能把深度学习直接接到 PLC 或安全联锁|
 
+标准和接口实践作为系统边界：
+
+|标准/官方资料|在设计中的用法|本项目仍需自行确定的内容|
+|---|---|---|
+|[ISA-95/IEC 62264 Enterprise-Control System Integration](https://www.isa.org/standards-and-publications/isa-standards/isa-95-standard)|按企业层、MES 层、控制层划分接口；避免让中控直接改写设备控制逻辑|载具、工单、位点、数量和 `START` 证据的本厂字段映射|
+|[GS1 EPCIS 2.0](https://ref.gs1.org/standards/epcis/)|借鉴 Object/Aggregation/Association、读点和业务位置事件语义|筐—盘—单件关系、工序风险阈值和人工接管规则|
+|[OPC UA 官方技术说明](https://opcfoundation.org/about/opc-technologies/opc-ua/)|作为 PLC、设备和上位机互操作的候选协议边界|老旧设备是否能接入、点表质量、写入权限和安全评审|
+
+本轮在线检索记录：2026-09-08 访问 OpenAlex/Crossref、NIST、ISA、GS1、OPC Foundation 公开入口；关键词覆盖 `smart manufacturing implementation`、`brownfield manufacturing digitalization`、`manufacturing execution systems`、`AGV production synchronization`、`human-heavy high-mix manufacturing`、`traceability`、`maintenance scheduling` 和 `robot loading`。开放元数据和官方标准用于确认研究/工程结构，不能替代供应商 FAT/SAT、工厂现场日志或专利权利要求审查。
+
 决策库还提供了可运行的结构参考：
 
-- `RI-HMLV-HUMAN-2023-DYNAMIC-JOBSHOP`：人工高混流、双资源调度、技能短缺和流动指标；
-- `RI-WORKLOAD-CONTROL-2016-ORDER-RELEASE`：订单释放与工序派工分离；
-- `RI-MIXED-MODEL-SEQUENCE-2021`：混流顺序、序列相关换型和交期的 Pareto 评估；
-- `RI-QUALITY-INSPECTION-MULTISTAGE-2018`：质量门、检验时间、返工和逃逸风险；
-- `RI-DEMIR-2011-BUFFER`：不可靠设备下缓存分配与共同随机数离散事件仿真；
-- `RI-ENERGY-AWARE-FJSP-2018`、`RI-INTEGRATED-PRODUCTION-MAINTENANCE-2010`、`RI-DISRUPTION-RECOVERY-FJSP-2021`：能源、维护和扰动恢复；
-- `RI-DOMESTIC-ROBOT-LOADING-2024`：机器人能力过滤、节拍、质量、人工接管和安全边界；
-- `RI-SMALL-FACTORY-TRUTHFUL-REPORTING-2024`：有限抽查、可信计数和人工申报治理。
+- [`RI-HMLV-HUMAN-2023-DYNAMIC-JOBSHOP`](../../intelligent_factory_decision_library/research/human_heavy_high_mix_jobshop/review.md)：人工高混流、双资源调度、技能短缺和流动指标；
+- [`RI-WORKLOAD-CONTROL-2016-ORDER-RELEASE`](../../intelligent_factory_decision_library/research/mixed_model_quality_release/review.md)：订单释放与工序派工分离；
+- [`RI-MIXED-MODEL-SEQUENCE-2021`](../../intelligent_factory_decision_library/research/mixed_model_quality_release/review.md)：混流顺序、序列相关换型和交期的 Pareto 评估；
+- [`RI-QUALITY-INSPECTION-MULTISTAGE-2018`](../../intelligent_factory_decision_library/research/mixed_model_quality_release/review.md)：质量门、检验时间、返工和逃逸风险；
+- [`RI-DEMIR-2011-BUFFER`](../../intelligent_factory_decision_library/research/representative_methods/review.md)：不可靠设备下缓存分配与共同随机数离散事件仿真；
+- [`RI-ENERGY-AWARE-FJSP-2018`、`RI-INTEGRATED-PRODUCTION-MAINTENANCE-2010`、`RI-DISRUPTION-RECOVERY-FJSP-2021`](../../intelligent_factory_decision_library/research/energy_maintenance_resilience/review.md)：能源、维护和扰动恢复；
+- [`RI-DOMESTIC-ROBOT-LOADING-2024`](../../intelligent_factory_decision_library/research/domestic_robot_loading/review.md)：机器人能力过滤、节拍、质量、人工接管和安全边界；
+- [`RI-SMALL-FACTORY-TRUTHFUL-REPORTING-2024`](../../intelligent_factory_decision_library/research/small_factory_truthful_reporting/review.md)：有限抽查、可信计数和人工申报治理。
 
 这些实例的共同方法是：先建立可复现基线，再做仿真/优化和影子运行；所有 mock 数值都标记为结构性示例，不冒充工厂实绩。
 
@@ -105,6 +117,8 @@ GET  /api/state
 - 后处理临时立库、完工缓存、模具暂存、工装缓存等位置尚未形成连续的载具—工单—工序状态链。
 
 这些数字只表示现有人员配置，不等于可直接减少的人数。必须区分直接作业、设备看护、质量确认、换型、异常恢复、物流和班组管理。
+
+从决策库的自动化分层看，本厂同时处于“人工主导”和“半工业化”两种形态：主加工设备有部分自动循环，但上下料、物料准备、换型、质量确认、异常处置和跨区运输仍由人员承担。不能用一条线的平均自动化率替代这种分工描述。
 
 主要链路断点是：
 
@@ -400,7 +414,20 @@ operator_id（仅人工接管）
 
 接口接入顺序按“对决策的边际价值/改造成本”排序，可用 DataValue 估计；不以接入系统数量作为进度指标。
 
-### 6.3 数据质量门
+### 6.3 与现有中控原型的接口映射
+
+下表把设计中的动作映射到 `central_control_prototype` 已有接口。接口返回的地点均采用“位点编号（括号注释）”；生产接入时只需替换适配器，不应改变 `expected_queue` 与 `arrived_queue` 的语义。
+
+|原型接口|调用方|事实/动作|生产接入时的注意事项|
+|---|---|---|---|
+|`GET /api/workstations/{station}/queues`|工位上位机、看板|读取 `expected_queue`、`arrived_queue`、当前批次和顺序偏离|AGV 任务完成不能直接写入 `arrived_queue`；需显示队列更新时间和数据年龄|
+|`POST /api/workstations/{station}/poll-location`|工位上位机|先查位点上的 `carrier_code`，再反查工单、订单、物料和数量|请求需带 `point_code` 与 `point_note`；查询结果保存来源事件、查询时间和权限主体|
+|`GET /api/workstations/{station}/next-basket`|F11/F8/P1 上位机|获取下一可处理筐及 `work_instruction`、`sensor_required`、`upper_pc_can_start`|`upper_pc_can_start=true` 只是事实层质量门通过，不代表绕过 PLC 安全互锁或质量放行|
+|`POST /api/workstations/{station}/claim`|上位机/班组终端|锁定实际到达筐，防止两个工位同时消费|必须幂等；冲突时返回 `WAIT/HOLD` 和已有 claim 的证据|
+|`POST /api/events`|MES/AGV/PLC/QMS/人工终端|写入 `started/completed/hold/rework/split/merge` 等事实事件|事件不可静默覆盖；使用 `event_id` 去重并保留 `event_time` 与 `ingest_time`|
+|`GET /api/state`|中控看板、DataValor 适配器|读取载具、工单、位置、工序和事件投影|生产环境需增加权限、分页、版本号和审计 trace，不能把演示数据库直接暴露给设备网段|
+
+### 6.4 数据质量门
 
 每个进入开工决策的字段都要经过：
 
@@ -518,6 +545,8 @@ operator_id（仅人工接管）
 
 建议新增一个工厂接入项目，而不是把现场逻辑硬编码进 DataValor 核心模块。输入可由适配器转换为 `DataProduct`/事件表，经过以下 pipeline：
 
+本文同时提供了[机器可读的改造点清单](intelligent_black_factory_design.yaml)，其中固定了每个主题的 `minimum_inputs`、`automatic_actions`、`hard_constraints`、`methods`、`phase`、`metrics` 和 `rollback`，可作为后续接口适配器、历史回放和验收脚本的配置起点。
+
 ```text
 DataGov：字段来源/权限/血缘
 → DataProf：完整性、延迟、重复、漂移画像
@@ -551,3 +580,41 @@ DataGov：字段来源/权限/血缘
 ```
 
 它既能在当前人工 heavy、接口未完全打通的条件下采用影子和局部自动化方式逐步实施，也为后续的 AGV 预测调度、设备维护联合优化和正常路径黑灯运行提供共同的数据和状态基础。
+
+## 13. 公开实践的对照与本厂迁移边界
+
+公开的灯塔工厂、智能工厂和棕地数字化案例，通常把收益归因于“设备联网”或“机器人替代”。对本厂真正有用的是其实施顺序和控制边界，而不是案例中未经现场复核的百分比。下表按可迁移的机制整理；“可迁移”表示可以在现有字段和接口上先做小范围验证，不表示可以直接复制设备或收益。
+
+|公开实践中反复出现的机制|本厂对应位置/字段|可先落地的做法|不能直接照搬的边界|
+|---|---|---|---|
+|以统一产品/载具 ID 串起物料、工序和质量事件|`carrier_code`、`work_order_no`、`material_code`、`point_code`、QMS 结果|先做只读事件汇聚和载具反查；用 `event_id` 幂等去重|不能假设旧系统已有统一 ID；MES 与 WMS 的同名字段需要逐项对账|
+|用实时位置和在制品状态驱动物流，而不是只看计划|AGV 的目标/实际库位、`expected_queue`、`arrived_queue`|上位机轮询 `F11-IN-01（脱脂上料位）`、`F8-LN-A-02（喷漆线A上料位）`、`P1-MK-01（刻字读码位）`，以实到队列开工|AGV 完成事件不是实物到达；轮询延迟和位点冲突必须进入风险门|
+|自动化设备保留人工异常通道|机械臂、PLC、刻字机、包装设备|正常路径自动 claim/START；视觉失败、卡料、错号、质量 HOLD 走授权旁路|不能把旁路当成无记录的现场操作；每次覆盖要带 `operator_id`、理由和证据|
+|数字孪生/仿真先于全量自动控制|硫化机台、后处理缓存、AGV 任务|用历史事件校准 DES，再比较 FIFO、规则和 CP-SAT/ALNS|案例中的仿真参数、节拍和 ROI 不能直接当成本厂实绩|
+|质量门与追溯并入生产流程|F11 配方校验、F8 数量守恒、P1 `serial_range`、包装绑定|把 `WAIT/HOLD/REWORK` 作为正式状态；未通过质量门不得自动派下游|不能先追求节拍再补质量；P1 重号和数量差异必须是硬约束|
+|通过岗位重构释放人工，而非只计算减员|前处理 2/6/14 人岗位、硫化 91 人、后处理 6/8 人岗位|按任务事件拆分直接作业、物流、换型、质量和异常；给出转岗/培训方案|现有人数是配置事实，不是可裁减人数；安全、维修和班组覆盖不能被模型吞掉|
+|分阶段部署、先影子后受控执行|立库→F11→F8/P1→硫化/后处理|每阶段只自动化可回退动作，保留原系统和人工流程作为回退|一次打通全厂会掩盖字段缺失、接口权限和停线风险|
+
+本表对应的行业实践入口包括 NIST 智能制造标准框架、ISA-95 企业—控制集成、GS1 EPCIS 事件语义、OPC UA 互操作规范，以及文中列出的 MES、AGV、追溯、质量、维护和人机协作综述。它们能够支持“对象—事件—接口—质量门—回退”的设计判断，但不能替代供应商接口协议、现场安全评审、FAT/SAT 或工艺验证。
+
+## 14. 每个改造点的最小可执行卡片
+
+下面的卡片把“问题建模”压缩成可以交给接口、工艺和班组共同评审的最小单元。字段名沿用现场资料和中控原型；`synthetic/mock` 数据只能用于回放和联调，不能用于生产放行。
+
+|改造点|最小输入事件/查询|允许自动动作|硬门与回退|第一阶段观测指标|
+|---|---|---|---|---|
+|载具交接|`agv_created`、`agv_picked`、`point_polled`、`carrier_resolved`；查询目标位点|更新位置投影、生成到位提示、草拟 AGV 下一任务|载具重复占位、工单不唯一、数据过期时 `HOLD`；回退人工确认并保留原任务|位置未知时长、重复绑定率、AGV 等待|
+|F11 脱脂|`point_polled(F11-IN-01)` + MES 工单/物料/数量|显示当前/下一筐类型，预装载 `recipe_version`，提交 `claim`|物料与配方不兼容、查询年龄超阈值、冻结工单不得 START；回退读码核验|重复扫码、准备时间、错误开工拦截|
+|F8 喷漆/喷胶|筐到位、盘/台座槽位、PLC 占用/完成、NG 事件|分配盘集合、提示机械臂上料、自动生成合筐关系|`parent_qty != child_qty+NG+loss` 或槽位冲突时停止合筐；回退人工盘点|数量守恒误差、机械臂等待、人工补漆比例|
+|P1 刻字|批次释放、`serial_range` 分配、设备开始/完成/重刻事件|下发有限序列窗口、校验单件消费、生成返工任务|区间交叉、跳号、重复消费、离线窗口耗尽时禁止继续；回退已批准的人工重刻流程|重号/漏号、回传延迟、人工录入次数|
+|硫化准备|机台周期、停机理由、模具/胶料位置、后处理接收窗口|生成下一周期物料和模具准备单、草拟配送任务|模具能力或胶料批次不匹配时不派送；回退班组确认|饥饿/阻塞、换模等待、准时开机率|
+|后处理/包装|缩径/打磨/检测结果、返修、包装载具和库位查询|进入刻字/检测/包装队列，生成入库任务|质量 `HOLD/REWORK`、包装数量不一致或外协未双向确认时暂停|找件时间、返修回溯率、包装绑定错误|
+|人工接管|异常事件、岗位资格、`operator_id`、覆盖理由|向有资质人员派发异常、记录替代任务|无资质、证据缺失或安全互锁未满足时拒绝旁路；回退班组长审批|响应时间、覆盖成功率、技能缺口|
+
+每张卡片至少应形成一条可审计链：
+
+```text
+输入事件/查询 → 数据质量门 → 建议或动作 → 设备/人工回执 → 结果与证据
+```
+
+评审时应逐项回答四个问题：输入是否能从现有系统读到；动作失败时是否会留下事实事件；人工覆盖是否需要明确权限；回退后能否继续使用原 MES/AGV/设备流程。若任一问题没有答案，该改造点只能处于影子运行，不能进入自动 START 或自动质量放行。

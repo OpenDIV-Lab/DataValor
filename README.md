@@ -46,6 +46,7 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 - [可运行示例](examples/README.md)
 - [文档与调研资料](#documentation)
 - [制造业黑灯工厂优化设计](docs/intelligent_black_factory_design.md)
+- [黑灯工厂改造点机器可读清单](docs/intelligent_black_factory_design.yaml)
 - [开发原则](#development-principles)
 
 <a id="repository-layout"></a>
@@ -364,6 +365,8 @@ DataPrice 根据估值证据、权利、供需和机制规则生成 quote，并�
 DataPrice 负责报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。当前实现包括 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束。
 
 阶段 4 还提供可直接运行的 `CostPlusPricingModel`、`ValueBasedPricingModel`、`UsageBasedPricingModel`、`QualityFreshnessPricingModel` 和 `AdaptiveDemandPricingModel`，以及价格带、阶梯量价折扣、多单位统一价格拍卖、预算感知/质量感知采购。`evaluate_pricing_properties` 会对个体理性、预算和容量约束给出可审计的 violations witness。报价、估值、支付保持分离：报价模型可参考估值，但拍卖支付由边际出价或 ask reserve 决定。完整公式、复杂度和边界见 [阶段 4 调研与实现说明](docs/research/stage4_pricing_mechanisms.md)，端到端运行 `PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py`。
+
+`extensions.py` 补充了分段用量、订阅超额、风险调整和需求弹性四类报价模型，并提供 `calibrate_quotes`（报价与实际成交价的误差统计）和 `audit_pricing_outcome`（支付、收入和数量对账）。这些工具只处理价格计算和结果校验；挂牌、参与者行为和多轮市场实验仍由 `src/datavalor/data_market/` 负责。示例为 `examples/16_data_price_models_audit.py`，详细说明见 `docs/research/dataprice_extensions.md`。
 
 [返回模块索引](#module-index)
 
@@ -737,6 +740,8 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - [阶段 2：任务效用、估值与数据单元贡献实现说明](docs/research/stage2_data_valuation.md)
 - [阶段 3：符号估值、学习型估值与贡献分摊实现说明](docs/research/stage3_advanced_valuation.md)
 - [DataValue 风险、反事实、组合与校准扩展](docs/research/datavalue_extensions.md)
+- [DataPrice 分段、订阅、风险与弹性定价扩展](docs/research/dataprice_extensions.md)
+- [面向棕地改造的黑灯工厂优化问题与实施设计](docs/intelligent_black_factory_design.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 

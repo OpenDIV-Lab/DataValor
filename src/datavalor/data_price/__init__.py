@@ -1,6 +1,15 @@
 """DataPrice: pricing algorithms and mechanism design."""
 
 from .constraints import PriceBandConstraint, VolumeDiscountConstraint
+from .extensions import (
+    ElasticityPricingModel,
+    QuoteCalibration,
+    RiskAdjustedPricingModel,
+    SubscriptionPricingModel,
+    TieredUsagePricingModel,
+    audit_pricing_outcome,
+    calibrate_quotes,
+)
 from .interfaces import OnlinePricingModel, PriceConstraint, PricingMechanism, PricingModel
 from .mechanisms import (
     BudgetFeasibleProcurement,
@@ -66,6 +75,10 @@ for _component, _registry in (
     (MultiUnitUniformPriceAuction(), PRICING_MECHANISMS),
     (BudgetAwareProcurement(), PRICING_MECHANISMS),
     (QualityAwareProcurement(), PRICING_MECHANISMS),
+    (TieredUsagePricingModel(), PRICING_MODELS),
+    (SubscriptionPricingModel(), PRICING_MODELS),
+    (RiskAdjustedPricingModel(), PRICING_MODELS),
+    (ElasticityPricingModel(), ONLINE_PRICING_MODELS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -117,4 +130,11 @@ __all__ = [
     "check_capacity_feasibility",
     "check_individual_rationality",
     "evaluate_pricing_properties",
+    "TieredUsagePricingModel",
+    "SubscriptionPricingModel",
+    "RiskAdjustedPricingModel",
+    "ElasticityPricingModel",
+    "QuoteCalibration",
+    "calibrate_quotes",
+    "audit_pricing_outcome",
 ]

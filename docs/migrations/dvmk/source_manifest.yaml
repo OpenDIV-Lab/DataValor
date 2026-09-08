@@ -7,6 +7,24 @@ note: >-
   这是完整实现文件迁移记录模板。每一批迁移填写 source_paths、target_paths、
   target_interfaces、changes、tests_migrated 和 status；迁入后源命名空间必须被替换。
 batches:
+  - batch_id: dataprice_pricing_extensions_v1
+    source_paths:
+      - src/dvmk/pricing/
+    target_paths:
+      - src/datavalor/data_price/extensions.py
+      - examples/16_data_price_models_audit.py
+    target_interfaces:
+      - datavalor.data_price.PricingModel
+      - datavalor.data_price.OnlinePricingModel
+      - datavalor.data_price.PricingOutcome
+    changes:
+      - added progressive tiered usage and subscription overage pricing
+      - added uncertainty/risk-adjusted quote and quantity elasticity update
+      - added quote calibration and payment/revenue accounting audit
+      - retained DataMarket boundary for listings participants and simulation
+    tests_migrated:
+      - tests/test_data_price_extensions.py
+    status: completed
   - batch_id: datavalue_risk_counterfactual_portfolio_v1
     source_paths:
       - src/dvmk/valuation/

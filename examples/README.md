@@ -17,6 +17,7 @@ PYTHONPATH=src python examples/12_datagov_lineage_rights_audit.py
 PYTHONPATH=src python examples/13_dataprof_statistics_drift.py
 PYTHONPATH=src python examples/14_dataeval_quality_gate.py
 PYTHONPATH=src python examples/15_data_value_risk_portfolio.py
+PYTHONPATH=src python examples/16_data_price_models_audit.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -45,6 +46,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `14_dataeval_quality_gate.py` 展示新增 DataEval 指标：数值业务范围合规、重复实体标签冲突、分组完整性差距、文本可读性，以及按照每个指标方向执行的 `EvaluationThresholdGate`。它保留每项指标的统计量和 evidence，最后输出是否通过验收门禁到 `outputs/dataeval-extension/result.json`。
 
 `15_data_value_risk_portfolio.py` 展示 DataValue 的增量能力：`RiskAdjustedValuator` 将质量估计的不确定性换算成货币风险折扣，`CounterfactualValuator` 计算相对 baseline 的增量价值，`PortfolioValuator` 汇总多产品的协同与组合风险；示例还用单调经验曲线描述数据规模的边际价值，并用 MAE/RMSE/bias 校准估值与实际结果。结果写入 `outputs/datavalue-extension/result.json`。
+
+`16_data_price_models_audit.py` 展示 DataPrice 的分段用量、订阅超额、风险调整和需求弹性报价，并用 `calibrate_quotes` 对照实际成交价、用 `audit_pricing_outcome` 检查支付对账。结果写入 `outputs/dataprice-extension/result.json`；参与者行为和多轮市场实验仍由 DataMarket 处理。
 
 这些脚本分别覆盖：
 

@@ -39,7 +39,7 @@ DataValor 是一个围绕“数据能否被管理、评估、估值、定价并�
 
 ### DataPrice：报价、拍卖和支付计算
 
-源码位于 `src/datavalor/data_price/`。`pricing_models.py` 提供 cost-plus、value-based、usage-based、质量/新鲜度和在线需求调整报价；`constraints.py` 提供价格带和数量折扣约束；`mechanisms.py` 与 `mechanisms_advanced.py` 提供 posted price、二价、VCG、McAfee、多单位统一价格拍卖、预算采购和质量感知采购；`properties.py` 用于检查个体理性、预算可行性和容量可行性。
+源码位于 `src/datavalor/data_price/`。`pricing_models.py` 提供 cost-plus、value-based、usage-based、质量/新鲜度和在线需求调整报价；`extensions.py` 补充分段用量、订阅超额、风险调整和弹性报价，以及报价校准和支付对账；`constraints.py` 提供价格带和数量折扣约束；`mechanisms.py` 与 `mechanisms_advanced.py` 提供 posted price、二价、VCG、McAfee、多单位统一价格拍卖、预算采购和质量感知采购；`properties.py` 用于检查个体理性、预算可行性和容量可行性。
 
 ### DataMarket：市场参与和仿真
 
