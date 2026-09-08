@@ -17,6 +17,15 @@ from .contribution_advanced import (
     group_shapley_values,
     pairwise_interactions,
 )
+from .extensions import (
+    CalibrationReport,
+    CounterfactualValuator,
+    PortfolioValuator,
+    RiskAdjustedValuator,
+    ValueCurvePoint,
+    build_value_curve,
+    calibrate_values,
+)
 from .interfaces import ContributionValuator, DataValuator, TrainableValuator, UtilityFunction
 from .models import (
     ContributionReport,
@@ -58,6 +67,9 @@ for _component, _registry in (
     (GroupShapleyValuator(), CONTRIBUTION_VALUATORS),
     (QualityAdjustedValuator(), VALUATORS),
     (ScenarioValuator(), VALUATORS),
+    (RiskAdjustedValuator(), VALUATORS),
+    (CounterfactualValuator(), VALUATORS),
+    (PortfolioValuator(), VALUATORS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -104,4 +116,11 @@ __all__ = [
     "incremental_gain",
     "ranking_scores",
     "regression_scores",
+    "RiskAdjustedValuator",
+    "CounterfactualValuator",
+    "PortfolioValuator",
+    "CalibrationReport",
+    "calibrate_values",
+    "ValueCurvePoint",
+    "build_value_curve",
 ]

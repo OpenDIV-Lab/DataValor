@@ -483,3 +483,34 @@ stages:
       - new metrics are registered through QUALITY_METRICS
       - metric direction and evidence remain explicit
       - threshold gate does not mutate or replace EvaluationReport
+
+  - id: stage_11_datavalue_risk_counterfactual_portfolio
+    title: DataValue 风险、反事实、组合与校准扩展
+    status: completed
+    scope: additive_implementations
+    depends_on: [stage_10_dataeval_quality_extensions]
+    source_paths: [src/dvmk/valuation/]
+    target_paths:
+      - src/datavalor/data_value/extensions.py
+      - examples/15_data_value_risk_portfolio.py
+    target_interfaces:
+      - datavalor.data_value.DataValuator
+      - datavalor.data_value.ValueEstimate
+    components:
+      - name: risk_adjusted_valuation
+        target_interface: datavalor.data_value.DataValuator
+        refactor: convert_quality_uncertainty_to_monetary_risk_penalty
+      - name: counterfactual_incremental_value
+        target_interface: datavalor.data_value.DataValuator
+        refactor: observed_vs_baseline_task_utility_delta
+      - name: portfolio_synergy_value
+        target_interface: datavalor.data_value.DataValuator
+        refactor: standalone_synergy_uncertainty_and_diversification_components
+      - name: value_curve_and_calibration
+        target_interface: datavalor.data_value.ValueEstimate
+        refactor: monotone_pava_curve_and_realized_value_error_metrics
+    tests: [tests/test_data_value_extensions.py]
+    acceptance:
+      - risk adjustment records monetary uncertainty and penalty components
+      - counterfactual and portfolio estimates remain separate from quotes/payments
+      - curve output exposes marginal values and calibration validates finite inputs

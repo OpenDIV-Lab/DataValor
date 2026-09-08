@@ -68,6 +68,8 @@ DataProf 在基础画像契约之上提供增量统计算子：`RobustStatistics
 
 DataEval 的增量指标集中在 `src/datavalor/data_eval/advanced.py`：`NumericRangeComplianceMetric` 检查业务范围，`LabelConflictMetric` 检测同一实体的矛盾标签，`GroupCompletenessParityMetric` 量化群组完整率差距，`TextReadabilityMetric` 计算无依赖 Flesch-style 可读性；`EvaluationThresholdGate` 按每个 metric 的 score direction 执行显式验收阈值。它们可以与现有 CompositeEvaluator 和模态指标混用，仍返回独立的 evidence/statistics/diagnostics，不修改报告结构。示例为 `examples/14_dataeval_quality_gate.py`。
 
+DataValue 的增量估值实现位于 `src/datavalor/data_value/extensions.py`。`RiskAdjustedValuator` 把评估不确定性换算成货币风险折扣，`CounterfactualValuator` 计算观察 utility 相对 baseline 的增量，`PortfolioValuator` 汇总多个数据项的 standalone value、synergy 和组合风险；`build_value_curve` 返回单调的规模-边际价值曲线，`calibrate_values` 用 MAE/RMSE/bias/MAPE 对照实际收益。这些函数继续输出 `ValueEstimate` 或独立报告，DataPrice 仍负责 quote/payment。运行入口为 `examples/15_data_value_risk_portfolio.py`。
+
 阶段 3 的统一入口为 `examples/08_stage3_advanced_valuation.py`，配置为 `configs/workflows/stage3_advanced_valuation.json`。它进一步执行质量调整和情景估值、受限符号估值、线性模型训练/预测、精确与分组 Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊价值；结果保留公式、系数、RMSE、区间、规模边界和父引用，仍与 DataPrice 的报价和支付分离。
 
 ### 3.4 阶段 4：DataPrice 报价与机制基线

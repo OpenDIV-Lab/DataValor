@@ -7,6 +7,23 @@ note: >-
   这是完整实现文件迁移记录模板。每一批迁移填写 source_paths、target_paths、
   target_interfaces、changes、tests_migrated 和 status；迁入后源命名空间必须被替换。
 batches:
+  - batch_id: datavalue_risk_counterfactual_portfolio_v1
+    source_paths:
+      - src/dvmk/valuation/
+    target_paths:
+      - src/datavalor/data_value/extensions.py
+      - examples/15_data_value_risk_portfolio.py
+    target_interfaces:
+      - datavalor.data_value.DataValuator
+      - datavalor.data_value.ValueEstimate
+    changes:
+      - added monetary uncertainty risk discount valuation
+      - added baseline counterfactual incremental value
+      - added portfolio synergy/diversification aggregation
+      - added monotone value curve and realized-value calibration
+    tests_migrated:
+      - tests/test_data_value_extensions.py
+    status: completed
   - batch_id: dataeval_quality_extensions_v1
     source_paths:
       - src/dvmk/evaluation/

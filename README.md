@@ -45,6 +45,7 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 - [安装与验证](#installation)
 - [可运行示例](examples/README.md)
 - [文档与调研资料](#documentation)
+- [制造业黑灯工厂优化设计](docs/intelligent_black_factory_design.md)
 - [开发原则](#development-principles)
 
 <a id="repository-layout"></a>
@@ -314,6 +315,8 @@ DataValue 面向特定用户、任务或模型估计数据及其组成单元的�
 `UTILITY_FUNCTIONS`、`VALUATORS`、`TRAINABLE_VALUATORS`、`CONTRIBUTION_VALUATORS`。
 
 DataValue 只负责用户、任务和模型相关的效用与贡献估计，交易报价和清算由 DataPrice 处理。当前实现包括 weighted user-task、requirements、LOO、Shapley、Monte Carlo Shapley，以及 learned/symbolic valuation。
+
+`data_value/extensions.py` 增加了风险调整估值、反事实增量价值、多产品组合协同、单调价值曲线和估值校准：分别对应不确定性折扣、相对 baseline 的收益、portfolio synergy、数据规模的边际价值，以及预测值与实际收益的 MAE/RMSE/bias。示例为 `examples/15_data_value_risk_portfolio.py`，说明见 `docs/research/datavalue_extensions.md`。
 
 ### E2 外部估值适配器
 
@@ -733,6 +736,7 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - [阶段 1：数据产品、治理、画像与质量评估实现说明](docs/research/stage1_data_product_governance.md)
 - [阶段 2：任务效用、估值与数据单元贡献实现说明](docs/research/stage2_data_valuation.md)
 - [阶段 3：符号估值、学习型估值与贡献分摊实现说明](docs/research/stage3_advanced_valuation.md)
+- [DataValue 风险、反事实、组合与校准扩展](docs/research/datavalue_extensions.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 
