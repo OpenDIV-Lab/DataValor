@@ -84,6 +84,8 @@ DataMarket 的增量实现位于 `src/datavalor/data_market/extensions.py`：`ra
 
 机制设计相关能力位于 `src/datavalor/data_market/mechanism_design.py`：`match_orders` 在清算前按价格—时间优先匹配兼容订单并检查 ACTIVE 挂牌和质量门槛；`audit_market_mechanism` 对一次结果检查个体理性、预算平衡和配置效率；`QuotaAdmissionController` 在交付前执行买方—产品用量配额并按数量比例调整支付；`ShapleyRevenueAllocator` 按联盟边际贡献分配联合数据收益。它们都不替换 DataPrice 的定价公式，适合作为市场侧的准入、审计和结算后处理组件。示例为 `examples/18_data_market_mechanism_design.py`。
 
+仿真专有扩展位于 `src/datavalor/data_market/simulation/extensions.py`：`decay_market_freshness` 模拟时效数据逐轮衰减和自动暂停，`apply_participation_shock` 模拟参与者进出与需求冲击，`PrivacyBudgetLedger`/`PrivacyAwareStrategy` 将隐私成本和预算纳入买方决策，`summarize_simulation` 统计价格波动、卖方 HHI/Gini、买方覆盖率等市场健康指标。它们作为 `FiniteMarketSimulator` 外围的状态和分析组件使用；示例为 `examples/19_data_market_simulation_dynamics.py`。
+
 ### 3.5 阶段 5：市场仿真、Benchmark 与统计分析
 
 阶段 5 不重复实现定价，而是消费 `PricingOutcome` 做有限轮实验。`FiniteMarketSimulator` 为每个策略绑定独立参与者、记录每轮 decisions/outcome/next market，并提供转化率、收入、报告福利和买方支出摘要；truthful、fixed/adaptive shading、epsilon-greedy、multiplicative weights、UCB best-response、budget pacing、contextual shading 和 fixed reserve seller 均有实际决策/更新逻辑。`MatrixBenchmarkRunner` 按 component×case×repetition 生成稳定 seed，先保存 raw observations 再聚合均值/标准差/失败计数；`SimulationReportMetric` 和 `MarketOutcomeMetric` 分别测量多轮与单轮结果。分析层补充 bootstrap 区间、配对 bootstrap、regret、max/min 方向 Pareto 和 scalarized ranking。完整边界、假设和复杂度见 [阶段 5 调研与实现说明](research/stage5_market_benchmark_analysis.md)，运行入口为 `examples/10_stage5_market_benchmark_analysis.py`，配置为 `configs/workflows/stage5_market_benchmark.json`。

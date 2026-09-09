@@ -1,6 +1,14 @@
 """Reproducible market and participant simulations."""
 
 from .backends import MesaMarketSimulator
+from .extensions import (
+    PrivacyAwareStrategy,
+    PrivacyBudgetLedger,
+    SimulationMetrics,
+    apply_participation_shock,
+    decay_market_freshness,
+    summarize_simulation,
+)
 from .interfaces import MarketSimulator, ParticipantStrategy
 from .models import (
     MarketObservation,
@@ -39,4 +47,10 @@ __all__ = [
     "MultiplicativeWeightsStrategy",
     "TruthfulStrategy",
     "MesaMarketSimulator",
+    "decay_market_freshness",
+    "apply_participation_shock",
+    "PrivacyBudgetLedger",
+    "PrivacyAwareStrategy",
+    "SimulationMetrics",
+    "summarize_simulation",
 ]

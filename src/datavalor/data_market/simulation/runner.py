@@ -82,11 +82,16 @@ class FiniteMarketSimulator(MarketSimulator):
             listing.product for listing in market.listings
         )
         supply = context.metadata.get("supply", {})
-        demand = context.metadata.get("demand", {})
+        demand_multiplier = Decimal(str(market.state.get("demand_multiplier", "1")))
+        demand = {
+            key: Decimal(str(value)) * demand_multiplier
+            for key, value in context.metadata.get("demand", {}).items()
+        }
         market_context = {
             **market.state,
             **context.metadata.get("market_context", {}),
-            "round_id": round_id,
+                "round_id": round_id,
+                "demand_multiplier": str(demand_multiplier),
         }
         outcome = self.mechanism.price(
             PricingRequest(products, bids, asks, supply=supply, demand=demand, market_context=market_context),

@@ -20,6 +20,7 @@ PYTHONPATH=src python examples/15_data_value_risk_portfolio.py
 PYTHONPATH=src python examples/16_data_price_models_audit.py
 PYTHONPATH=src python examples/17_data_market_lifecycle_incentive.py
 PYTHONPATH=src python examples/18_data_market_mechanism_design.py
+PYTHONPATH=src python examples/19_data_market_simulation_dynamics.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -54,6 +55,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `17_data_market_lifecycle_incentive.py` 展示 DataMarket 的新增功能：对已激活挂牌按需求相关性排序、从交易记录计算供应商信誉、按贡献分配激励预算，并生成市场快照统计。它不重新计算价格，结果写入 `outputs/datamarket-extension/result.json`。
 
 `18_data_market_mechanism_design.py` 展示市场侧机制设计：先用价格—时间优先的订单簿匹配检查挂牌状态和质量门槛，再把订单交给 DataPrice 清算；随后审计个体理性、预算平衡和配置效率，按买方配额裁剪交付及支付，最后用带联盟协同项的 Shapley 边际贡献分配收入。结果写入 `outputs/datamarket-mechanism-design/result.json`。匹配和准入不会修改报价模型，便于将同一机制替换为线上订单簿或人工复核流程。
+
+`19_data_market_simulation_dynamics.py` 展示仿真专有状态：买方的隐私预算随成交消耗，挂牌的新鲜度逐轮衰减并在低于阈值时暂停，模拟参与者退出/进入和需求冲击，最后计算成交率、价格波动、卖方 HHI、收入 Gini、买方覆盖率和单位交易福利。结果写入 `outputs/datamarket-simulation-dynamics/result.json`。
 
 这些脚本分别覆盖：
 

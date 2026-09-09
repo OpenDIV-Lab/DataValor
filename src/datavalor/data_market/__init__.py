@@ -62,10 +62,16 @@ from .simulation import (
     MarketSimulator,
     MultiplicativeWeightsStrategy,
     ParticipantStrategy,
+    PrivacyAwareStrategy,
+    PrivacyBudgetLedger,
+    SimulationMetrics,
     SimulationReport,
     SimulationStep,
     StrategyDecision,
     TruthfulStrategy,
+    apply_participation_shock,
+    decay_market_freshness,
+    summarize_simulation,
 )
 
 for _component, _registry in (
@@ -83,6 +89,7 @@ for _component, _registry in (
     (BestResponseGridStrategy(), PARTICIPANT_STRATEGIES),
     (ContextualShadingStrategy(), PARTICIPANT_STRATEGIES),
     (FixedReserveSellerStrategy(), PARTICIPANT_STRATEGIES),
+    (PrivacyAwareStrategy(), PARTICIPANT_STRATEGIES),
     (ContributionIncentivePolicy(), INCENTIVE_POLICIES),
     (IdempotentTransactionProcessor(), TRANSACTION_PROCESSORS),
 ):
@@ -119,6 +126,12 @@ __all__ = [
     "TransactionRecord",
     "FiniteMarketSimulator",
     "TruthfulStrategy",
+    "PrivacyAwareStrategy",
+    "PrivacyBudgetLedger",
+    "SimulationMetrics",
+    "decay_market_freshness",
+    "apply_participation_shock",
+    "summarize_simulation",
     "FixedShadingStrategy",
     "AdaptiveShadingStrategy",
     "EpsilonGreedyShadingStrategy",
