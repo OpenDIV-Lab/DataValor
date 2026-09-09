@@ -378,6 +378,8 @@ DataPrice 负责报价、分配与支付计算；listing 生命周期、参与�
 
 DataMarket 负责数据产品挂牌和发现、参与者行为、交易、激励和收入分配。它消费 DataPrice 的 `PricingOutcome`，不另定义价格、allocation 或 payment 对象。
 
+`data_market/extensions.py` 增加了 ACTIVE 挂牌排序、交易信誉评分、贡献激励预算、幂等交易处理和市场快照统计。它们围绕挂牌、参与者和交易执行工作，不改变 DataPrice 的报价/支付逻辑。运行示例为 `examples/17_data_market_lifecycle_incentive.py`，说明见 `docs/research/datamarket_extensions.md`。
+
 ### 主要输入与输出
 
 - 输入：`Listing`、`DiscoveryQuery`、`ActorProfile`、`PricingOutcome`、参与者 contribution 和 `MarketSnapshot`；

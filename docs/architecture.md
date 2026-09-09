@@ -80,6 +80,10 @@ DataValue 的增量估值实现位于 `src/datavalor/data_value/extensions.py`�
 
 `src/datavalor/data_price/extensions.py` 在相同接口上增加 progressive tiered usage、subscription overage、risk-adjusted quote 和 elasticity-based online pricing，并提供 quote calibration 与 pricing-outcome accounting audit。它们只处理报价和结果校验，不管理挂牌或参与者策略；这些工作仍由 `src/datavalor/data_market/` 负责。可运行入口为 `examples/16_data_price_models_audit.py`。
 
+DataMarket 的增量实现位于 `src/datavalor/data_market/extensions.py`：`rank_listings` 对已授权的 ACTIVE 挂牌做需求相关排序，`score_reputation` 从交易记录计算成功率和争议惩罚，`ContributionIncentivePolicy` 分配独立的激励预算，`IdempotentTransactionProcessor` 对 PricingOutcome 做幂等记录和交付失败分类，`market_statistics` 输出挂牌、卖方集中度和参与者构成。它们不重新计算 DataPrice 的 quote/payment；示例为 `examples/17_data_market_lifecycle_incentive.py`。
+
+机制设计相关能力位于 `src/datavalor/data_market/mechanism_design.py`：`match_orders` 在清算前按价格—时间优先匹配兼容订单并检查 ACTIVE 挂牌和质量门槛；`audit_market_mechanism` 对一次结果检查个体理性、预算平衡和配置效率；`QuotaAdmissionController` 在交付前执行买方—产品用量配额并按数量比例调整支付；`ShapleyRevenueAllocator` 按联盟边际贡献分配联合数据收益。它们都不替换 DataPrice 的定价公式，适合作为市场侧的准入、审计和结算后处理组件。示例为 `examples/18_data_market_mechanism_design.py`。
+
 ### 3.5 阶段 5：市场仿真、Benchmark 与统计分析
 
 阶段 5 不重复实现定价，而是消费 `PricingOutcome` 做有限轮实验。`FiniteMarketSimulator` 为每个策略绑定独立参与者、记录每轮 decisions/outcome/next market，并提供转化率、收入、报告福利和买方支出摘要；truthful、fixed/adaptive shading、epsilon-greedy、multiplicative weights、UCB best-response、budget pacing、contextual shading 和 fixed reserve seller 均有实际决策/更新逻辑。`MatrixBenchmarkRunner` 按 component×case×repetition 生成稳定 seed，先保存 raw observations 再聚合均值/标准差/失败计数；`SimulationReportMetric` 和 `MarketOutcomeMetric` 分别测量多轮与单轮结果。分析层补充 bootstrap 区间、配对 bootstrap、regret、max/min 方向 Pareto 和 scalarized ranking。完整边界、假设和复杂度见 [阶段 5 调研与实现说明](research/stage5_market_benchmark_analysis.md)，运行入口为 `examples/10_stage5_market_benchmark_analysis.py`，配置为 `configs/workflows/stage5_market_benchmark.json`。

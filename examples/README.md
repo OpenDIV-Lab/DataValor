@@ -18,6 +18,8 @@ PYTHONPATH=src python examples/13_dataprof_statistics_drift.py
 PYTHONPATH=src python examples/14_dataeval_quality_gate.py
 PYTHONPATH=src python examples/15_data_value_risk_portfolio.py
 PYTHONPATH=src python examples/16_data_price_models_audit.py
+PYTHONPATH=src python examples/17_data_market_lifecycle_incentive.py
+PYTHONPATH=src python examples/18_data_market_mechanism_design.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -48,6 +50,10 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `15_data_value_risk_portfolio.py` 展示 DataValue 的增量能力：`RiskAdjustedValuator` 将质量估计的不确定性换算成货币风险折扣，`CounterfactualValuator` 计算相对 baseline 的增量价值，`PortfolioValuator` 汇总多产品的协同与组合风险；示例还用单调经验曲线描述数据规模的边际价值，并用 MAE/RMSE/bias 校准估值与实际结果。结果写入 `outputs/datavalue-extension/result.json`。
 
 `16_data_price_models_audit.py` 展示 DataPrice 的分段用量、订阅超额、风险调整和需求弹性报价，并用 `calibrate_quotes` 对照实际成交价、用 `audit_pricing_outcome` 检查支付对账。结果写入 `outputs/dataprice-extension/result.json`；参与者行为和多轮市场实验仍由 DataMarket 处理。
+
+`17_data_market_lifecycle_incentive.py` 展示 DataMarket 的新增功能：对已激活挂牌按需求相关性排序、从交易记录计算供应商信誉、按贡献分配激励预算，并生成市场快照统计。它不重新计算价格，结果写入 `outputs/datamarket-extension/result.json`。
+
+`18_data_market_mechanism_design.py` 展示市场侧机制设计：先用价格—时间优先的订单簿匹配检查挂牌状态和质量门槛，再把订单交给 DataPrice 清算；随后审计个体理性、预算平衡和配置效率，按买方配额裁剪交付及支付，最后用带联盟协同项的 Shapley 边际贡献分配收入。结果写入 `outputs/datamarket-mechanism-design/result.json`。匹配和准入不会修改报价模型，便于将同一机制替换为线上订单簿或人工复核流程。
 
 这些脚本分别覆盖：
 

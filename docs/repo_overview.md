@@ -43,7 +43,7 @@ DataValor 是一个围绕“数据能否被管理、评估、估值、定价并�
 
 ### DataMarket：市场参与和仿真
 
-源码位于 `src/datavalor/data_market/`。该模块管理数据产品挂牌、参与者、买卖双方行为、收益分配和有限轮市场实验。`data_market/simulation/` 中包含 truthful、shading、budget pacing、epsilon-greedy、multiplicative weights、UCB 和 contextual shading 等策略，可用于比较成交率、收入、支出、福利和策略行为。
+源码位于 `src/datavalor/data_market/`。该模块管理数据产品挂牌、参与者、买卖双方行为、收益分配和有限轮市场实验。`extensions.py` 还提供挂牌排序、交易信誉、贡献激励预算、幂等交易处理和市场快照统计；`mechanism_design.py` 提供订单簿匹配、个体理性/预算平衡/配置效率审计、配额准入和 Shapley 联盟分成；`data_market/simulation/` 中包含 truthful、shading、budget pacing、epsilon-greedy、multiplicative weights、UCB 和 contextual shading 等策略，可用于比较成交率、收入、支出、福利和策略行为。价格本身仍由 `src/datavalor/data_price/` 计算。
 
 ## 价值实现模块
 

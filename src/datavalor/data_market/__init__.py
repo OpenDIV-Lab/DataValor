@@ -1,11 +1,28 @@
 """DataMarket: market models, participants, allocation, and incentives."""
 
+from .extensions import (
+    ContributionIncentivePolicy,
+    IdempotentTransactionProcessor,
+    ReputationScore,
+    market_statistics,
+    rank_listings,
+    score_reputation,
+)
 from .interfaces import (
     IncentivePolicy,
     MarketCatalog,
     ParticipantRepository,
     RevenueAllocator,
     TransactionProcessor,
+)
+from .mechanism_design import (
+    MarketMatch,
+    MechanismAuditReport,
+    QuotaAdmissionController,
+    QuotaDecision,
+    ShapleyRevenueAllocator,
+    audit_market_mechanism,
+    match_orders,
 )
 from .models import (
     DiscoveryQuery,
@@ -55,6 +72,7 @@ for _component, _registry in (
     (InMemoryMarketCatalog(), MARKET_CATALOGS),
     (InMemoryParticipantRepository(), PARTICIPANT_REPOSITORIES),
     (ContributionRevenueAllocator(), REVENUE_ALLOCATORS),
+    (ShapleyRevenueAllocator(), REVENUE_ALLOCATORS),
     (FiniteMarketSimulator(), MARKET_SIMULATORS),
     (TruthfulStrategy(), PARTICIPANT_STRATEGIES),
     (FixedShadingStrategy(), PARTICIPANT_STRATEGIES),
@@ -65,6 +83,8 @@ for _component, _registry in (
     (BestResponseGridStrategy(), PARTICIPANT_STRATEGIES),
     (ContextualShadingStrategy(), PARTICIPANT_STRATEGIES),
     (FixedReserveSellerStrategy(), PARTICIPANT_STRATEGIES),
+    (ContributionIncentivePolicy(), INCENTIVE_POLICIES),
+    (IdempotentTransactionProcessor(), TRANSACTION_PROCESSORS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -108,6 +128,19 @@ __all__ = [
     "ContextualShadingStrategy",
     "FixedReserveSellerStrategy",
     "ContributionRevenueAllocator",
+    "ShapleyRevenueAllocator",
     "InMemoryMarketCatalog",
     "InMemoryParticipantRepository",
+    "ContributionIncentivePolicy",
+    "IdempotentTransactionProcessor",
+    "ReputationScore",
+    "rank_listings",
+    "score_reputation",
+    "market_statistics",
+    "MarketMatch",
+    "match_orders",
+    "MechanismAuditReport",
+    "audit_market_mechanism",
+    "QuotaDecision",
+    "QuotaAdmissionController",
 ]

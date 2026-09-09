@@ -7,6 +7,26 @@ note: >-
   这是完整实现文件迁移记录模板。每一批迁移填写 source_paths、target_paths、
   target_interfaces、changes、tests_migrated 和 status；迁入后源命名空间必须被替换。
 batches:
+  - batch_id: datamarket_lifecycle_incentives_v1
+    source_paths:
+      - src/dvmk/market/
+      - src/dvmk/simulation/
+    target_paths:
+      - src/datavalor/data_market/extensions.py
+      - examples/17_data_market_lifecycle_incentive.py
+    target_interfaces:
+      - datavalor.data_market.MarketCatalog
+      - datavalor.data_market.IncentivePolicy
+      - datavalor.data_market.TransactionProcessor
+    changes:
+      - added active listing relevance and preference ranking
+      - added transaction-based reputation and dispute penalty
+      - added contribution incentive budget allocation
+      - added idempotent transaction processing with partial delivery status
+      - added market snapshot liquidity and seller concentration statistics
+    tests_migrated:
+      - tests/test_data_market_extensions.py
+    status: completed
   - batch_id: dataprice_pricing_extensions_v1
     source_paths:
       - src/dvmk/pricing/

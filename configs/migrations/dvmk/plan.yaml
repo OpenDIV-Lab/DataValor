@@ -550,3 +550,39 @@ stages:
       - progressive tiers expose per-tier quantity and charge components
       - online elasticity updates are deterministic and non-negative
       - quote calibration validates currencies and outcome audit checks accounting invariants
+
+  - id: stage_13_datamarket_lifecycle_incentives
+    title: DataMarket 挂牌、信誉、激励与交易执行扩展
+    status: completed
+    scope: additive_implementations
+    depends_on: [stage_12_dataprice_pricing_extensions]
+    source_paths: [src/dvmk/market/, src/dvmk/simulation/]
+    target_paths:
+      - src/datavalor/data_market/extensions.py
+      - examples/17_data_market_lifecycle_incentive.py
+    target_interfaces:
+      - datavalor.data_market.MarketCatalog
+      - datavalor.data_market.IncentivePolicy
+      - datavalor.data_market.TransactionProcessor
+    components:
+      - name: listing_ranking
+        target_interface: datavalor.data_market.MarketCatalog
+        refactor: active_listing_relevance_quality_freshness_and_preference_ranking
+      - name: participant_reputation
+        target_interface: datavalor.data_market.MarketSnapshot
+        refactor: transaction_success_and_dispute_penalty_score
+      - name: contribution_incentive_budget
+        target_interface: datavalor.data_market.IncentivePolicy
+        refactor: positive_contribution_budget_allocation_with_zero_fallback
+      - name: idempotent_transaction_processing
+        target_interface: datavalor.data_market.TransactionProcessor
+        refactor: deterministic_outcome_id_and_partial_delivery_status
+      - name: market_snapshot_statistics
+        target_interface: datavalor.data_market.MarketSnapshot
+        refactor: active_liquidity_seller_hhi_and_role_composition
+    tests: [tests/test_data_market_extensions.py]
+    acceptance:
+      - market additions remain separate from DataPrice quote and payment calculation
+      - repeated identical outcomes return the same transaction record
+      - incentive totals reconcile to the configured budget
+      - listing ranking only returns ACTIVE listings
