@@ -11,6 +11,13 @@ from .advanced import (
 )
 from .builtins import BasicDataProfiler, BasicProfileComparator, BasicProfileMetric
 from .interfaces import DataProfiler, ProfileComparator, ProfileMetric
+from .market import (
+    CoverageProfileMetric,
+    CrossProductOverlapAnalyzer,
+    FreshnessProfileMetric,
+    JoinabilityMetric,
+    RarityProfileMetric,
+)
 from .models import (
     DatasetProfile,
     FieldProfile,
@@ -27,6 +34,10 @@ for _component, _registry in (
     (RobustStatisticsMetric, PROFILE_METRICS),
     (CategoricalConcentrationMetric, PROFILE_METRICS),
     (PairwiseCorrelationMetric, PROFILE_METRICS),
+    (CoverageProfileMetric, PROFILE_METRICS),
+    (RarityProfileMetric, PROFILE_METRICS),
+    (FreshnessProfileMetric, PROFILE_METRICS),
+    (JoinabilityMetric, PROFILE_METRICS),
 ):
     if _component().spec.name not in _registry:
         _registry.register(_component().spec, _component)
@@ -53,4 +64,9 @@ __all__ = [
     "DriftFieldResult",
     "DriftReport",
     "stratified_sample",
+    "CoverageProfileMetric",
+    "CrossProductOverlapAnalyzer",
+    "FreshnessProfileMetric",
+    "JoinabilityMetric",
+    "RarityProfileMetric",
 ]

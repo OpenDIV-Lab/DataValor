@@ -14,6 +14,7 @@ from .builtins import (
     DuplicateRateMetric,
     FieldValidityMetric,
 )
+from .demand_fit import DemandFitEvaluator, EvaluationConfidenceEstimator
 from .image import (
     ImageAspectRatioConsistencyMetric,
     ImageMetadataQualityMetric,
@@ -81,6 +82,7 @@ for _component, _registry in (
     (GroupCompletenessParityMetric, QUALITY_METRICS),
     (TextReadabilityMetric, QUALITY_METRICS),
     (CompositeEvaluator, EVALUATORS),
+    (DemandFitEvaluator, EVALUATORS),
 ):
     if _component().spec.name not in _registry:
         _registry.register(_component().spec, _component)
@@ -139,4 +141,6 @@ __all__ = [
     "GroupCompletenessParityMetric",
     "TextReadabilityMetric",
     "EvaluationThresholdGate",
+    "DemandFitEvaluator",
+    "EvaluationConfidenceEstimator",
 ]

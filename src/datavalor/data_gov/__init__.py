@@ -38,6 +38,14 @@ from .lineage import (
     trace_downstream,
     trace_upstream,
 )
+from .market_readiness import (
+    ArtifactStaleness,
+    ArtifactStalenessEvaluator,
+    RightsCompatibility,
+    RightsCompatibilityEvaluator,
+    RightsRestrictionScore,
+    RightsRestrictivenessScorer,
+)
 from .models import (
     CatalogQuery,
     FieldSchema,
@@ -129,4 +137,7 @@ __all__ = [
     "RightsEvaluation", "RightsMatrixEvaluator", "evaluate_rights_matrix", "rights_intersection", "rights_expiry_window", "explain_rights_failure",
     "MetadataDiff", "compare_metadata_records", "compare_products", "quality_impact_summary", "requires_re_evaluation",
     "GovernanceAuditBundle", "build_governance_audit", "summarize_findings", "audit_status",
+    "ArtifactStaleness", "ArtifactStalenessEvaluator",
+    "RightsCompatibility", "RightsCompatibilityEvaluator",
+    "RightsRestrictionScore", "RightsRestrictivenessScorer",
 ]

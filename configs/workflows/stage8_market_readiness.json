@@ -1,0 +1,28 @@
+{
+  "workflow_id": "stage8-market-readiness",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "initial_inputs": ["product", "records", "candidate"],
+  "metadata": {
+    "purpose": "Profile market-relevant facts and evaluate explicit buyer demand fit"
+  },
+  "stages": [
+    {
+      "stage_id": "governance",
+      "handler": "market.rights_readiness",
+      "artifact_kind": "governance.market_readiness",
+      "inputs": {"product": "product"}
+    },
+    {
+      "stage_id": "market_profile",
+      "handler": "market.profile",
+      "artifact_kind": "profile.market_facts",
+      "inputs": {"product": "product", "records": "records", "candidate": "candidate"}
+    },
+    {
+      "stage_id": "demand_fit",
+      "handler": "market.demand_fit",
+      "artifact_kind": "evaluation.demand_fit",
+      "inputs": {"product": "product", "governance": "governance", "profile": "market_profile"}
+    }
+  ]
+}

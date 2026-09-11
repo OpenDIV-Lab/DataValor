@@ -128,14 +128,26 @@ class EvaluationThresholdGate:
     this keeps the existing composite output backward compatible.
     """
 
-    def evaluate(self, report: EvaluationReport, thresholds: Mapping[str, float], *, default_direction: ScoreDirection = ScoreDirection.HIGHER_IS_BETTER) -> Mapping[str, Any]:
+    def evaluate(self, report: EvaluationReport, thresholds: Mapping[str, Any], *, default_direction: ScoreDirection = ScoreDirection.HIGHER_IS_BETTER) -> Mapping[str, Any]:
         checks = []
-        for metric in report.metrics:
-            if metric.name not in thresholds or metric.value is None:
+        indexed = {metric.name: metric for metric in report.metrics}
+        for name, rule in thresholds.items():
+            metric = indexed.get(name)
+            required = bool(rule.get("required", False)) if isinstance(rule, Mapping) else False
+            if metric is None or metric.value is None:
+                if required:
+                    checks.append({"metric": name, "value": None, "threshold": rule, "direction": None, "required": True, "passed": False, "reason": "missing_metric"})
                 continue
-            threshold = float(thresholds[metric.name]); direction = metric.direction or default_direction
-            passed = metric.value >= threshold if direction is ScoreDirection.HIGHER_IS_BETTER else metric.value <= threshold if direction is ScoreDirection.LOWER_IS_BETTER else True
-            checks.append({"metric": metric.name, "value": metric.value, "threshold": threshold, "direction": direction.value, "passed": passed})
+            direction = metric.direction or default_direction
+            if isinstance(rule, Mapping):
+                minimum = float(rule["min"]) if "min" in rule else None
+                maximum = float(rule["max"]) if "max" in rule else None
+                passed = (minimum is None or metric.value >= minimum) and (maximum is None or metric.value <= maximum)
+                threshold: Any = {"min": minimum, "max": maximum}
+            else:
+                threshold = float(rule)
+                passed = metric.value >= threshold if direction is ScoreDirection.HIGHER_IS_BETTER else metric.value <= threshold if direction is ScoreDirection.LOWER_IS_BETTER else True
+            checks.append({"metric": metric.name, "value": metric.value, "threshold": threshold, "direction": direction.value, "required": required, "passed": passed})
         failed = [check for check in checks if not check["passed"]]
         return {"status": "passed" if not failed else "failed", "checked": len(checks), "failed": len(failed), "checks": tuple(checks)}
 
