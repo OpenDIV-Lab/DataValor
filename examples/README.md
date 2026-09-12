@@ -22,6 +22,8 @@ PYTHONPATH=src python examples/17_data_market_lifecycle_incentive.py
 PYTHONPATH=src python examples/18_data_market_mechanism_design.py
 PYTHONPATH=src python examples/19_data_market_simulation_dynamics.py
 PYTHONPATH=src python examples/20_stage8_market_readiness.py
+PYTHONPATH=src python examples/21_stage9_market_valuation.py
+PYTHONPATH=src python examples/22_stage10_market_pricing.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -60,6 +62,10 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `19_data_market_simulation_dynamics.py` 展示仿真专有状态：买方的隐私预算随成交消耗，挂牌的新鲜度逐轮衰减并在低于阈值时暂停，模拟参与者退出/进入和需求冲击，最后计算成交率、价格波动、卖方 HHI、收入 Gini、买方覆盖率和单位交易福利。结果写入 `outputs/datamarket-simulation-dynamics/result.json`。
 
 `20_stage8_market_readiness.py` 展示第一阶段市场需求适配扩展：量化权利限制、检查多产品权利兼容性，生成覆盖、稀缺、时效、可连接和跨产品重叠画像，再按硬约束与软偏好计算需求匹配和证据置信度。结果写入 `outputs/stage8-market-readiness/result.json`。
+
+`21_stage9_market_valuation.py` 展示第二阶段市场导向估值：分别计算多因素市场价值、任务相关稀缺溢价、新增覆盖、替代品折扣、时间衰减和持续更新流现值，再生成多方法共识、因素敏感性和预算约束组合选择。结果写入 `outputs/stage9-market-valuation/result.json`。
+
+`22_stage10_market_pricing.py` 展示第三阶段市场定价：从估值和市场参照形成价格区间与可比报价，生成权利、新鲜度和版本差异价格，对组合重叠和互补性进行价格投影，并统一审计成本底价、估值比例、价格跳变、有效期和权利单调性。结果写入 `outputs/stage10-market-pricing/result.json`。
 
 这些脚本分别覆盖：
 

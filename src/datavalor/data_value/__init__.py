@@ -27,6 +27,20 @@ from .extensions import (
     calibrate_values,
 )
 from .interfaces import ContributionValuator, DataValuator, TrainableValuator, UtilityFunction
+from .market_valuation import (
+    BudgetConstrainedPortfolioSelector,
+    ConsensusValuation,
+    IncrementalCoverageValuator,
+    MarketContextValuator,
+    PortfolioSelection,
+    ScarcityAdjustedValuator,
+    SensitivityObservation,
+    SubstitutionAdjustedValuator,
+    TimeDecayValuator,
+    UpdateStreamValuator,
+    ValuationEnsemble,
+    ValuationSensitivityAnalyzer,
+)
 from .models import (
     ContributionReport,
     ContributionRequest,
@@ -70,6 +84,12 @@ for _component, _registry in (
     (RiskAdjustedValuator(), VALUATORS),
     (CounterfactualValuator(), VALUATORS),
     (PortfolioValuator(), VALUATORS),
+    (MarketContextValuator(), VALUATORS),
+    (ScarcityAdjustedValuator(), VALUATORS),
+    (IncrementalCoverageValuator(), VALUATORS),
+    (SubstitutionAdjustedValuator(), VALUATORS),
+    (TimeDecayValuator(), VALUATORS),
+    (UpdateStreamValuator(), VALUATORS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -123,4 +143,16 @@ __all__ = [
     "calibrate_values",
     "ValueCurvePoint",
     "build_value_curve",
+    "BudgetConstrainedPortfolioSelector",
+    "ConsensusValuation",
+    "IncrementalCoverageValuator",
+    "MarketContextValuator",
+    "PortfolioSelection",
+    "ScarcityAdjustedValuator",
+    "SensitivityObservation",
+    "SubstitutionAdjustedValuator",
+    "TimeDecayValuator",
+    "UpdateStreamValuator",
+    "ValuationEnsemble",
+    "ValuationSensitivityAnalyzer",
 ]

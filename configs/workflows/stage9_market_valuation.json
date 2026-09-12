@@ -1,0 +1,38 @@
+{
+  "workflow_id": "stage9-market-valuation",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "initial_inputs": ["product", "market_profile", "demand_fit"],
+  "metadata": {
+    "purpose": "Convert explicit market-readiness evidence into task-conditioned values"
+  },
+  "stages": [
+    {
+      "stage_id": "market_context_value",
+      "handler": "valuation.market_context",
+      "artifact_kind": "valuation.market_context",
+      "inputs": {
+        "product": "product",
+        "market_profile": "market_profile",
+        "demand_fit": "demand_fit"
+      }
+    },
+    {
+      "stage_id": "incremental_value",
+      "handler": "valuation.incremental_coverage",
+      "artifact_kind": "valuation.incremental_coverage",
+      "inputs": {
+        "product": "product",
+        "market_profile": "market_profile"
+      }
+    },
+    {
+      "stage_id": "valuation_consensus",
+      "handler": "valuation.ensemble",
+      "artifact_kind": "valuation.consensus",
+      "inputs": {
+        "market_context": "market_context_value",
+        "incremental": "incremental_value"
+      }
+    }
+  ]
+}

@@ -11,6 +11,19 @@ from .extensions import (
     calibrate_quotes,
 )
 from .interfaces import OnlinePricingModel, PriceConstraint, PricingMechanism, PricingModel
+from .market_pricing import (
+    BundleDiscountConstraint,
+    ComparableMatch,
+    ComparablePricingModel,
+    ComparableSelector,
+    FreshnessTierPricingModel,
+    PriceRangePricingModel,
+    QuoteAuditFinding,
+    QuoteAuditReport,
+    RightsDifferentiatedPricingModel,
+    VersionDeltaPricingModel,
+    audit_price_quotes,
+)
 from .mechanisms import (
     BudgetFeasibleProcurement,
     ContextualBanditPostedPrice,
@@ -79,6 +92,12 @@ for _component, _registry in (
     (SubscriptionPricingModel(), PRICING_MODELS),
     (RiskAdjustedPricingModel(), PRICING_MODELS),
     (ElasticityPricingModel(), ONLINE_PRICING_MODELS),
+    (PriceRangePricingModel(), PRICING_MODELS),
+    (ComparablePricingModel(), PRICING_MODELS),
+    (RightsDifferentiatedPricingModel(), PRICING_MODELS),
+    (FreshnessTierPricingModel(), PRICING_MODELS),
+    (VersionDeltaPricingModel(), PRICING_MODELS),
+    (BundleDiscountConstraint(), PRICE_CONSTRAINTS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -137,4 +156,15 @@ __all__ = [
     "QuoteCalibration",
     "calibrate_quotes",
     "audit_pricing_outcome",
+    "BundleDiscountConstraint",
+    "ComparableMatch",
+    "ComparablePricingModel",
+    "ComparableSelector",
+    "FreshnessTierPricingModel",
+    "PriceRangePricingModel",
+    "QuoteAuditFinding",
+    "QuoteAuditReport",
+    "RightsDifferentiatedPricingModel",
+    "VersionDeltaPricingModel",
+    "audit_price_quotes",
 ]

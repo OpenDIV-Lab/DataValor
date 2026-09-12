@@ -1,0 +1,28 @@
+{
+  "workflow_id": "stage10-market-pricing",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "initial_inputs": ["product", "valuation", "comparables"],
+  "metadata": {
+    "purpose": "Turn market-oriented valuation evidence into explainable and auditable quotes"
+  },
+  "stages": [
+    {
+      "stage_id": "price_range",
+      "handler": "pricing.price_range",
+      "artifact_kind": "quote.price_range",
+      "inputs": {"product": "product", "valuation": "valuation"}
+    },
+    {
+      "stage_id": "comparable_quote",
+      "handler": "pricing.comparable",
+      "artifact_kind": "quote.comparable",
+      "inputs": {"product": "product", "comparables": "comparables"}
+    },
+    {
+      "stage_id": "quote_audit",
+      "handler": "pricing.market_audit",
+      "artifact_kind": "pricing.quote_audit",
+      "inputs": {"range_quote": "price_range", "comparable_quote": "comparable_quote"}
+    }
+  ]
+}
