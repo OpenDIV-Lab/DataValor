@@ -1,0 +1,32 @@
+{
+  "workflow_id": "stage11-market-analysis",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "initial_inputs": ["market", "bids", "asks"],
+  "metadata": {
+    "purpose": "Analyze multi-attribute fit, supply-demand structure, bundle feasibility, and market health"
+  },
+  "stages": [
+    {
+      "stage_id": "market_structure",
+      "handler": "market.structure_analysis",
+      "artifact_kind": "market.structure",
+      "inputs": {"market": "market", "bids": "bids", "asks": "asks"}
+    },
+    {
+      "stage_id": "multi_attribute_matches",
+      "handler": "market.multi_attribute_match",
+      "artifact_kind": "market.match_recommendations",
+      "inputs": {"market": "market", "bids": "bids", "asks": "asks"}
+    },
+    {
+      "stage_id": "market_diagnostics",
+      "handler": "market.health_and_anomaly",
+      "artifact_kind": "market.diagnostics",
+      "inputs": {
+        "market": "market",
+        "structure": "market_structure",
+        "matches": "multi_attribute_matches"
+      }
+    }
+  ]
+}

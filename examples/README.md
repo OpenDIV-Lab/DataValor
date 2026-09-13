@@ -24,6 +24,7 @@ PYTHONPATH=src python examples/19_data_market_simulation_dynamics.py
 PYTHONPATH=src python examples/20_stage8_market_readiness.py
 PYTHONPATH=src python examples/21_stage9_market_valuation.py
 PYTHONPATH=src python examples/22_stage10_market_pricing.py
+PYTHONPATH=src python examples/23_stage11_market_analysis.py
 PYTHONPATH=src python examples/01_task_value_and_shapley.py
 PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/03_governed_query_with_redaction.py
@@ -66,6 +67,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 `21_stage9_market_valuation.py` 展示第二阶段市场导向估值：分别计算多因素市场价值、任务相关稀缺溢价、新增覆盖、替代品折扣、时间衰减和持续更新流现值，再生成多方法共识、因素敏感性和预算约束组合选择。结果写入 `outputs/stage9-market-valuation/result.json`。
 
 `22_stage10_market_pricing.py` 展示第三阶段市场定价：从估值和市场参照形成价格区间与可比报价，生成权利、新鲜度和版本差异价格，对组合重叠和互补性进行价格投影，并统一审计成本底价、估值比例、价格跳变、有效期和权利单调性。结果写入 `outputs/stage10-market-pricing/result.json`。
+
+`23_stage11_market_analysis.py` 展示第四阶段市场分析：执行多属性硬门槛和加权匹配，生成需求群组、供给分层与产品级市场缺口，解析 AND/XOR 组合需求并做预算选择，最后输出市场竞争、公平性指标和异常复核信号。结果写入 `outputs/stage11-market-analysis/result.json`。
 
 这些脚本分别覆盖：
 
