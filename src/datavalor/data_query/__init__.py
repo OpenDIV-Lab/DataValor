@@ -26,6 +26,13 @@ from .registry import (
     QUERY_PLANNERS,
     RESULT_GUARDS,
 )
+from .usage_feedback import (
+    QueryUtilityFeedback,
+    UsageAggregate,
+    UsageAggregator,
+    UsageAnomaly,
+    UsageAnomalyDetector,
+)
 
 __all__ = [
     "DATA_AGENTS",
@@ -52,4 +59,9 @@ __all__ = [
     "QueryResultGuard",
     "RightsQueryAuthorizer",
     "VannaQueryPlanner",
+    "QueryUtilityFeedback",
+    "UsageAggregate",
+    "UsageAggregator",
+    "UsageAnomaly",
+    "UsageAnomalyDetector",
 ]

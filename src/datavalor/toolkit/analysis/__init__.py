@@ -12,11 +12,13 @@ from .statistics import (
     regret_summary,
     scalarized_score,
 )
+from .value_chain import ValueRealizationAnalyzer
 
 for _component, _registry in (
     (BootstrapAnalyzer(), ANALYZERS),
     (PairedComparator(), RESULT_COMPARATORS),
     (ParetoFrontierAnalyzer(), FRONTIER_ANALYZERS),
+    (ValueRealizationAnalyzer(), ANALYZERS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -41,4 +43,5 @@ __all__ = [
     "BootstrapAnalyzer",
     "PairedComparator",
     "ParetoFrontierAnalyzer",
+    "ValueRealizationAnalyzer",
 ]

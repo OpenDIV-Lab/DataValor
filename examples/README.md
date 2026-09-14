@@ -70,6 +70,8 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 
 `23_stage11_market_analysis.py` 展示第四阶段市场分析：执行多属性硬门槛和加权匹配，生成需求群组、供给分层与产品级市场缺口，解析 AND/XOR 组合需求并做预算选择，最后输出市场竞争、公平性指标和异常复核信号。结果写入 `outputs/stage11-market-analysis/result.json`。
 
+`24_stage12_feedback_calibration.py` 展示运行反馈阶段：聚合并审计使用事件，按买方和任务校准估值及区间与排序表现，从历史报价学习成交概率并选择期望收入报价，再以有限变动和去重反馈执行安全探索，最后联合分析估值、报价、成交和实现价值。结果写入 `outputs/stage12-feedback-calibration/result.json`。
+
 这些脚本分别覆盖：
 
 1. 统一主链路：治理、画像、评估、估值、定价、市场、查询、使用计量和分析；

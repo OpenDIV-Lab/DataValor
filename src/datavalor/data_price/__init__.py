@@ -10,6 +10,12 @@ from .extensions import (
     audit_pricing_outcome,
     calibrate_quotes,
 )
+from .feedback_pricing import (
+    AcceptanceProbabilityModel,
+    AcceptanceTrainingReport,
+    ExpectedRevenuePricingModel,
+    SafeExplorationPricingModel,
+)
 from .interfaces import OnlinePricingModel, PriceConstraint, PricingMechanism, PricingModel
 from .market_pricing import (
     BundleDiscountConstraint,
@@ -98,6 +104,8 @@ for _component, _registry in (
     (FreshnessTierPricingModel(), PRICING_MODELS),
     (VersionDeltaPricingModel(), PRICING_MODELS),
     (BundleDiscountConstraint(), PRICE_CONSTRAINTS),
+    (ExpectedRevenuePricingModel(), PRICING_MODELS),
+    (SafeExplorationPricingModel(), ONLINE_PRICING_MODELS),
 ):
     if _component.spec.name not in _registry:
         _registry.register(_component.spec, type(_component))
@@ -167,4 +175,8 @@ __all__ = [
     "RightsDifferentiatedPricingModel",
     "VersionDeltaPricingModel",
     "audit_price_quotes",
+    "AcceptanceProbabilityModel",
+    "AcceptanceTrainingReport",
+    "ExpectedRevenuePricingModel",
+    "SafeExplorationPricingModel",
 ]

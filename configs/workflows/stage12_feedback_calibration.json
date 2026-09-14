@@ -1,0 +1,41 @@
+{
+  "workflow_id": "stage12-feedback-calibration",
+  "schema_version": "datavalor.workflow/v1alpha1",
+  "initial_inputs": ["usage_events", "value_observations", "pricing_observations"],
+  "metadata": {
+    "purpose": "Aggregate realized usage, calibrate value, and update pricing from accepted outcomes"
+  },
+  "stages": [
+    {
+      "stage_id": "usage_feedback",
+      "handler": "query.usage_feedback",
+      "artifact_kind": "query.usage_summary",
+      "inputs": {"events": "usage_events"}
+    },
+    {
+      "stage_id": "value_calibration",
+      "handler": "value.market_calibration",
+      "artifact_kind": "value.calibration",
+      "inputs": {"observations": "value_observations", "usage": "usage_feedback"}
+    },
+    {
+      "stage_id": "feedback_pricing",
+      "handler": "pricing.expected_revenue",
+      "artifact_kind": "pricing.feedback_quote",
+      "inputs": {
+        "calibration": "value_calibration",
+        "observations": "pricing_observations"
+      }
+    },
+    {
+      "stage_id": "value_realization",
+      "handler": "analysis.value_realization",
+      "artifact_kind": "analysis.value_realization",
+      "inputs": {
+        "usage": "usage_feedback",
+        "calibration": "value_calibration",
+        "pricing": "feedback_pricing"
+      }
+    }
+  ]
+}
