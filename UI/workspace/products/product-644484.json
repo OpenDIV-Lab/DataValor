@@ -1,0 +1,30 @@
+{
+  "product_id": "product-644484",
+  "title": "新数据产品",
+  "owner_id": "local-owner",
+  "version": "1",
+  "description": "",
+  "data": {
+    "uri": "memory://product-644484",
+    "format": "records",
+    "record_count": 2
+  },
+  "rights": {
+    "purposes": [
+      "analytics",
+      "valuation"
+    ]
+  },
+  "tags": [],
+  "metadata": {},
+  "records": [
+    {
+      "id": 1,
+      "value": 10
+    },
+    {
+      "id": 2,
+      "value": 20
+    }
+  ]
+}

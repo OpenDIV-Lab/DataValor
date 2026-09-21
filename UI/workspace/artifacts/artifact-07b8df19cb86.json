@@ -1,0 +1,79 @@
+{
+  "artifact_id": "artifact-07b8df19cb86",
+  "kind": "governance",
+  "producer": "rights.policy_evaluator",
+  "payload": {
+    "product_id": "product-644484",
+    "decision": "allow",
+    "policies": [
+      "analytics",
+      "rights"
+    ],
+    "findings": [],
+    "metadata_ref": null,
+    "diagnostics": {
+      "run_id": "run-8f9b5724a0d7",
+      "metadata_available": true
+    },
+    "metadata": {
+      "product_id": "product-644484",
+      "fields": [
+        {
+          "name": "id",
+          "data_type": "number",
+          "nullable": false,
+          "semantic_type": "identifier",
+          "classification": "identifier",
+          "constraints": {},
+          "metadata": {
+            "missing_count": 0,
+            "distinct_count": 2
+          }
+        },
+        {
+          "name": "value",
+          "data_type": "number",
+          "nullable": false,
+          "semantic_type": null,
+          "classification": null,
+          "constraints": {},
+          "metadata": {
+            "missing_count": 0,
+            "distinct_count": 2
+          }
+        }
+      ],
+      "owner_id": "local-owner",
+      "source": "memory://product-644484",
+      "license_id": null,
+      "lineage": [],
+      "properties": {
+        "format": "records",
+        "record_count": 2,
+        "sha256": "020a51db436e462466eae73b1ef00fbb12ebf18f89828a6a63935280be5b9693",
+        "tags": [],
+        "rights": [
+          "analytics",
+          "valuation"
+        ],
+        "run_id": "run-8f9b5724a0d7"
+      }
+    },
+    "security": {
+      "product_id": "product-644484",
+      "findings": [],
+      "scanned_fields": [
+        "id",
+        "value"
+      ],
+      "diagnostics": {
+        "run_id": "run-8f9b5724a0d7",
+        "policy_keys": [
+          "operation",
+          "purpose"
+        ]
+      }
+    }
+  },
+  "created_at": "2026-09-21T06:21:37.165491+00:00"
+}

@@ -1,0 +1,38 @@
+{
+  "artifact_id": "artifact-df9d1cd2d5d5",
+  "kind": "valuation",
+  "producer": "valuation.weighted_user_task",
+  "payload": {
+    "product_id": "product-644484",
+    "method": "valuation.weighted_user_task",
+    "mode": "task_specific",
+    "estimates": [
+      {
+        "target_id": "product-644484",
+        "value": 92500.0,
+        "unit": "monetary",
+        "currency": "CNY",
+        "components": {
+          "weighted_quality": 0.925,
+          "base_value": 100000.0,
+          "raw_value": 92500.0,
+          "adoption_cost": 0.0
+        },
+        "uncertainty": {},
+        "explanation": {
+          "metric_weights": {}
+        },
+        "diagnostics": {}
+      }
+    ],
+    "buyer_id": null,
+    "task_id": null,
+    "converged": null,
+    "iterations": null,
+    "artifacts": [],
+    "diagnostics": {
+      "run_id": "run-dce0e02f0b4b"
+    }
+  },
+  "created_at": "2026-09-21T06:21:02.293199+00:00"
+}

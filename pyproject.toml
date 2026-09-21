@@ -23,6 +23,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff>=0.4"]
+ui = ["fastapi>=0.110", "uvicorn>=0.29"]
 quality = ["cleanlab>=2.0", "great-expectations>=0.18", "evidently>=0.4"]
 profiling = ["ydata-profiling>=4.0"]
 valuation = ["pydvl>=0.9", "opendataval>=1.0"]
@@ -45,6 +46,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src", "."]
 
 [tool.ruff]
 line-length = 100

@@ -1,0 +1,85 @@
+{
+  "artifact_id": "artifact-155f1f4122a7",
+  "kind": "evaluation",
+  "producer": "basic.composite_evaluator",
+  "payload": {
+    "product_id": "product-644484",
+    "metrics": [
+      {
+        "name": "basic.completeness",
+        "dimension": "completeness",
+        "scope": "dataset",
+        "value": 1.0,
+        "direction": "higher_is_better",
+        "unit": "ratio",
+        "target_id": "product-644484",
+        "statistics": {
+          "record_count": 2,
+          "field_count": 2,
+          "cell_count": 4,
+          "missing_cells": 0
+        },
+        "evidence": [
+          {
+            "kind": "computed.cells",
+            "uri": null,
+            "summary": "检查 4 个字段单元",
+            "checksum": null,
+            "metadata": {}
+          }
+        ],
+        "diagnostics": {
+          "run_id": "run-ea81fef658f9"
+        }
+      },
+      {
+        "name": "basic.duplicate_rate",
+        "dimension": "uniqueness",
+        "scope": "dataset",
+        "value": 0.0,
+        "direction": "lower_is_better",
+        "unit": "ratio",
+        "target_id": "product-644484",
+        "statistics": {
+          "record_count": 2,
+          "duplicate_count": 0,
+          "unique_count": 2
+        },
+        "evidence": [],
+        "diagnostics": {
+          "run_id": "run-ea81fef658f9"
+        }
+      },
+      {
+        "name": "basic.field_validity",
+        "dimension": "validity",
+        "scope": "dataset",
+        "value": 1.0,
+        "direction": "higher_is_better",
+        "unit": "ratio",
+        "target_id": "product-644484",
+        "statistics": {
+          "checked": 0,
+          "invalid": 0
+        },
+        "evidence": [],
+        "diagnostics": {
+          "run_id": "run-ea81fef658f9",
+          "evidence_truncated": false
+        }
+      }
+    ],
+    "task_id": null,
+    "artifacts": [],
+    "summary": {
+      "status": "succeeded",
+      "metric_count": 3,
+      "failure_count": 0
+    },
+    "diagnostics": {
+      "run_id": "run-ea81fef658f9",
+      "failures": []
+    }
+  },
+  "created_at": "2026-09-21T06:21:25.891236+00:00"
+}

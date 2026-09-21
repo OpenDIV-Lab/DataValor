@@ -73,6 +73,7 @@ DataValor/
 │   ├── examples/
 │   └── dataflow_data/
 ├── tests/
+├── UI/                           # 可拖动、可配置的全链路工作流界面
 ├── outputs/                      # 默认不纳入版本控制
 └── docs/
     └── research/                 # GitHub 调研与 DVMK 迁移分析
