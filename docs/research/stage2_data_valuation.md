@@ -1,6 +1,6 @@
-# 阶段 2 实现说明：任务效用、估值与数据单元贡献
+# 任务效用、估值与数据单元贡献
 
-阶段 2 将阶段 1 的治理、画像和质量证据接入 DataValue。目标不是把质量比例直接换算成价格，而是在明确的买方、任务、成本和效用函数下回答两个问题：数据产品对该任务值多少，以及每个样本/数据单元对任务效用贡献多少。
+DataValue 接收治理、画像和质量证据，并在给定买方、任务、成本和效用函数后估算任务价值及数据单元贡献。质量比例不会直接换算成价格。
 
 ## 运行
 
@@ -25,7 +25,7 @@ PYTHONPATH=src python examples/07_stage2_task_valuation.py
 
 ### `WeightedUserTaskValuator`
 
-对 `EvaluationReport` 中的质量/效用向量按任务权重求加权质量，再乘买方偏好中的 `value_multiplier` 和权利约束中的 `multiplier`，最后扣除 `CostContext.adoption`。输出 `ValueEstimate` 的 components 会保留 weighted quality、raw value、adoption cost 等中间量，便于审计。没有买方或任务时使用显式默认值，不读取隐藏全局状态。
+对 `EvaluationReport` 中的质量/效用向量按任务权重求加权质量，再乘买方偏好中的 `value_multiplier` 和权利约束中的 `multiplier`，最后扣除 `CostContext.adoption`。`ValueEstimate.components` 保存 weighted quality、raw value 和 adoption cost 等中间量，便于核对计算结果。没有买方或任务时使用代码中列出的默认值，不读取全局状态。
 
 ### 贡献度方法
 
@@ -51,6 +51,6 @@ shapley = CONTRIBUTION_VALUATORS.create("contribution.shapley_monte_carlo")
 
 ## 阶段边界与限制
 
-阶段 2 输出效用、估值、贡献度和不确定性，不负责 bid、quote、allocation、payment 或交易结算。金额估计依赖 buyer/task/rights/costs 假设，不能直接解释为市场成交价。
+该流程输出效用、估值、贡献度和不确定性，不负责 bid、quote、allocation、payment 或交易结算。金额估计依赖 buyer、task、rights 和 costs 假设，不能直接解释为市场成交价。
 
 本地 utility 面向小型表格和可枚举样本；大规模训练任务应通过 `UtilityFunction` 注入模型训练与留出集评估，并用 Monte Carlo 或 pyDVL 后端控制计算预算。Shapley/Banzhaf 的理论性质（如效率、公平性或策略性质）需要在具体 utility 和采样方案下单独验证，不能仅凭一次运行结果宣称成立。

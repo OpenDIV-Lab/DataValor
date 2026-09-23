@@ -1,6 +1,6 @@
 # DataValor GitHub 开源项目调研
 
-> 本报告记录候选项目及其在 DataValor 中的 adapter、optional dependency、SDK 或服务边界。具体 import 形态、模块映射和阶段交付见[外部仓库功能复用规划](external_repo_reuse_plan.md)及[机器可读阶段配置](../../configs/integrations/external_repo_reuse.yaml)。E0/E1 的能力边界与评估/画像适配器已实现，其余依赖会在选型确认后按阶段引入。
+> 本报告记录候选项目，以及 DataValor 准备通过 adapter、optional dependency、SDK 或独立服务接入它们的方式。具体 import 形式、模块映射和实施顺序见[外部仓库功能复用规划](external_repo_reuse_plan.md)及[机器可读阶段配置](../../configs/integrations/external_repo_reuse.yaml)。E0/E1 的依赖检查与评估、画像适配器已经实现，其余依赖待选型确认后接入。
 
 ## 一、筛选标准
 
@@ -63,7 +63,7 @@ DataValor 将定义便携的治理和血缘产物，并通过 DataHub/OpenMetada
 | [kedro-org/kedro](https://github.com/kedro-org/kedro) | 约 11.0k stars；活跃 | Toolkit、全部模块 | 模块化 pipeline、catalog/config 分离、项目模板、hooks 和可复现性；借鉴其边界和工程约定，按实际需求选择接入深度 |
 | [microsoft/FLAML](https://github.com/microsoft/FLAML) | 约 4.4k stars；MIT；活跃 | Toolkit/Benchmark | 可插拔 estimator、调优和实验接口；在自动算法选择场景中作为后续参考 |
 
-DataQuery 的政策约束在真正执行查询前完成检查，并记录完整轨迹：目录对象、认证主体、获批用途与权利、生成的查询、执行目标、结果脱敏过程，以及输出产物的下游血缘。
+DataQuery 在执行查询前检查政策约束，并记录目录对象、认证主体、获批用途与权利、生成的查询、执行目标、结果脱敏过程和输出产物的下游血缘。
 
 ## 六、值得采用的仓库设计模式
 
@@ -103,4 +103,4 @@ DataQuery 的政策约束在真正执行查询前完成检查，并记录完整�
 - AI Economist、Vanna：核验时已经归档；
 - 旧 DataScope 或 `ydata-profiling` 链接：当前无法在不经过迁移或重定向的情况下确认和旧论文中完全相同的仓库身份。
 
-这些项目在真正进入实现计划前都需要重新核验。
+将这些项目列入实现计划前，需要重新核验版本、许可证和维护状态。

@@ -1,6 +1,6 @@
-# DataProf 增量：统计画像、抽样与漂移
+# DataProf 统计画像、抽样与漂移
 
-本轮扩展保持 `DataProfiler`、`ProfileMetric`、`ProfileComparator` 和现有 `DatasetProfile` 格式不变，新增可独立注册的描述性算子。它们输出可复核统计事实，不直接判定质量、价值或价格。
+这些描述性算子沿用 `DataProfiler`、`ProfileMetric`、`ProfileComparator` 和 `DatasetProfile`，可独立注册。输出是可复核的统计结果，不直接判定质量、价值或价格。
 
 ## 数值画像
 
@@ -19,4 +19,3 @@
 `DriftAnalyzer` 对数值字段使用 Population Stability Index（按参考分位数切成最多 10 个桶），对类别字段使用 Jensen–Shannon divergence；每个字段保留 method、statistic、threshold、两侧有效计数以及数值 PSI 的分桶贡献。默认 PSI 阈值 0.2、JS 阈值 0.1 可由调用方覆盖，`DriftReport.summary` 提供漂移字段数和比例。缺失或无有效值时 statistic 为 `None`，不会误报漂移。
 
 漂移阈值只是研究/监控参数：DataProf 不把 `drifted=True` 直接转换为质量分数。应用方可依据业务规则触发 DataEval 重算、DataGov 审核或 DataValue 重新估值。示例见 `examples/13_dataprof_statistics_drift.py`。
-

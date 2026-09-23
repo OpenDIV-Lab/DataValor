@@ -1,6 +1,6 @@
-# DataMarket 增量：挂牌、信誉、激励与交易执行
+# DataMarket：挂牌、信誉、激励与交易执行
 
-本轮新增实现位于 `src/datavalor/data_market/extensions.py`，继续使用现有 `MarketCatalog`、`IncentivePolicy`、`TransactionProcessor`、`Listing`、`MarketSnapshot` 和 `TransactionRecord`。DataMarket 处理市场参与和交易流程，DataPrice 仍负责 quote、allocation、payment 的计算。
+相关实现位于 `src/datavalor/data_market/extensions.py`，使用现有 `MarketCatalog`、`IncentivePolicy`、`TransactionProcessor`、`Listing`、`MarketSnapshot` 和 `TransactionRecord`。DataMarket 处理市场参与和交易流程，DataPrice 负责 quote、allocation 和 payment 的计算。
 
 ## 挂牌排序
 
@@ -16,7 +16,7 @@
 
 ## 幂等交易处理
 
-`IdempotentTransactionProcessor` 根据 mechanism、allocation 和 payment 内容生成稳定交易 ID；同一 `PricingOutcome` 重复提交会返回已有记录。注入的 `delivery_check` 可以标记产品交付失败，并将状态区分为 succeeded、partial、failed。该组件只记录交易执行状态，不连接真实支付网关。
+`IdempotentTransactionProcessor` 根据 mechanism、allocation 和 payment 内容生成稳定交易 ID；同一 `PricingOutcome` 重复提交会返回已有记录。注入的 `delivery_check` 可以标记产品交付失败，并将状态区分为 succeeded、partial、failed。该组件记录交易状态，不连接支付网关。
 
 ## 市场统计
 
@@ -29,4 +29,3 @@ PYTHONPATH=src python examples/17_data_market_lifecycle_incentive.py
 ```
 
 示例结果写入 `outputs/datamarket-extension/result.json`，展示挂牌排序、信誉、激励预算和市场统计。
-

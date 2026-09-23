@@ -1,8 +1,8 @@
-# DataEval 增量：业务约束、标签一致性与质量门禁
+# DataEval 业务约束、标签一致性与质量门禁
 
-本轮实现基于现有 `QualityMetric.compute` 和 `MetricResult`，不改变 DataEval 模块结构，也不把 DataProf 的描述性事实直接当成质量分数。
+相关指标基于现有 `QualityMetric.compute` 和 `MetricResult`，不改变 DataEval 模块结构。DataProf 的描述性统计不会直接作为质量分数。
 
-## 新增指标
+## 指标
 
 - `NumericRangeComplianceMetric`：按最小/最大值和 inclusive 规则检查数值业务范围，缺失、非有限或越界值都生成 evidence；方向为 `HIGHER_IS_BETTER`。
 - `LabelConflictMetric`：以实体 ID 聚合标签，检测同一实体出现多个标签的冲突，适合训练集重复标注和主数据合并后的验收。
@@ -24,4 +24,3 @@ PYTHONPATH=src python examples/14_dataeval_quality_gate.py
 ```
 
 结果位于 `outputs/dataeval-extension/result.json`，包括所有 `MetricResult` 的 statistics/evidence 和最终 gate 状态。
-

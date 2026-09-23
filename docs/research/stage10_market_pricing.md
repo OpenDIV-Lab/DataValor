@@ -1,6 +1,6 @@
-# 市场定价第三阶段扩展
+# 市场报价方法
 
-本阶段沿用 `QuoteRequest`、`PriceQuote`、`Money` 和 `PriceConstraint`，将第二阶段估值及市场参照转换为可解释报价。价格区间继续保存在既有 `components` 中，不修改公共报价格式。
+这些方法沿用 `QuoteRequest`、`PriceQuote`、`Money` 和 `PriceConstraint`，根据估值和市场参照生成报价。价格区间保存在现有 `components` 中，公共报价格式不变。
 
 `PriceRangePricingModel` 使用估值、估值标准误、价值分成、证据置信度、成本底价和可比价格形成 floor、target 和 ceiling，最终 `PriceQuote.price` 使用 target。`ComparableSelector` 以显式数值或类别特征选择同币种可比商品，`ComparablePricingModel` 使用相似度加权价格并分别应用质量、时效和权利差异。
 
@@ -14,4 +14,4 @@
 PYTHONPATH=src python examples/22_stage10_market_pricing.py
 ```
 
-结果写入 `outputs/stage10-market-pricing/result.json`。这些模型产生报价和审计结果，不执行 allocation、payment 或真实结算。
+结果写入 `outputs/stage10-market-pricing/result.json`。这些模型生成报价和审计结果，不执行 allocation、payment 或资金结算。

@@ -1,6 +1,6 @@
-# 阶段 4：报价与市场机制的可运行设计
+# 报价与市场机制
 
-阶段 4 的目标是把阶段 3 的“买方/任务价值估计”变成可审计的报价和交易结果，同时保持两个语义边界：估值不是价格，交易机制也不等于支付清算。所有金额在边界处使用 `Money(Decimal, currency)`，避免二进制浮点在分账时产生不可追溯的误差。
+报价模块根据买方和任务价值生成报价，市场机制再根据订单计算分配与应付金额。估值、报价和支付清算是三个不同环节。金额在接口边界使用 `Money(Decimal, currency)`，避免二进制浮点造成分账误差。
 
 ## 报价模型
 
@@ -20,7 +20,7 @@
 
 `check_individual_rationality` 检查每个买方支付是否不超过其报告 bid 对实际成交数量的价值（数量竞价时 `bid.amount` 按单位报价解释）；`check_budget_feasibility` 检查实际支付是否超出预算；`check_capacity_feasibility` 检查 allocation 是否超过声明 supply。`evaluate_pricing_properties` 汇总检查并返回 violations witness。这里的“holds”只表示给定输入下的算术性质，不是对诚实出价、激励相容、无套利或收入最优的理论证明；这些性质需要额外的机制设计证明或仿真实验。
 
-## 端到端例子和生产边界
+## 运行示例和适用限制
 
 `examples/09_stage4_pricing_and_mechanisms.py` 使用同一数据产品和阶段 3 风格的价值估计，生成四种报价，执行价格带与量价折扣，然后运行多单位拍卖、质量感知预算采购和性质检查，结果写入 `outputs/stage4-pricing/result.json`。对应的声明式链路位于 `configs/workflows/stage4_pricing.json`。
 

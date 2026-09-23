@@ -1,6 +1,6 @@
 # DataValor 系统框架与接口设计
 
-> 当前版本：`v1alpha1 interface scaffold`。本文只记录已经决定的接口和语义，方便实现、注册和测试；算法选择留给具体项目，不把示例实现包装成生产结论。
+> 当前版本：`v1alpha1 interface scaffold`。本文记录已经确定的接口、字段含义和调用约定；算法由具体项目选择，示例结果不能直接作为生产结论。
 
 ## 一、结构参考来源
 
@@ -49,7 +49,7 @@ src/datavalor/
 每个业务模块都遵循同一种目录约定：
 
 - `models.py`：跨实现稳定传递的 request、result、finding 和 report；
-- `interfaces.py`：声明行为和语义边界的 ABC；
+- `interfaces.py`：声明各组件职责和方法签名的 ABC；
 - `registry.py`：按能力分类的 typed lazy registry；
 - `__init__.py`：经过选择的公共 API，不暴露内部实现路径。
 
@@ -116,7 +116,7 @@ Registry 接收 `ComponentSpec + factory`，在 `create(name)` 时实例化组�
 
 `PipelineSpec` 声明节点、输入引用、输出名和参数；`PipelineRunner` 负责校验和执行；`ArtifactStore` 负责保存与加载。输出目录由运行配置统一管理。
 
-阶段 0 提供了一个不改变上述业务模块边界的顺序执行器：
+仓库提供一个不改变上述业务模块边界的顺序执行器：
 
 ```python
 from datavalor.core import LocalArtifactStore, RunContext, UnifiedWorkflowRunner, load_workflow_config
@@ -140,7 +140,7 @@ result = runner.run(spec, {"product": product_artifact, "records": records_artif
 |---|---|---|
 | `MetadataExtractor` | `inspect(product, context)` | 提取技术、语义、权利和血缘元数据 |
 | `MetadataCatalog` | `upsert/get/search` | 保存和发现可见的治理元数据 |
-| `DataStandardizer` | `plan/transform` | 先生成可审计计划，再执行标准化 |
+| `DataStandardizer` | `plan/transform` | 先记录转换计划，再执行标准化 |
 | `DataCleaner` | `plan/clean` | 先生成清洗计划，再物化新数据引用 |
 | `SecurityScanner` | `scan` | 发现敏感字段、泄露和安全风险 |
 | `PolicyEvaluator` | `evaluate` | 对具体 operation 返回 allow/deny/review |
@@ -201,7 +201,7 @@ result = runner.run(spec, {"product": product_artifact, "records": records_artif
 | `ParticipantStrategy` | `decide/observe` | 市场参与者决策与状态更新 |
 | `MarketSimulator` | `reset/step/run` | 组织有限轮市场实验 |
 
-职责边界是：DataPrice 计算 quote、allocation 和 payment；DataMarket 管理 listing、participant、transaction、incentive、revenue allocation 和 simulation。
+DataPrice 计算 quote、allocation 和 payment；DataMarket 管理 listing、participant、transaction、incentive、revenue allocation 和 simulation。
 
 ### 7. DataQuery
 

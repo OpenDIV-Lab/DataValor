@@ -1,6 +1,6 @@
-# DataGov 扩展：血缘、权利矩阵与版本影响
+# DataGov 血缘、权利矩阵与版本影响
 
-本扩展不改变 `MetadataExtractor`、`PolicyEvaluator` 或统一 workflow 的输入输出，而是在现有 `MetadataRecord`、`DataProduct`、`GovernanceReport` 和 `ArtifactRef` 上增加可复用的判断逻辑。它解决生产环境里最常见的三个问题：某个源字段变更会影响哪些估值/报价产物、某个买方操作是否真正符合授权、以及新版本是否必须重新评估和重新报价。
+这些实现沿用 `MetadataExtractor`、`PolicyEvaluator` 和统一 workflow 的输入输出，并使用现有的 `MetadataRecord`、`DataProduct`、`GovernanceReport` 与 `ArtifactRef`。它们用于判断字段变更的下游影响、买方操作是否符合授权，以及新版本是否需要重新评估和报价。
 
 ## 血缘和影响分析
 
@@ -27,4 +27,3 @@
 `build_governance_audit` 把 metadata、治理报告、安全报告、血缘 digest、版本 diff 和相关 `ArtifactRef` 聚合为 `GovernanceAuditBundle`。它不复制数据 payload，也不创建新的 artifact store；`as_payload()` 可交给现有 artifact store 的上层 envelope。`summary()` 给出严重度计数和 `rerun_data_eval`/`rerun_data_value`/`rerun_data_price` 建议，`digest()` 用于不可变审计索引。
 
 DataGov 负责来源、权利和变化门禁；DataEval 负责重新计算质量指标；DataValue 负责面向任务重新估值；DataPrice 负责重新报价。示例 `examples/12_datagov_lineage_rights_audit.py` 展示 source → evaluation → valuation → quote 的完整影响链和 v1/v2 权利收紧场景。
-

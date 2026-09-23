@@ -1,10 +1,10 @@
-# DataPrice 增量：分段、订阅、风险和弹性定价
+# DataPrice：分段、订阅、风险和弹性定价
 
-本轮新增实现位于 `src/datavalor/data_price/extensions.py`，沿用 `PricingModel`、`OnlinePricingModel`、`PriceQuote` 和 `PricingOutcome`。DataPrice 只负责价格计算、价格约束和结果核对；挂牌、参与者行为、市场发现和多轮仿真仍由 `src/datavalor/data_market/` 负责。
+相关实现位于 `src/datavalor/data_price/extensions.py`，沿用 `PricingModel`、`OnlinePricingModel`、`PriceQuote` 和 `PricingOutcome`。DataPrice 负责价格计算、价格约束和结果核对；挂牌、参与者行为、市场发现和多轮仿真由 `src/datavalor/data_market/` 负责。
 
 ## 分段用量定价
 
-`TieredUsagePricingModel` 接收 `(upper_bound, unit_price)` 阶梯，并按 progressive 方式收费。比如前 100 条按 1 元、接下来 100 条按 0.5 元，150 条的价格为 `100×1 + 50×0.5 = 125`，不是把全部记录按最低一档计价。每档数量和金额都写入 `PriceQuote.components`，便于核对账单。
+`TieredUsagePricingModel` 接收 `(upper_bound, unit_price)` 阶梯，并按 progressive 方式收费。例如，前 100 条按 1 元、接下来 100 条按 0.5 元，150 条的价格为 `100×1 + 50×0.5 = 125`，不会把全部记录按最低一档计价。每档数量和金额都写入 `PriceQuote.components`，可直接与账单核对。
 
 ## 订阅与超额
 
@@ -26,7 +26,7 @@ new_price = old_price × (1 + learning_rate × elasticity × (realized/target - 
 
 ## 报价校准与结果审计
 
-`calibrate_quotes` 比较 quote 与实际成交价，返回 MAE、RMSE、signed error 和 acceptance rate，并检查币种一致性。`audit_pricing_outcome` 检查 payment/卖方收入对账、负支付和负数量，输出 `valid`/`invalid` 状态。这些工具用于账单回放、模型校准和机制测试，不替代真实支付网关或结算系统。
+`calibrate_quotes` 比较 quote 与成交价，返回 MAE、RMSE、signed error 和 acceptance rate，并检查币种一致性。`audit_pricing_outcome` 检查 payment/卖方收入对账、负支付和负数量，输出 `valid`/`invalid` 状态。这些工具用于账单回放、模型校准和机制测试，不负责支付或结算。
 
 运行示例：
 
@@ -35,4 +35,3 @@ PYTHONPATH=src python examples/16_data_price_models_audit.py
 ```
 
 结果写入 `outputs/dataprice-extension/result.json`。示例同时展示分段、订阅、风险和弹性报价，并对两笔报价做成交价校准。
-

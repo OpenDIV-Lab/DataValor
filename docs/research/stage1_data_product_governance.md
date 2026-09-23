@@ -1,6 +1,6 @@
-# 阶段 1 实现说明：数据产品、治理、画像与质量评估
+# 数据产品治理、画像与质量评估
 
-阶段 1 已经在不改变统一主链路的前提下，补齐了可运行的 `DataGov`、`DataProf` 和 `DataEval` 基线。它们只产生治理决定、描述性事实和质量证据，不生成估值金额、报价或支付。
+该流程依次调用 `DataGov`、`DataProf` 和 `DataEval`，输出治理决定、描述性统计和质量证据，不生成估值金额、报价或支付。
 
 ## 1. 运行入口
 
@@ -102,11 +102,11 @@ duplicate_rate = (record_count - unique_count) / record_count
 
 三项质量指标和 composite evaluator 会注册到 `QUALITY_METRICS`/`EVALUATORS`，可直接执行 `QUALITY_METRICS.create("basic.completeness")` 等调用。
 
-## 5. 阶段 1 与后续阶段的边界
+## 5. 模块边界
 
-阶段 1 可以独立用于数据产品登记、质量门禁、供应方 SLA、数据版本比较、训练数据清洗前筛查和采购前验收。
+治理、画像和质量评估可以独立用于数据产品登记、质量门禁、供应方 SLA、数据版本比较、训练数据清洗前筛查和采购前验收。
 
-阶段 1 输出给 DataValue 的应该是 `MetadataRecord`、`DatasetProfile` 和 `EvaluationReport` 的 artifact 引用。DataValue 再根据 buyer/task/utility 估值；DataPrice 再根据估值、市场规则和 bid/ask 计算报价与支付。阶段 1 本身不会因为 completeness=0.95 就直接生成 95 元或 950 元价格。
+传给 DataValue 的内容应是 `MetadataRecord`、`DatasetProfile` 和 `EvaluationReport` 的 artifact 引用。DataValue 根据 buyer、task 和 utility 估值，DataPrice 再根据估值、市场规则和 bid/ask 计算报价与支付。质量评估不会因为 completeness=0.95 就直接生成 95 元或 950 元价格。
 
 阶段 2 的估值入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。它把阶段 1 的治理、画像和质量评估作为上游证据，再显式传入买方、任务和 adoption cost，生成 `ValuationReport`；同时对每个样本运行 Monte Carlo Shapley，生成带 `std_error`、样本数和随机种子的 `ContributionReport`。阶段 2 的输出仍不包含 bid、quote、allocation 或 payment，价格计算继续由 DataPrice 负责。
 
@@ -119,6 +119,6 @@ duplicate_rate = (record_count - unique_count) / record_count
 - 画像 comparator 目前不计算分布距离；漂移可在后续接入 Evidently 或自定义 DataEval metric。
 - `CompositeEvaluator` 记录失败但不自动重试；重试和超时属于外部 runner 或 adapter 的职责。
 
-## 7. 本轮 DataGov 增量
+## 7. DataGov 血缘和权利检查
 
 阶段 1 的治理边界现在还包括四个可直接调用的实现：`LineageGraph`、`RightsMatrixEvaluator`、`MetadataDiff` 和 `GovernanceAuditBundle`。它们只扩展已有模型，不改变统一 workflow：血缘图使用节点/边保存转换、配置 hash 和 checksum，并以 BFS 找出受影响的 evaluation、valuation、quote；权利矩阵把用途、商业使用、再分发、司法辖区、到期时间与 actor/task 约束合并为可解释决策；版本 diff 对字段删除、类型变化、checksum、记录数和权利收紧做 breaking/re-evaluation 分类；审计 bundle 保留报告、证据引用、血缘摘要和下游重算建议。完整规则和运行示例见 [DataGov 血缘、权利与版本扩展](datagov_lineage_rights_versioning.md)。

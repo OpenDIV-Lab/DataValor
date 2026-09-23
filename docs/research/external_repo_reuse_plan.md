@@ -194,7 +194,7 @@ Mesa 的 Agent/Model/collector、PySyft 的 Domain/Datasite 对象以及 Ocean �
 
 - DB-GPT connector；
 - Vanna successor 评估后再决定是否接入；
-- QueryAuthorizer、QueryPlanner、ResultGuard 全链路策略闸门；
+- QueryAuthorizer、QueryPlanner、ResultGuard 分别检查授权、查询计划和返回结果；
 - Web UI 消费统一的 DataValor view model。
 
 当前实现：
@@ -206,7 +206,7 @@ Mesa 的 Agent/Model/collector、PySyft 的 Domain/Datasite 对象以及 Ocean �
 | `VannaQueryPlanner` | 注入 Vanna client/generator；兼容 `generate_sql` 与 `ask` | `QueryPlan/QueryPlanStep` |
 | `ExternalQueryExecutor` | 注入数据库/服务 executor；兼容 `run_sql`、`execute`、`query` | `QueryResult` |
 | `QueryResultGuard` | 统一执行最大行数、字段脱敏与 truncation 标记 | `QueryResult` + `QueryTraceEvent` |
-| `GovernedDataAgent` | 固定 authorize → plan → execute → guard 顺序，拒绝时不调用外部 agent | `QueryResult` + 全链路 trace |
+| `GovernedDataAgent` | 固定 authorize → plan → execute → guard 顺序，拒绝时不调用外部 agent | `QueryResult` 和各步 trace |
 
 DB-GPT/Vanna 的自然语言响应、SQL、DataFrame 和 agent state 会在 adapter 内转换为
 DataValor 的 `QueryPlan`、`QueryResult` 和 `QueryTraceEvent`。外部 agent 不能绕过

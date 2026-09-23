@@ -1,6 +1,6 @@
-# 市场需求适配第一阶段扩展
+# 市场需求适配
 
-本阶段不增加订单、合同或支付链路，而是在现有 DataGov、DataProf 和 DataEval 边界内补充可供后续估值与定价消费的方法。
+本文说明 DataGov、DataProf 和 DataEval 中供估值与定价使用的市场需求指标，不涉及订单、合同和支付。
 
 DataGov 的 `RightsRestrictivenessScorer` 将用途、商业使用、再分发、辖区、排他性和期限保留为独立限制因素；`RightsCompatibilityEvaluator` 计算多产品共同可用的权利范围；`ArtifactStalenessEvaluator` 根据年龄、数据 checksum 和 breaking change 判断已有评估产物能否复用。分数仅描述限制程度，不直接作为价格。
 
@@ -14,4 +14,4 @@ DataEval 的 `DemandFitEvaluator` 将显式需求分为硬约束和软偏好，�
 PYTHONPATH=src python examples/20_stage8_market_readiness.py
 ```
 
-结果写入 `outputs/stage8-market-readiness/result.json`。这些输出可在下一阶段作为市场导向估值、稀缺性调整和增量覆盖估值的输入，但当前阶段不会将任何画像或适配分数转换为金额。
+结果写入 `outputs/stage8-market-readiness/result.json`。输出可用于市场估值、稀缺性调整和增量覆盖估值，但不会把画像或适配分数直接转换为金额。

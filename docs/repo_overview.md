@@ -1,6 +1,6 @@
-# DataValor 当前功能概览
+# DataValor 仓库说明
 
-DataValor 是一个围绕“数据能否被管理、评估、估值、定价并安全使用”组织的 Python 工具库。仓库采用 `src/datavalor/` 源码布局，各模块通过统一的数据产品、运行上下文和 artifact 引用连接起来；研究者可以只使用其中一个模块，也可以运行完整价值链。
+DataValor 用于数据治理、画像、评估、估值、定价和市场实验。源码位于 `src/datavalor/`，模块之间使用同一套数据产品、运行上下文和 artifact 引用。各模块既可单独使用，也可按工作流组合。
 
 ## 公共基础
 
@@ -29,7 +29,7 @@ DataValor 是一个围绕“数据能否被管理、评估、估值、定价并�
 
 源码位于 `src/datavalor/data_eval/`。`builtins.py` 提供完整性、重复率、字段有效性和多指标 `CompositeEvaluator`；`tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 与 `multimodal.py` 分别提供表格、文本、图像、音频、视频和多模态指标。
 
-`data_eval/advanced.py` 进一步提供业务数值范围合规、重复实体标签冲突、群组完整性差距、无第三方依赖的文本可读性，以及按指标方向执行的 `EvaluationThresholdGate`。每个指标都返回 `MetricResult`，保留 score direction、scope、statistics、evidence 和 diagnostics。
+`data_eval/advanced.py` 提供业务数值范围检查、重复实体标签冲突、群组完整性差距、无第三方依赖的文本可读性，以及按指标方向执行的 `EvaluationThresholdGate`。每个指标都返回 `MetricResult`，保留 score direction、scope、statistics、evidence 和 diagnostics。
 
 ### DataValue：任务相关估值与数据贡献
 

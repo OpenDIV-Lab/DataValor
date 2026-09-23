@@ -36,7 +36,7 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 
 `05_stage1_governance_profile_eval.py` 是阶段 1 的独立质量工作流：读取包含重复、缺失值和类型错误的合成客户记录，实际运行元数据提取、内存目录、用途策略、敏感字段扫描、统计画像、版本差异和三项质量指标，结果写入 `outputs/stage1-quality-summary.json`。
 
-`06_stage1_unified_workflow.py` 使用 `configs/workflows/stage1_quality.json` 和阶段 0 相同的统一 runner，将 DataGov、DataProf、DataEval 串成三个可追溯 stage；结果和每个阶段的 artifact 写入 `outputs/stage1-workflow/`。
+`06_stage1_unified_workflow.py` 使用 `configs/workflows/stage1_quality.json` 和阶段 0 相同的 runner，依次运行 DataGov、DataProf 和 DataEval；各步结果及其 artifact 写入 `outputs/stage1-workflow/`。
 
 `08_stage3_advanced_valuation.py` 在阶段 2 链路上增加质量调整估值、保守/基准/乐观情景、受限符号表达式、线性模型训练/预测、精确 Shapley、Group Shapley、两两交互和 Bootstrap 稳定性，再按贡献分摊总价值；结果写入 `outputs/stage3-valuation/`。
 
@@ -79,12 +79,12 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 3. 将估值转成买方 bid，比较二价、McAfee 双边拍卖和预算可行采购；
 4. 在查询前做用途/权利检查，查询后做字段脱敏和行数限制；
 5. 在有限轮市场中比较真实出价、固定 shading 和预算 pacing 的成交与福利。
-6. 用统一 runner 将阶段 1 的治理、画像、评估结果写成可追溯 artifact。
+6. 用统一 runner 执行治理、画像和评估，并记录各步 artifact。
 7. 在阶段 1 证据之上运行买方任务估值、LOO/Shapley 类贡献度和价值解释。
 8. 使用阶段 3 的安全符号表达式、线性学习型估值、精确 Shapley 和贡献价值分摊。
 9. 按模态运行表格、文本、图像、音频、视频和多模态质量评估。
 
-脚本输出 JSON，方便直接接入 notebook、CI 或后续的 artifact store。示例中的数据都是合成数据；接入真实数据时，应在 `DataReference` 中补充 schema、checksum、来源和许可证信息。
+脚本输出 JSON，可供 notebook、CI 或 artifact store 读取。示例使用合成数据；换成业务数据时，应在 `DataReference` 中补充 schema、checksum、来源和许可证信息。
 
 ## 每个例子具体做了什么
 
@@ -108,4 +108,4 @@ PYTHONPATH=src python examples/04_market_strategy_sensitivity.py
 
 示例把“可替换的外部系统”集中在很小的函数里：效用函数可以换成训练集上的 AUC/损失下降，拍卖机制可以换成自定义 `PricingMechanism`，查询脚本中的 planner/executor 可以替换为 DB-GPT、Vanna、SQL 引擎或 PySyft executor。这样既能复现实验，也不会把某个供应商 SDK 写死在业务模型中。
 
-更完整的行业背景、方法选择和能力边界见 [数据估值定价调研与 DataValor 能力地图](../docs/research/data_valuation_pricing_landscape.md)。
+行业背景、方法选择和适用限制见 [数据估值定价调研与 DataValor 模块对照](../docs/research/data_valuation_pricing_landscape.md)。

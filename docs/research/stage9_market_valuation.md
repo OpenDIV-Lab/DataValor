@@ -1,6 +1,6 @@
-# 市场导向估值第二阶段扩展
+# 市场导向估值
 
-本阶段沿用 `ValuationRequest`、`ValuationReport` 和 `ValueEstimate`，将第一阶段产生的需求匹配、覆盖、稀缺、重叠、时效和权利证据转换为任务相关价值。所有方法只产生估值，不产生 bid、quote 或 payment。
+这些方法沿用 `ValuationRequest`、`ValuationReport` 和 `ValueEstimate`，根据需求匹配、覆盖、稀缺、重叠、时效和权利证据估计任务相关价值。输出是估值，不是 bid、quote 或 payment。
 
 `MarketContextValuator` 将需求匹配、质量、时效、权利和供给稳定性作为独立乘数，将稀缺性作为受任务匹配约束的有限溢价，再扣除显式成本和风险金额。每个分项都保存在 `components` 中，避免依赖不可解释的综合输入。
 

@@ -4,7 +4,7 @@
 > [DVMK 源码迁移执行手册](../migrations/dvmk/README.md)；机器可读计划见
 > [configs/migrations/dvmk/plan.yaml](../../configs/migrations/dvmk/plan.yaml)。
 
-## 阶段 0 落地状态
+## 基础接口和运行框架
 
 公共契约和统一链路的第一版已经落到 `datavalor.core.workflow`：
 
@@ -16,23 +16,23 @@
 
 该实现只负责编排和产物边界，不把 DVMK 或任何外部库的内部对象引入公共 API；领域算法仍通过 handler 或现有 DataValor 模块提供。
 
-## 阶段 2 落地状态：DataValue 估值与贡献度
+## DataValue 估值与贡献度
 
 在阶段 1 的治理、画像和质量证据基础上，DataValue 已补充可直接运行的任务效用与贡献分析链路：`TabularTaskUtility` 提供 coverage、diversity、balance、freshness 四项可解释效用；`WeightedUserTaskValuator` 将显式的 buyer/task/rights/costs 和评估向量转换为 `ValueEstimate`；LOO、精确 Shapley、Monte Carlo Shapley 和 Banzhaf 均有 DataValor 原生 wrapper，并在 registry 中可发现。Monte Carlo 结果保留 seed、样本数和标准误，精确方法有最大规模保护，重复 unit ID 会被拒绝。
 
 统一入口为 `examples/07_stage2_task_valuation.py`，配置为 `configs/workflows/stage2_valuation.json`。该链路会先运行 governance/profile/evaluation，再产出 valuation 和 contribution artifact；金额是任务条件下的价值估计，不代表市场报价或成交支付。具体公式、复杂度和适用边界见 [阶段 2 实现说明](stage2_data_valuation.md)。
 
-## 阶段 3 落地状态：高级估值与贡献分摊
+## 高级估值与贡献分摊
 
 阶段 3 已在同一 DataValue 契约上补充 `SymbolicValuator`、`QualityAdjustedValuator`、`ScenarioValuator`、`LearnedLinearValuator`、`ExactShapleyValuator`、`MonteCarloShapleyValuator`、`BanzhafValuator`、`GroupShapleyValuator`、两两交互、Bootstrap LOO 和 `allocate_value_by_contribution`。符号表达式使用受限 AST，学习型估值提供 `fit → value` 和 RMSE 诊断，任务指标覆盖分类/回归/排序，贡献方法具备规模保护、重复 ID 校验、随机种子、标准误和区间，价值分摊明确区分 utility 与 monetary allocation。完整链路见 `configs/workflows/stage3_advanced_valuation.json` 与 `examples/08_stage3_advanced_valuation.py`，细节见 [阶段 3 实现说明](stage3_advanced_valuation.md)。
 
-## 阶段 4 落地状态：报价、采购与机制性质
+## 报价、采购与机制性质
 
 阶段 4 将 DataValue 的估值证据接入 DataPrice，但不把估值结果冒充成交价。当前实现包括四种无第三方依赖的报价模型（成本加成、价值分成、按量计费、质量/新鲜度调整）和带接受反馈的在线需求调价；所有模型都输出 Decimal-backed `Money`、组成项、币种和有效期。价格带和阶梯量价折扣以独立约束组件投影报价并保留 provenance diagnostics。
 
 机制侧新增数量出价的多单位统一价格拍卖（支持部分成交、边际成交价、reserve、welfare）、可跳过不可负担 ask 的预算采购，以及按质量/成本比排序的采购。个体理性、预算可行和容量可行检查会返回具体违规 witness；数量竞价按单位 bid 与实际成交量比较，避免把单位价误判为总价。测试覆盖空市场、reserve 阻断、部分数量、预算尘埃、币种和非法折扣等边界。运行入口为 `examples/09_stage4_pricing_and_mechanisms.py`，配置为 `configs/workflows/stage4_pricing.json`，详细公式和生产边界见 [阶段 4 调研与实现说明](stage4_pricing_mechanisms.md)。
 
-## 阶段 5 落地状态：市场仿真、Benchmark 与统计分析
+## 市场仿真、Benchmark 与统计分析
 
 阶段 5 消费阶段 4 的 `PricingOutcome`，用于可重复的有限轮市场实验，而不是重新定义价格。`FiniteMarketSimulator` 实现 participant-specific observation、策略决策、机制调用和下一轮快照转移，支持 truthful、固定/自适应 shading、epsilon-greedy、multiplicative weights、UCB 网格最佳响应、budget pacing、contextual shading 与 seller reserve 策略。每轮保留 decisions、bid/ask 数量、outcome 和 actor IDs，摘要提供 conversion、收入、报告福利和买方支出，并明确 `equilibrium_claimed: false`。
 
@@ -40,9 +40,9 @@
 
 运行入口为 `examples/10_stage5_market_benchmark_analysis.py`，配置为 `configs/workflows/stage5_market_benchmark.json`。示例在相同 seller reserve 下比较三种买方策略，运行 5 次重复实验并输出 15 条原始观测、bootstrap 结果、成对差异和 Pareto 前沿。详细算法假设和生产边界见 [阶段 5 调研与实现说明](stage5_market_benchmark_analysis.md)。
 
-## 模态化 DataEval 扩展落地状态
+## DataEval 模态指标
 
-参考 DVMK 的 `evaluation/text`、`image`、`audio`、`video` 与 `multimodal` 目录，本轮将 DataEval 质量指标拆分为 `tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py`。新增实现覆盖表格 schema/数值统计/IQR 异常值/标签熵、文本 lexical diversity/长度/重复、图像元数据/宽高比/像素有效性、音频时长采样率/削波/静音、视频格式探测/采样帧运动/场景边界/时序 SSIM/隐私风险，以及多模态完整性/checksum/重复 ID/时间对齐。核心代码不加载重型依赖，真实 CV/NLP/音频后端可通过 adapter 提供同名字段并保留版本和采样诊断。详细算法、复杂度和边界见 [模态化 DataEval 扩展说明](stage7_modal_evaluation.md)。
+DataEval 的质量指标按输入类型拆分到 `tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py`。表格指标包括 schema、数值统计、IQR 异常值和标签熵；文本指标包括 lexical diversity、长度和重复；图像、音频和视频指标分别处理各自的元数据与内容检查；多模态指标检查完整性、checksum、重复 ID 和时间对齐。基础代码不加载大型依赖，CV、NLP 和音频后端可通过 adapter 接入，并在结果中记录版本和采样参数。算法、复杂度和限制见 [DataEval 模态指标](stage7_modal_evaluation.md)。
 
 
 ## 一、已明确的复用方式
@@ -187,11 +187,11 @@ DVMK 候选源码
 3. 冻结 DataValor 的 component、context、artifact、registry 基础协议。
 4. 明确各模块结果保留独立语义，不压缩成同一个通用标量。
 
-### 第 1 批：基础类型和代表性闭环
+### 第 1 批：基础类型和代表性流程
 
 1. 完整迁移并改造 Evaluation、Valuation、Pricing、Simulation 的基础类型和 registry。
 2. 完整迁移公共 artifact、I/O、run metadata，再按 DataValor 边界拆分。
-3. 每个核心模块建立代表算法和完整文件覆盖的端到端测试。
+3. 为每个主要模块添加代表算法测试和跨模块流程测试。
 4. 检查 DataValor 对 DVMK 的运行时依赖为零。
 
 ### 第 2 批：数据评估与估值算法
@@ -221,4 +221,4 @@ DVMK 候选源码
 - 可选依赖缺失时给出明确错误，并按需加载重型依赖；
 - artifact 包含 schema version、配置、随机种子、依赖版本、输入摘要和 diagnostics；
 - 文档明确算法假设、适用范围、复杂度和需要单独验证的性质；
-- `pytest`、静态检查和最小端到端测试全部通过。
+- `pytest`、静态检查和最小跨模块流程测试全部通过。

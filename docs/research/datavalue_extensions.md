@@ -1,6 +1,6 @@
-# DataValue 增量：风险、反事实、组合与校准
+# DataValue 风险、反事实、组合与校准
 
-本轮新增实现位于 `src/datavalor/data_value/extensions.py`，沿用 `ValuationRequest`、`ValueEstimate` 和 `ValuationReport`，不修改已有估值接口或 DataPrice 的报价对象。
+实现位于 `src/datavalor/data_value/extensions.py`，沿用 `ValuationRequest`、`ValueEstimate` 和 `ValuationReport`，不修改估值接口或 DataPrice 的报价对象。
 
 ## 风险调整估值
 
@@ -24,5 +24,4 @@
 
 ## 与其他模块的边界
 
-DataEval 提供 quality/utility 证据，DataValue 将这些证据映射成特定 buyer/task 下的 value estimate；本轮风险调整、反事实和组合方法仍输出估值而不是 bid、quote 或 payment。DataPrice 继续根据市场规则和供需决定报价与支付。完整示例见 `examples/15_data_value_risk_portfolio.py`。
-
+DataEval 输出 quality/utility 指标，DataValue 根据指定的 buyer 和 task 生成 value estimate。风险调整、反事实和组合方法只输出估值，不生成 bid、quote 或 payment。DataPrice 根据市场规则和供需计算报价与支付。示例见 `examples/15_data_value_risk_portfolio.py`。

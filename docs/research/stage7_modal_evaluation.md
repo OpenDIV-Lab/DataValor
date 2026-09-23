@@ -1,10 +1,10 @@
-# 模态化 DataEval 扩展设计与实现
+# DataEval 模态指标
 
-本轮扩展参考 DVMK `evaluation/text`、`evaluation/image`、`evaluation/audio`、`evaluation/video`、`evaluation/multimodal` 目录的职责划分，但将结果统一到 DataValor 的 `QualityMetric → MetricResult` 契约。每种模态使用独立源文件，避免把图像像素、音频波形和视频时序错误地当作同一种“质量分数”。
+文本、图像、音频、视频和多模态指标分别实现，并统一返回 DataValor 的 `QualityMetric → MetricResult`。各模态使用独立源文件，图像像素、音频波形和视频时序不会被合并成同一种质量分数。
 
 ## 指标与实现边界
 
-| 文件 | 主要指标 | 计算方法 | 生产替换点 |
+| 文件 | 主要指标 | 计算方法 | 可替换实现 |
 |---|---|---|---|
 | `tabular.py` | schema、数值统计、IQR 异常值、标签平衡 | 字段类型检查、描述统计、Tukey fences、归一化 Shannon entropy | Great Expectations、Evidently、数据质量平台 |
 | `text.py` | lexical diversity、长度、重复率 | token type-token ratio、长度区间、token 频数 | tokenizer、语言识别、语义相似度模型 |
@@ -26,7 +26,7 @@
 
 ## 与 DataValue/DataPrice 的衔接
 
-DataEval 只输出质量证据，不输出价值或价格。阶段 3 的 DataValue 可以选择 `quality`、`diversity`、`privacy_risk` 等指标作为 evaluation vector；阶段 4 的报价模型可以在明确业务规则下引用估值结果，但不能把某一个模态分数直接当成交价格。建议在实际项目中为每种下游任务注册指标权重，并保留原始 modality metrics 以便重新估值。
+DataEval 只输出质量证据，不输出价值或价格。DataValue 可以选择 `quality`、`diversity`、`privacy_risk` 等指标作为 evaluation vector；报价模型可以在明确业务规则下引用估值结果，但不能把某一个模态分数直接当成交价格。实际使用时应为每种下游任务注册指标权重，并保留原始 modality metrics 以便重新估值。
 
 ## 复杂度和数据规模
 
@@ -44,4 +44,3 @@ PYTHONPATH=src python examples/11_stage7_multimodal_evaluation.py
 ```
 
 示例使用合成 manifest，输出六组独立报告到 `outputs/stage7-evaluation/result.json`。核心实现不依赖 PIL、OpenCV、ffmpeg、librosa 或深度模型；这些能力应通过 adapter 注入，并记录外部库版本、模型版本和采样参数。生产环境还需要处理版权/许可、个人信息检测误报、模型漂移、采样代表性、音视频解码失败和大文件分片执行。
-

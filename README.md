@@ -6,7 +6,7 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 
 当前版本为 `pre-alpha`。仓库里已经有公共模型、接口、registry、基准实验工具和离线示例；生产环境所需的存储、调度、权限系统和外部服务连接，需要在接入项目中补齐。建议先运行 `examples/` 下的脚本，再替换成自己的数据和后端。
 
-代码按数据流转过程分成三组：
+代码按用途分成三组：
 
 1. **价值发现（Value Discovery）**：DataGov、DataProf、DataEval、DataValue；
 2. **价值流通（Value Circulation）**：DataMarket、DataPrice；
@@ -16,7 +16,7 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 
 ## 模块索引
 
-下面列出主要模块和对应的源码入口。
+主要模块和源码入口如下。
 
 <table>
 <thead><tr><th>阶段</th><th>模块</th><th>核心职责</th><th>详细说明</th></tr></thead>
@@ -40,13 +40,11 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 
 - [仓库结构](#repository-layout)
 - [当前功能概览](docs/repo_overview.md)
-- [模块间语义边界](#semantic-boundaries)
+- [模块职责](#semantic-boundaries)
 - [最小扩展方式](#extension-example)
 - [安装与验证](#installation)
 - [可运行示例](examples/README.md)
 - [文档与调研资料](#documentation)
-- [制造业黑灯工厂优化设计](docs/intelligent_black_factory_design.md)
-- [黑灯工厂改造点机器可读清单](docs/intelligent_black_factory_design.yaml)
 - [开发原则](#development-principles)
 
 <a id="repository-layout"></a>
@@ -73,7 +71,7 @@ DataValor/
 │   ├── examples/
 │   └── dataflow_data/
 ├── tests/
-├── UI/                           # 可拖动、可配置的全链路工作流界面
+├── UI/                           # 本地工作流编辑器和运行界面
 ├── outputs/                      # 默认不纳入版本控制
 └── docs/
     └── research/                 # GitHub 调研与 DVMK 迁移分析
@@ -95,9 +93,9 @@ module/
 
 <a id="semantic-boundaries"></a>
 
-## 模块间语义边界
+## 模块职责
 
-各模块通过带版本的 artifact 连接，但每种结果的含义不同：
+模块之间传递带版本的 artifact。下列结果含义不同，使用时不要混用：
 
 ```text
 DataGov 治理与可用性
@@ -125,7 +123,7 @@ DataGov 治理与可用性
 
 源码入口：[src/datavalor/core](src/datavalor/core)
 
-Core 是所有模块共享的零第三方依赖基础层，集中定义跨模块稳定概念；清洗、估值、拍卖和问数算法由业务模块承载。
+Core 不依赖第三方包，定义各模块共用的数据结构和运行约定。清洗、估值、拍卖和查询算法放在相应业务模块中。
 
 ### 核心接口和模型
 
@@ -179,7 +177,7 @@ DataGov 管理数据来源、元数据、权利和处理规则，并对具体操
 |---|---|---|
 | `MetadataExtractor` | `inspect(product, context)` | 提取技术、语义、权利、分类和血缘元数据 |
 | `MetadataCatalog` | `upsert/get/search` | 保存并检索治理元数据，可通过适配器连接 DataHub/OpenMetadata |
-| `DataStandardizer` | `plan/transform` | 先产生可审计计划，再执行格式、schema 或语义标准化 |
+| `DataStandardizer` | `plan/transform` | 先记录转换计划，再执行格式、schema 或语义标准化 |
 | `DataCleaner` | `plan/clean` | 先产生清洗计划，再物化新的数据引用 |
 | `SecurityScanner` | `scan` | 检测敏感字段、泄露、隐私和安全风险 |
 | `PolicyEvaluator` | `evaluate` | 针对具体 operation 返回 allow、deny 或 review |
@@ -280,11 +278,11 @@ DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 
 `datavalor.data_eval.backends` 提供可选的外部算子封装：
 
 - `CleanlabQualityMetric`：将 Cleanlab 的 label issue/outlier 结果转为 issue rate 与样本级 `Evidence`；
-- `GreatExpectationsMetric`：将 expectation/checkpoint 验证转为 pass rate；`GreatExpectationsPolicyEvaluator` 可进一步生成 `GovernanceReport`；
+- `GreatExpectationsMetric`：将 expectation/checkpoint 验证转为 pass rate；`GreatExpectationsPolicyEvaluator` 也可生成 `GovernanceReport`；
 - `EvidentlyDriftMetric`：将 `Report.run` 的 drift 结果转为 drift-free rate，并保留报告快照；
 - `TorchMetricsAdapter`：桥接 TorchMetrics 的 `update`/`compute` 状态生命周期。
 
-这些类在真正执行时才加载第三方包，也可以注入 validator、runner、detector 或 metric。没有安装对应 extra 时，核心包仍能导入，调用适配器会收到明确的 `CapabilityUnavailableError`。
+这些类只在调用时加载第三方包，也可以注入 validator、runner、detector 或 metric。没有安装对应 extra 时，核心包仍能导入，调用适配器会抛出 `CapabilityUnavailableError` 并说明缺少的依赖。
 
 [返回模块索引](#module-index)
 
@@ -365,7 +363,7 @@ DataPrice 根据估值证据、权利、供需和机制规则生成 quote，并�
 
 DataPrice 负责报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。当前实现包括 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束。
 
-阶段 4 还提供可直接运行的 `CostPlusPricingModel`、`ValueBasedPricingModel`、`UsageBasedPricingModel`、`QualityFreshnessPricingModel` 和 `AdaptiveDemandPricingModel`，以及价格带、阶梯量价折扣、多单位统一价格拍卖、预算感知/质量感知采购。`evaluate_pricing_properties` 会对个体理性、预算和容量约束给出可审计的 violations witness。报价、估值、支付保持分离：报价模型可参考估值，但拍卖支付由边际出价或 ask reserve 决定。完整公式、复杂度和边界见 [阶段 4 调研与实现说明](docs/research/stage4_pricing_mechanisms.md)，端到端运行 `PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py`。
+仓库提供 `CostPlusPricingModel`、`ValueBasedPricingModel`、`UsageBasedPricingModel`、`QualityFreshnessPricingModel` 和 `AdaptiveDemandPricingModel`，以及价格带、阶梯量价折扣、多单位统一价格拍卖、预算感知和质量感知采购。`evaluate_pricing_properties` 会返回个体理性、预算和容量约束的违规证据。报价、估值和支付保持分离：报价模型可参考估值，但拍卖支付由边际出价或 ask reserve 决定。公式、复杂度和边界见 [报价与市场机制](docs/research/stage4_pricing_mechanisms.md)，运行示例为 `PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py`。
 
 `extensions.py` 补充了分段用量、订阅超额、风险调整和需求弹性四类报价模型，并提供 `calibrate_quotes`（报价与实际成交价的误差统计）和 `audit_pricing_outcome`（支付、收入和数量对账）。这些工具只处理价格计算和结果校验；挂牌、参与者行为和多轮市场实验仍由 `src/datavalor/data_market/` 负责。示例为 `examples/16_data_price_models_audit.py`，详细说明见 `docs/research/dataprice_extensions.md`。
 
@@ -411,7 +409,7 @@ DataMarket 负责数据产品挂牌和发现、参与者行为、交易、激励
 
 `MARKET_CATALOGS`、`PARTICIPANT_REPOSITORIES`、`INCENTIVE_POLICIES`、`REVENUE_ALLOCATORS`、`TRANSACTION_PROCESSORS`、`PARTICIPANT_STRATEGIES`、`MARKET_SIMULATORS`。
 
-`InMemoryMarketCatalog` 支持按用途、权利、标签和元数据筛选挂牌，`InMemoryParticipantRepository` 支持按角色和属性筛选参与者，`ContributionRevenueAllocator` 负责 Decimal 金额、负贡献截断、分币种残差回补和总额对账。有限轮仿真与策略学习的说明见 [阶段 5 调研与实现说明](docs/research/stage5_market_benchmark_analysis.md)。
+`InMemoryMarketCatalog` 支持按用途、权利、标签和元数据筛选挂牌，`InMemoryParticipantRepository` 支持按角色和属性筛选参与者，`ContributionRevenueAllocator` 负责 Decimal 金额、负贡献截断、分币种残差回补和总额对账。有限轮仿真与策略学习见 [市场仿真、Benchmark 与统计分析](docs/research/stage5_market_benchmark_analysis.md)。
 
 DataMarket 负责市场流程、参与者互动、激励、交易和收入分配，并沿用 DataEval、DataValue 与 DataPrice 的结果模型。
 
@@ -439,7 +437,7 @@ Mesa/PySyft/Ocean 的 Agent、Domain、Datasite、asset 和 service 对象不会
 
 源码入口：[src/datavalor/data_query](src/datavalor/data_query)
 
-DataQuery 为获授权的用户或 Agent 提供可追溯的数据使用流程。授权在执行前校验，prompt 只承载用户意图。
+DataQuery 记录获授权用户或 Agent 的查询过程。授权在执行前校验，prompt 只承载用户意图。
 
 ### 标准执行链
 
@@ -723,7 +721,7 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - 所有公共模块在可选依赖缺席时仍可导入；
 - 所有扩展接口均采用需要具体实现才能实例化的 ABC；
 - registry 的延迟 factory、重名保护和 freeze；
-- artifact、evaluation、valuation、pricing 的语义边界；
+- artifact、evaluation、valuation、pricing 各自负责的内容；
 - 货币金额使用 `Decimal`；
 - `src/datavalor` 不导入 `dvmk`。
 
@@ -738,13 +736,12 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 - [外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)
 - [外部仓库复用阶段配置](configs/integrations/external_repo_reuse.yaml)
 - [data_value_market_kit 代码筛选、迁移与改造方案](docs/research/dvmk_reuse.md)
-- [数据估值定价调研与 DataValor 能力地图](docs/research/data_valuation_pricing_landscape.md)
-- [阶段 1：数据产品、治理、画像与质量评估实现说明](docs/research/stage1_data_product_governance.md)
-- [阶段 2：任务效用、估值与数据单元贡献实现说明](docs/research/stage2_data_valuation.md)
-- [阶段 3：符号估值、学习型估值与贡献分摊实现说明](docs/research/stage3_advanced_valuation.md)
+- [数据估值定价调研与 DataValor 模块对照](docs/research/data_valuation_pricing_landscape.md)
+- [数据产品治理、画像与质量评估](docs/research/stage1_data_product_governance.md)
+- [任务效用、估值与数据单元贡献](docs/research/stage2_data_valuation.md)
+- [符号估值、学习型估值与贡献分摊](docs/research/stage3_advanced_valuation.md)
 - [DataValue 风险、反事实、组合与校准扩展](docs/research/datavalue_extensions.md)
 - [DataPrice 分段、订阅、风险与弹性定价扩展](docs/research/dataprice_extensions.md)
-- [面向棕地改造的黑灯工厂优化问题与实施设计](docs/intelligent_black_factory_design.md)
 - [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
 - [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
 

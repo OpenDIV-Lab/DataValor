@@ -1,6 +1,6 @@
-# 阶段 3 实现说明：符号估值、学习型估值与贡献分摊
+# 符号估值、学习型估值与贡献分摊
 
-阶段 3 在阶段 2 的任务效用基础上，补充可解释的符号估值、质量调整和情景估值、可训练的线性估值模型、分类/回归/排序任务指标、Group Shapley、Banzhaf/精确 Shapley 包装器、交互贡献、Bootstrap 稳定性，以及把总价值按贡献分摊到样本单元的会计函数。仍然使用既有 `ValuationRequest`、`ValueEstimate`、`ContributionReport` 和 `UnifiedWorkflowRunner`，不引入第二套估值协议。
+本模块包括符号估值、质量调整、情景估值、线性估值模型、分类/回归/排序任务指标，以及 Group Shapley、Banzhaf、精确 Shapley、交互贡献和 Bootstrap 稳定性分析。总价值可按贡献分摊到样本单元。所有方法沿用 `ValuationRequest`、`ValueEstimate`、`ContributionReport` 和 `UnifiedWorkflowRunner`。
 
 ## 运行入口
 
@@ -16,7 +16,7 @@ PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
 
 ### `SymbolicValuator`
 
-采用受限 AST 解释器而不是 Python `eval`，只允许数字常量、变量名和 `+ - * / **` 运算；函数调用、属性访问、下标和任意代码都会拒绝。结果中的 `explanation.expression` 和 `components` 保存公式及每个变量值，便于审计和敏感性分析。除以零返回 0，幂指数限制在 [-10, 10]，最终价值下限为 0。
+实现使用受限 AST 解释器，不调用 Python `eval`。表达式只允许数字常量、变量名和 `+ - * / **`；函数调用、属性访问、下标和其他代码会被拒绝。`explanation.expression` 和 `components` 保存公式及变量值，可用于核对结果和敏感性分析。除以零返回 0，幂指数限制在 [-10, 10]，最终价值不低于 0。
 
 ### `LearnedLinearValuator`
 
