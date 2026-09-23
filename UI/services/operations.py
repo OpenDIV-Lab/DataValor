@@ -105,102 +105,30 @@ def execute(operation: str, product_payload: dict, parameters: dict, run_id: str
         )
         return jsonable(valuator.value(request, context)), valuator.spec.name
     if operation == "pricing":
-        from datavalor.data_price import PRICING_MODELS, QuoteRequest
+        from .pricing_workbench import run_pricing
 
-        model_name = str(parameters.get("model", "pricing.quality_freshness"))
-        if model_name not in PRICING_MODELS:
-            raise ValueError(f"pricing model is not supported by the workbench: {model_name}")
-        model = PRICING_MODELS.create(model_name)
-        market_context = {
-            "candidate_prices": (50000, 75000, 100000, 125000),
-            "usage": len(records),
-            "period_fee": parameters.get("base_price", 0),
-            "included_usage": 100,
-            "overage_unit_price": 1,
-            "std_error": parameters.get("value_std_error", 0),
-            "rights_factor": 1,
-            "cost_floor": parameters.get("preparation_cost", 0),
-            "seller_share": 0.6,
-            "confidence": 0.9,
-            "age_days": 1,
-            "previous_price": parameters.get("base_price", 0),
-            "incremental_coverage": 0.2,
-            "quality_gain": 0.1,
-            "volume_growth": 0.1,
-            **{key: value for key, value in parameters.items() if key not in {"model", "seed"}},
-        }
-        quote = model.quote(QuoteRequest(product, rights=product.rights, market_context=market_context), context)
-        return jsonable(quote), model.spec.name
+        quote, normalized, trace, producer = run_pricing(product, parameters, context, record_count=len(records))
+        result = jsonable(quote)
+        result["normalized_parameters"] = jsonable(normalized)
+        result["trace"] = jsonable(trace)
+        return result, producer
     if operation == "market":
-        from datavalor.data_market import MarketGapAnalyzer
-        from datavalor.data_price import (
-            Ask,
-            Bid,
-            BudgetFeasibleProcurement,
-            FirstPriceAuction,
-            McAfeeDoubleAuction,
-            Money,
-            PricingRequest,
-            SecondPriceAuction,
-            VCGMechanism,
-            evaluate_pricing_properties,
-        )
+        from .market_workbench import run_market
 
-        currency = str(parameters.get("currency", "CNY"))
-        bids = tuple(
-            Bid(
-                f"bid-{index + 1}",
-                str(item.get("buyer_id", f"buyer-{index + 1}")),
-                (product.product_id,),
-                Money(Decimal(str(item.get("amount", 0))), currency),
-                Decimal(str(item.get("quantity", 1))),
-                task_id=item.get("task_id"),
-                constraints=item.get("constraints", {}),
-                metadata=item.get("metadata", {}),
-            )
-            for index, item in enumerate(parameters.get("bids", ()))
-        )
-        asks = tuple(
-            Ask(
-                f"ask-{index + 1}",
-                str(item.get("seller_id", f"seller-{index + 1}")),
-                (product.product_id,),
-                Money(Decimal(str(item.get("reserve", 0))), currency),
-                Decimal(str(item.get("quantity", 1))),
-                constraints=item.get("constraints", {}),
-                metadata=item.get("metadata", {}),
-            )
-            for index, item in enumerate(parameters.get("asks", ()))
-        )
-        mechanisms = {
-            "first_price_auction": FirstPriceAuction,
-            "second_price_auction": SecondPriceAuction,
-            "vcg": VCGMechanism,
-            "mcafee_double_auction": McAfeeDoubleAuction,
-            "budget_feasible_procurement": BudgetFeasibleProcurement,
-        }
-        mechanism_name = str(parameters.get("mechanism", "mcafee_double_auction"))
-        if mechanism_name not in mechanisms:
-            raise ValueError(f"market mechanism is not supported by the workbench: {mechanism_name}")
-        request = PricingRequest(
-            (product,),
-            bids,
-            asks,
-            supply={product.product_id: Decimal(str(parameters.get("supply", sum((ask.quantity for ask in asks), Decimal("0")))))},
-            demand={product.product_id: sum((bid.quantity for bid in bids), Decimal("0"))},
-            market_context={key: value for key, value in parameters.items() if key not in {"bids", "asks", "mechanism"}},
-        )
-        mechanism = mechanisms[mechanism_name]()
-        outcome = mechanism.price(request, context)
-        budgets = {str(item.get("buyer_id")): Decimal(str(item["budget"])) for item in parameters.get("bids", ()) if item.get("budget") is not None}
-        result = {
-            "outcome": jsonable(outcome),
-            "properties": jsonable(evaluate_pricing_properties(outcome, request, budgets=budgets or None)),
-            "gaps": jsonable(MarketGapAnalyzer().analyze(bids, asks)),
-            "order_book": {
-                "bids": jsonable(sorted(bids, key=lambda item: item.amount.amount, reverse=True)),
-                "asks": jsonable(sorted(asks, key=lambda item: item.reserve.amount)),
-            },
-        }
-        return result, mechanism.name
+        result, producer = run_market((product,), parameters, context)
+        return jsonable(result), producer
     raise ValueError(f"unsupported operation: {operation}")
+
+
+def execute_multiple(operation: str, product_payloads: list[dict], parameters: dict, run_id: str) -> tuple[Any, str]:
+    """Execute a compatible operation over one or more products."""
+    if len(product_payloads) == 1:
+        return execute(operation, product_payloads[0], parameters, run_id)
+    if operation != "market":
+        raise ValueError(f"operation {operation} accepts one product")
+    from .market_workbench import run_market
+
+    products = tuple(product_from_payload(payload) for payload in product_payloads)
+    context = RunContext(run_id, seed=int(parameters.get("seed", 0)), config={})
+    result, producer = run_market(products, parameters, context)
+    return jsonable(result), producer

@@ -38,3 +38,38 @@ UI 配置使用 `datavalor.ui-workflow/v1alpha1`，不修改 Python 侧已有接
 当前静态页面中的“运行”是确定性的浏览器端模块语义执行器，用于编排验证、数据传递和交互演示，不会在浏览器里直接启动 Python。接入服务部署时，可以保持相同输入、输出和运行记录结构，将 `executeModule` 替换为调用 DataValor Python runner 的 API。
 
 通过 `UI.run` 启动后，治理、画像、质量评估和估值页面调用真实 DataValor 实现；组件目录从所有 registry 动态读取，外部能力页面展示当前环境中的可用状态。数据产品、运行记录和产物持久化在 `UI/workspace/`。
+
+## 复杂输入与市场工作台
+
+“数据产品”页面中的创建工作区支持 JSON、JSON Lines、CSV、TSV、键值参数、
+本地文本文件、URI/HTTP/对象存储引用、已登记产品、历史产物和上游输出引用。
+解析步骤会返回标准化记录、推断 Schema、记录/字段统计以及可定位到行或字段的错误；
+输入方式和解析参数保存在产品的 `metadata.input_config` 中。
+
+“定价与市场”仍是一个左侧导航模块，其内部按“场景、产品与输入、参与方与订单、
+定价合同、市场机制、执行过程、结果与诊断”组织。定价模型和市场机制的参数表单由
+`GET /api/workbench/schemas` 返回的实际能力生成，不显示仓库中不存在的占位方法。
+
+在线模式支持多产品选择、JSON/JSONL/CSV 批量订单、AND/XOR 组合需求、多单位统一价、
+预算/质量感知采购和多属性匹配。执行结果同时包含报价分量或市场分配，以及标准化、
+校验、清算和诊断 Trace；诊断覆盖机制性质、收入对账、供需缺口、供需分群、市场健康
+和异常信号。旧的单产品 `product_id` 请求继续有效，多产品市场请求使用：
+
+```json
+{
+  "product_ids": ["retail-demand", "weather-stream"],
+  "parameters": {
+    "mechanism": "bundle_matching",
+    "budget": 200000,
+    "bids": [
+      {
+        "buyer_id": "buyer-a",
+        "product_ids": ["retail-demand", "weather-stream"],
+        "amount": 180000,
+        "constraints": {"bundle_mode": "and"}
+      }
+    ],
+    "asks": []
+  }
+}
+```

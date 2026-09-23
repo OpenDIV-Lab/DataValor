@@ -12,7 +12,10 @@ from pydantic import BaseModel, Field, field_validator
 from datavalor.toolkit.capabilities import probe_external_capabilities
 
 from ..services.components import component_catalog
-from ..services.operations import execute, jsonable
+from ..services.input_parsing import parse_input
+from ..services.market_workbench import market_schema
+from ..services.operations import execute_multiple, jsonable
+from ..services.pricing_workbench import pricing_schema
 from ..services.workspace import Workspace
 
 
@@ -35,8 +38,25 @@ class ProductPayload(BaseModel):
 
 
 class OperationPayload(BaseModel):
-    product_id: str
+    product_id: str | None = None
+    product_ids: list[str] = Field(default_factory=list)
     parameters: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("product_id")
+    @classmethod
+    def safe_optional_id(cls, value: str | None) -> str | None:
+        return Workspace.validate_id(value) if value is not None else None
+
+    @field_validator("product_ids")
+    @classmethod
+    def safe_product_ids(cls, values: list[str]) -> list[str]:
+        return [Workspace.validate_id(value) for value in values]
+
+
+class InputPreviewPayload(BaseModel):
+    input_type: str
+    content: Any
+    options: dict[str, Any] = Field(default_factory=dict)
 
 
 def envelope(data: Any, warnings: list[str] | None = None) -> dict[str, Any]:
@@ -55,6 +75,19 @@ def create_app(workspace_root: str | Path | None = None) -> FastAPI:
     @app.get("/api/components")
     def components():
         return envelope({"components": component_catalog()})
+
+    @app.post("/api/inputs/preview")
+    def preview_input(payload: InputPreviewPayload):
+        options = dict(payload.options)
+        if payload.input_type == "catalog":
+            options["available_references"] = [item["product_id"] for item in workspace.list("products")]
+        elif payload.input_type == "artifact":
+            options["available_references"] = [item["artifact_id"] for item in workspace.list("artifacts")]
+        return envelope({"preview": jsonable(parse_input(payload.input_type, payload.content, options))})
+
+    @app.get("/api/workbench/schemas")
+    def workbench_schemas():
+        return envelope({"pricing": pricing_schema(), "market": market_schema()})
 
     @app.get("/api/capabilities")
     def capabilities():
@@ -96,18 +129,22 @@ def create_app(workspace_root: str | Path | None = None) -> FastAPI:
 
     @app.post("/api/operations/{operation}")
     def run_operation(operation: str, payload: OperationPayload):
-        product = workspace.get("products", payload.product_id)
-        if product is None:
-            raise HTTPException(404, "product not found")
+        product_ids = payload.product_ids or ([payload.product_id] if payload.product_id else [])
+        if not product_ids:
+            raise HTTPException(422, "product_id or product_ids is required")
+        products = [workspace.get("products", product_id) for product_id in product_ids]
+        missing = [product_id for product_id, product in zip(product_ids, products) if product is None]
+        if missing:
+            raise HTTPException(404, f"products not found: {', '.join(missing)}")
         run_id = f"run-{uuid.uuid4().hex[:12]}"
         started = datetime.now(timezone.utc)
         try:
-            result, producer = execute(operation, product, payload.parameters, run_id)
+            result, producer = execute_multiple(operation, products, payload.parameters, run_id)
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
         artifact_id = f"artifact-{uuid.uuid4().hex[:12]}"
         artifact = {"artifact_id": artifact_id, "kind": operation, "producer": producer, "payload": result, "created_at": datetime.now(timezone.utc).isoformat()}
-        run = {"run_id": run_id, "operation": operation, "product_id": payload.product_id, "status": "succeeded", "artifact_id": artifact_id, "started_at": started.isoformat(), "finished_at": datetime.now(timezone.utc).isoformat()}
+        run = {"run_id": run_id, "operation": operation, "product_id": product_ids[0], "product_ids": product_ids, "status": "succeeded", "artifact_id": artifact_id, "started_at": started.isoformat(), "finished_at": datetime.now(timezone.utc).isoformat()}
         workspace.put("artifacts", artifact_id, artifact)
         workspace.put("runs", run_id, run)
         return envelope({"run_id": run_id, "artifact_id": artifact_id, "result": result})
