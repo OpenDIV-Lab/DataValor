@@ -1,0 +1,52 @@
+schema_version: "1.0"
+name: datamechbench-kdd-bfm-vm-exploratory-2026-10-04
+output_dir: benchmark/outputs/kdd_bfm_vm_extension
+evidence_scope: post_freeze_exploratory_extension
+seeds: [0]
+strategic_audit: true
+
+cases:
+  valuation: []
+  procurement:
+    - PADD-independent-b30
+    - PADD-independent-b60
+    - PADD-positive-b30
+    - PADD-positive-b60
+    - PADD-negative-b30
+    - PADD-negative-b60
+    - PSMOD-coverage-b30
+    - PSMOD-coverage-b50
+    - PSMOD-coverage-b70
+    - PSMOD-coverage-positive-corr-b50
+    - PSMOD-coverage-negative-corr-b50
+    - PML-clean-b30
+    - PML-clean-b50
+    - PML-clean-b70
+    - PCONC-diffuse-b2
+    - PCONC-diffuse-b3
+    - PCONC-diffuse-b4
+    - PCONC-diffuse-b5
+    - PCONC-low-b2
+    - PCONC-low-b3
+    - PCONC-low-b4
+    - PCONC-low-b5
+    - PCONC-moderate-b2
+    - PCONC-moderate-b3
+    - PCONC-moderate-b4
+    - PCONC-moderate-b5
+    - PCONC-high-b2
+    - PCONC-high-b3
+    - PCONC-high-b4
+    - PCONC-high-b5
+    - PCONC-dominant-b2
+    - PCONC-dominant-b3
+    - PCONC-dominant-b4
+    - PCONC-dominant-b5
+  trading: []
+
+methods:
+  valuation: []
+  procurement:
+    - budget_optimum
+    - bfm_vm
+  trading: []

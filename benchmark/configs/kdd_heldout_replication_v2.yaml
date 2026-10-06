@@ -1,0 +1,196 @@
+schema_version: "1.0"
+manifest_kind: confirmatory_protocol_config
+protocol_revision: "1"
+cohort: heldout
+replication_wave: v2
+replication_release_id: kdd2027-heldout-replication-v2
+evidence_scope: real_trained_game
+minimum_blocks_per_track: 2
+random_seeds: [1701, 2903, 4703]
+stopping_rule: run_every_frozen_case_method_seed_once_and_retain_all_outcomes
+source_selection_rule: two_licensed_sources_or_prespecified_unused_2024_fridays_per_track_selected_before_mechanism_outcomes
+
+# This is deliberately identical to the v1 result surface. Replication may
+# compare the six frozen estimands but cannot add an outcome-selected metric.
+result_contract:
+  diagnostic_keys: []
+  metric_ids:
+    valuation:
+      - addition_auc
+      - bad_owner_rank
+      - characteristic_replication_inflation_ratio
+      - corruption_auprc
+      - corruption_auroc
+      - corruption_topk_f1
+      - dummy_violation
+      - efficiency_residual
+      - kendall_stability
+      - least_core_max_violation
+      - removal_auc
+      - replication_gain
+      - replication_owner_rank_change
+      - replication_reward_share_gain
+      - replication_score_inflation_ratio
+      - runtime_seconds
+      - score_mae
+      - score_spearman
+      - split_payoff_change
+      - symmetry_gap
+      - topk_test_utility
+      - utility_calls
+      - utility_recovery
+    procurement:
+      - allocation_monotonicity_violation
+      - budget_used_ratio
+      - budget_violation
+      - buyer_utility
+      - critical_payment_gap
+      - duplicate_spend_ratio
+      - largest_singleton_share
+      - max_deviation_gain
+      - noisy_spend_ratio
+      - oracle_ratio
+      - oracle_utility
+      - procurement_efficiency_loss
+      - profitable_deviation_count
+      - realized_utility
+      - seller_ir_violation_count
+      - seller_surplus
+      - total_payment
+    trading:
+      - allocation_efficiency
+      - auctioneer_surplus
+      - buyer_surplus
+      - efficient_trade_count
+      - false_trade_count
+      - gain_from_trade_ratio
+      - individual_rationality
+      - max_deviation_gain
+      - normalized_trade_loss
+      - oracle_gain_from_trade
+      - participant_surplus_ratio
+      - price_dispersion
+      - profitable_deviation_count
+      - quantity_weighted_trade_volume
+      - realized_gain_from_trade
+      - seller_revenue
+      - seller_surplus_trading
+      - strong_budget_balance
+      - trade_count
+      - trade_count_loss
+      - trading_max_deviation_gain
+      - weak_budget_balance
+
+sources:
+  valuation:
+    - source_id: openml-46913-blood-transfusion
+      openml_id: 46913
+      canonical_source: https://www.openml.org/api/v1/json/data/46913
+      data_url: https://openml.org/data/v1/download/22125224/blood-transfusion-service-center.arff
+      upstream: UCI Blood Transfusion Service Center
+      license_id: CC-BY-4.0
+      expected_md5: 22bfec0eb6cceb5715439912fdcb2275
+      raw_filename: blood-transfusion-46913.arff
+      target_attribute: DonatedBloodInMarch2007
+      block_id: VR2-openml-46913
+    - source_id: openml-46924-ecommerce-shipping
+      openml_id: 46924
+      canonical_source: https://www.openml.org/api/v1/json/data/46924
+      data_url: https://openml.org/data/v1/download/22125235/E-CommereShippingData.arff
+      upstream: TabArena-curated E-Commerce Shipping Data
+      license_id: CC0-1.0
+      expected_md5: a55d48a03307e6ef6a63c15bb80d18ac
+      raw_filename: ecommerce-shipping-46924.arff
+      target_attribute: ArrivedLate
+      block_id: VR2-openml-46924
+  procurement:
+    - source_id: chilecompra-2024-01-19-replication
+      cohort_date: "2024-01-19"
+      snapshot_url: https://fastly.data.open-contracting.org/downloads/chile_compra_api_releases/3730/2024.jsonl.gz
+      expected_content_length: 681554784
+      expected_etag: 289fb360-6530fcb785f6c
+      registry_url: https://data.open-contracting.org/en/publication/144
+      license_id: CC0-1.0
+      block_id: PR2-chile-20240119
+    - source_id: chilecompra-2024-11-15-replication
+      cohort_date: "2024-11-15"
+      snapshot_url: https://fastly.data.open-contracting.org/downloads/chile_compra_api_releases/3730/2024.jsonl.gz
+      expected_content_length: 681554784
+      expected_etag: 289fb360-6530fcb785f6c
+      registry_url: https://data.open-contracting.org/en/publication/144
+      license_id: CC0-1.0
+      block_id: PR2-chile-20241115
+  trading:
+    - date: "2024-01-19"
+      settlement_periods: [8, 24, 40]
+      block_id: TR2-elexon-20240119
+    - date: "2024-11-15"
+      settlement_periods: [8, 24, 40]
+      block_id: TR2-elexon-20241115
+    - source_id: elexon-bod
+      endpoint_template: https://data.elexon.co.uk/bmrs/api/v1/balancing/bid-offer/all?settlementDate={date}&settlementPeriod={period}&format=json
+      documentation: https://developer.data.elexon.co.uk/api-details#api=prod-insol-insights-api&operation=get-balancing-bid-offer-all
+      license_id: Elexon-BMRS-Open-Data-Licence
+      attribution: Contains BMRS data © Elexon Limited copyright and database right 2024.
+
+transformations:
+  common:
+    missing_policy: reject_nonfinite
+    winsor_quantiles: [0.025, 0.975]
+    identity_policy: discard_before_processed_artifact
+  valuation:
+    maximum_rows: 6000
+    split_seed: 1701
+    split: {train: 0.60, validation: 0.20, test: 0.20}
+    owner_count: 8
+    categorical_encoding: training_only_sorted_ordinal_unknown_minus_one
+    utility_model: standardized_logistic_regression
+    replication_factors: [1, 2, 4]
+  procurement:
+    cohort_filter: ocds_release_date_equals_prespecified_date
+    amount_field: all_positive_CLP_award_value_amounts
+    cost_transform: winsorize_then_log1p_then_divide_by_median
+    owner_cost_assignment: ascending_rank_to_owner_id
+    budget_ratios: [0.30, 0.50]
+    utility_source: matched_openml_owner_game
+  trading:
+    price_transform: winsorize_then_affine_unit_interval
+    bid_value: positive_bid_magnitude
+    seller_cost: positive_offer
+    duplicate_policy: collapse_bmu_pair_by_median
+    balanced_market_sizes: [8, 16]
+  execution_contract:
+    replication_wave: v2
+    random_seeds: [1701, 2903, 4703]
+    stopping_rule: run_every_frozen_case_method_seed_once_and_retain_all_outcomes
+    result_contract:
+      diagnostic_keys: []
+      metric_ids:
+        valuation: [addition_auc, bad_owner_rank, characteristic_replication_inflation_ratio, corruption_auprc, corruption_auroc, corruption_topk_f1, dummy_violation, efficiency_residual, kendall_stability, least_core_max_violation, removal_auc, replication_gain, replication_owner_rank_change, replication_reward_share_gain, replication_score_inflation_ratio, runtime_seconds, score_mae, score_spearman, split_payoff_change, symmetry_gap, topk_test_utility, utility_calls, utility_recovery]
+        procurement: [allocation_monotonicity_violation, budget_used_ratio, budget_violation, buyer_utility, critical_payment_gap, duplicate_spend_ratio, largest_singleton_share, max_deviation_gain, noisy_spend_ratio, oracle_ratio, oracle_utility, procurement_efficiency_loss, profitable_deviation_count, realized_utility, seller_ir_violation_count, seller_surplus, total_payment]
+        trading: [allocation_efficiency, auctioneer_surplus, buyer_surplus, efficient_trade_count, false_trade_count, gain_from_trade_ratio, individual_rationality, max_deviation_gain, normalized_trade_loss, oracle_gain_from_trade, participant_surplus_ratio, price_dispersion, profitable_deviation_count, quantity_weighted_trade_volume, realized_gain_from_trade, seller_revenue, seller_surplus_trading, strong_budget_balance, trade_count, trade_count_loss, trading_max_deviation_gain, weak_budget_balance]
+
+headline_methods:
+  valuation: [shapley_exact, tmc_shapley, banzhaf_exact, knn_shapley, volume_shapley, robust_volume_shapley]
+  procurement: [generalized_proportional_share, cgl_deterministic, cgl_randomized, jt_greedy_tm, jt_random_eom, jt_deterministic_eom]
+  trading: [mcafee, trade_reduction, sbba, lottery_muda, vickrey_muda]
+
+contrasts:
+  - {contrast_id: V-BANZHAF-vs-SHAPLEY, track: valuation, method_a: banzhaf_exact, method_b: shapley_exact, metric: replication_owner_rank_change, direction: lower, estimand: mean_oriented_difference, inference_unit: independent_block, ci_method: percentile_block_bootstrap, multiplicity_family: valuation_replication}
+  - {contrast_id: V-RVSV-vs-VSV, track: valuation, method_a: robust_volume_shapley, method_b: volume_shapley, metric: replication_owner_rank_change, direction: lower, estimand: mean_oriented_difference, inference_unit: independent_block, ci_method: percentile_block_bootstrap, multiplicity_family: valuation_replication}
+  - {contrast_id: P-CGLR-vs-GPS, track: procurement, method_a: cgl_randomized, method_b: generalized_proportional_share, metric: oracle_ratio, direction: higher, estimand: mean_oriented_difference, inference_unit: independent_block, ci_method: percentile_block_bootstrap, multiplicity_family: procurement_efficiency}
+  - {contrast_id: P-JTDEOM-vs-GPS, track: procurement, method_a: jt_deterministic_eom, method_b: generalized_proportional_share, metric: oracle_ratio, direction: higher, estimand: mean_oriented_difference, inference_unit: independent_block, ci_method: percentile_block_bootstrap, multiplicity_family: procurement_efficiency}
+  - {contrast_id: T-MCAFEE-vs-TR, track: trading, method_a: mcafee, method_b: trade_reduction, metric: gain_from_trade_ratio, direction: two_sided, estimand: mean_oriented_difference, inference_unit: independent_block, ci_method: percentile_block_bootstrap, multiplicity_family: trading_efficiency}
+  - {contrast_id: T-SBBA-vs-TR, track: trading, method_a: sbba, method_b: trade_reduction, metric: gain_from_trade_ratio, direction: two_sided, estimand: mean_oriented_difference, inference_unit: independent_block, ci_method: percentile_block_bootstrap, multiplicity_family: trading_efficiency}
+
+representativeness:
+  continuous_metrics: [wasserstein_distance]
+  profile_metrics: [jensen_shannon_divergence]
+  support_metrics: [heldout_outside_development_fraction, source_coverage]
+  composite_score: forbidden
+
+development_artifact_hashes:
+  raw_results: 49aca2cd2cb171bfa31c55d3448fcb9ad010dbcae11d6c9bde2eaae04da13f5b
+  case_bank: 39954bdc592d72046338ee41c24a68b0b972f6e69545251259e18b6ceefbb982
+  kdd_target: c9f27630ef8b8be433ec473cbdeecb15dd04a5ec14751670a40f7580aeb967bd
+  mechanism_catalog: 1cea5ee7ff73a9482c65f418b4372782585c952e73f5a10e254f4cf9716c143a

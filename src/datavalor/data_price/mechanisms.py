@@ -111,18 +111,174 @@ class VCGMechanism(_SingleItem):
         return _outcome(self.name, [Allocation(winner.buyer_id, winner.product_ids, winner.quantity, winner.amount)], [Payment(winner.buyer_id, seller, second, "vcg", winner.product_ids)], welfare=winner.amount.amount)
 
 
+class BilateralMidpointTrade(PricingMechanism):
+    """The former single-pair midpoint behavior, retained under an accurate name."""
+
+    name = "bilateral_midpoint_trade"
+
+    @property
+    def spec(self):
+        return ComponentSpec(self.name, "1.0", "data_price", "pricing_mechanism")
+
+    def price(self, request, context):
+        del context
+        bids = sorted(request.bids, key=lambda item: (-item.amount.amount, item.buyer_id))
+        asks = sorted(request.asks, key=lambda item: (item.reserve.amount, item.seller_id))
+        if not bids or not asks or bids[0].amount.amount < asks[0].reserve.amount:
+            return _outcome(self.name)
+        amount = _money(
+            (bids[0].amount.amount + asks[0].reserve.amount) / 2,
+            bids[0].amount.currency,
+        )
+        allocation = Allocation(
+            bids[0].buyer_id,
+            bids[0].product_ids,
+            bids[0].quantity,
+            bids[0].amount,
+            {"seller_id": asks[0].seller_id},
+        )
+        return _outcome(
+            self.name,
+            [allocation],
+            [Payment(bids[0].buyer_id, asks[0].seller_id, amount, "midpoint", bids[0].product_ids)],
+            welfare=bids[0].amount.amount - asks[0].reserve.amount,
+        )
+
+
 class McAfeeDoubleAuction(PricingMechanism):
+    """McAfee trade-reduction auction for homogeneous single-unit reports."""
+
     name = "mcafee_double_auction"
 
     @property
-    def spec(self): return ComponentSpec(self.name, "1.0", "data_price", "pricing_mechanism")
+    def spec(self):
+        return ComponentSpec(
+            self.name,
+            "2.0",
+            "data_price",
+            "pricing_mechanism",
+            capabilities=("double_auction", "multi_party", "single_unit"),
+        )
 
     def price(self, request, context):
-        bids = sorted(request.bids, key=lambda item: item.amount.amount, reverse=True); asks = sorted(request.asks, key=lambda item: item.reserve.amount)
-        if not bids or not asks or bids[0].amount.amount < asks[0].reserve.amount: return _outcome(self.name)
-        amount = _money((bids[0].amount.amount + asks[0].reserve.amount) / 2, bids[0].amount.currency)
-        allocation = Allocation(bids[0].buyer_id, bids[0].product_ids, bids[0].quantity, bids[0].amount)
-        return _outcome(self.name, [allocation], [Payment(bids[0].buyer_id, asks[0].seller_id, amount, "mcafee", bids[0].product_ids)], welfare=bids[0].amount.amount - asks[0].reserve.amount)
+        del context
+        reports = (*request.bids, *request.asks)
+        if any(report.quantity != Decimal("1") for report in reports):
+            raise ValueError("McAfee requires unit quantity reports")
+        currencies = {
+            *(bid.amount.currency for bid in request.bids),
+            *(ask.reserve.currency for ask in request.asks),
+        }
+        if len(currencies) > 1:
+            raise ValueError("McAfee bid/ask currency mismatch")
+        buyer_ids = [bid.buyer_id for bid in request.bids]
+        seller_ids = [ask.seller_id for ask in request.asks]
+        if len(set(buyer_ids)) != len(buyer_ids) or len(set(seller_ids)) != len(seller_ids):
+            raise ValueError("McAfee actor IDs must be unique")
+
+        bids = sorted(request.bids, key=lambda item: (-item.amount.amount, item.buyer_id))
+        asks = sorted(request.asks, key=lambda item: (item.reserve.amount, item.seller_id))
+        efficient_count = 0
+        for bid, ask in zip(bids, asks):
+            if bid.amount.amount < ask.reserve.amount:
+                break
+            efficient_count += 1
+        if efficient_count == 0:
+            return _outcome(
+                self.name,
+                diagnostics={"branch": "no_trade", "efficient_trade_count": 0, "trade_count": 0},
+            )
+
+        pair_limit = min(len(bids), len(asks))
+        candidate_price = None
+        if efficient_count < pair_limit:
+            candidate_price = (
+                bids[efficient_count].amount.amount + asks[efficient_count].reserve.amount
+            ) / 2
+        marginal_bid = bids[efficient_count - 1].amount.amount
+        marginal_ask = asks[efficient_count - 1].reserve.amount
+        if candidate_price is not None and marginal_ask <= candidate_price <= marginal_bid:
+            trade_count = efficient_count
+            buyer_price = seller_price = candidate_price
+            branch = "candidate_price"
+        else:
+            trade_count = max(0, efficient_count - 1)
+            buyer_price = marginal_bid
+            seller_price = marginal_ask
+            branch = "trade_reduction"
+
+        allocations = []
+        payments = []
+        currency = next(iter(currencies), "CNY")
+        for index in range(trade_count):
+            bid, ask = bids[index], asks[index]
+            allocations.append(
+                Allocation(
+                    bid.buyer_id,
+                    bid.product_ids,
+                    Decimal("1"),
+                    bid.amount,
+                    {
+                        "seller_id": ask.seller_id,
+                        "buyer_price": str(buyer_price),
+                        "seller_price": str(seller_price),
+                    },
+                )
+            )
+            if buyer_price == seller_price:
+                payments.append(
+                    Payment(
+                        bid.buyer_id,
+                        ask.seller_id,
+                        _money(buyer_price, currency),
+                        "mcafee_uniform_price",
+                        bid.product_ids,
+                    )
+                )
+            else:
+                payments.extend(
+                    (
+                        Payment(
+                            bid.buyer_id,
+                            "platform",
+                            _money(buyer_price, currency),
+                            "mcafee_buyer_payment",
+                            bid.product_ids,
+                            {"seller_id": ask.seller_id},
+                        ),
+                        Payment(
+                            "platform",
+                            ask.seller_id,
+                            _money(seller_price, currency),
+                            "mcafee_seller_payment",
+                            bid.product_ids,
+                            {"buyer_id": bid.buyer_id},
+                        ),
+                    )
+                )
+        welfare = sum(
+            (
+                bids[index].amount.amount - asks[index].reserve.amount
+                for index in range(trade_count)
+            ),
+            Decimal("0"),
+        )
+        surplus = (buyer_price - seller_price) * trade_count
+        return _outcome(
+            self.name,
+            allocations,
+            payments,
+            welfare=welfare,
+            diagnostics={
+                "branch": branch,
+                "efficient_trade_count": efficient_count,
+                "trade_count": trade_count,
+                "candidate_price": str(candidate_price) if candidate_price is not None else None,
+                "buyer_price": str(buyer_price),
+                "seller_price": str(seller_price),
+                "auctioneer_surplus": str(surplus),
+            },
+        )
 
 
 class BudgetFeasibleProcurement(PricingMechanism):
@@ -139,7 +295,79 @@ class BudgetFeasibleProcurement(PricingMechanism):
         return _outcome(self.name, allocations, payments, diagnostics={"budget": str(budget), "spent": str(spent)})
 
 
-class ProportionalShareProcurement(BudgetFeasibleProcurement): name = "proportional_share_procurement"
+class ProportionalShareProcurement(BudgetFeasibleProcurement):
+    """Additive proportional-share procurement with critical payments.
+
+    Public seller values are supplied separately from reported asks through
+    ``market_context['seller_values']``.  The mechanism therefore never reads
+    evaluator-side true costs.
+    """
+
+    name = "proportional_share_procurement"
+
+    def price(self, request, context):
+        del context
+        budget = Decimal(str(request.market_context.get("budget", "0")))
+        buyer = str(request.market_context.get("buyer_id", "buyer"))
+        raw_values = request.market_context.get("seller_values", {})
+        if budget < 0:
+            raise ValueError("budget must be non-negative")
+        seller_ids = [ask.seller_id for ask in request.asks]
+        if len(set(seller_ids)) != len(seller_ids):
+            raise ValueError("seller IDs must be unique")
+
+        ranked = []
+        for ask in request.asks:
+            value = Decimal(str(raw_values.get(ask.seller_id, "0")))
+            cost = ask.reserve.amount
+            if value <= 0 or cost <= 0:
+                raise ValueError("proportional share requires positive values and asks")
+            ranked.append((ask, value))
+        ranked.sort(key=lambda item: (-(item[1] / item[0].reserve.amount), item[0].seller_id))
+
+        winners = []
+        cumulative_value = Decimal("0")
+        for ask, value in ranked:
+            candidate_value = cumulative_value + value
+            if ask.reserve.amount <= budget * value / candidate_value:
+                winners.append((ask, value))
+                cumulative_value = candidate_value
+            else:
+                break
+
+        first_excluded = ranked[len(winners)] if len(winners) < len(ranked) else None
+        allocations = []
+        payments = []
+        for ask, value in winners:
+            proportional_cap = budget * value / cumulative_value
+            if first_excluded is None:
+                critical = proportional_cap
+            else:
+                excluded_ask, excluded_value = first_excluded
+                replacement_threshold = value * excluded_ask.reserve.amount / excluded_value
+                critical = min(proportional_cap, replacement_threshold)
+            allocations.append(Allocation(buyer, ask.product_ids, ask.quantity))
+            payments.append(
+                Payment(
+                    buyer,
+                    ask.seller_id,
+                    _money(critical, ask.reserve.currency),
+                    "proportional_share_critical",
+                    ask.product_ids,
+                )
+            )
+        spent = sum((payment.amount.amount for payment in payments), Decimal("0"))
+        return _outcome(
+            self.name,
+            allocations,
+            payments,
+            diagnostics={
+                "budget": str(budget),
+                "spent": str(spent),
+                "assumption": "additive_public_values",
+                "winner_ids": tuple(ask.seller_id for ask, _ in winners),
+            },
+        )
 class ContributionFairShareMechanism(BudgetFeasibleProcurement): name = "contribution_fair_share"
 class CoreSelectingAuction(BudgetFeasibleProcurement): name = "core_selecting_auction"
 class ExternalityVCGMechanism(VCGMechanism): name = "externality_vcg"

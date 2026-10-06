@@ -1,0 +1,8 @@
+schema_version: "1.0"
+evidence_scope: real_trained_game_smoke
+physical_gpus: [1]
+cpu_threads_per_job: 4
+settings: [real-breast-rf-n8]
+n_owners: 3
+split_seeds: [11]
+partitions: [iid]

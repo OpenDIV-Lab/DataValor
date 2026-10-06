@@ -1,0 +1,33 @@
+name: datamechbench-mvp
+output_dir: benchmark/outputs/mvp
+seeds: [0, 1, 2]
+strategic_audit: true
+
+cases:
+  valuation: [C-add, C-dup, C-real-clean, C-real-noise]
+  procurement:
+    - P-C-add-b50
+    - P-C-coverage-b50
+    - P-C-real-clean-b50
+    - P-C-real-noise-b50
+  trading: [S5-single-sale, S6-double-auction]
+
+methods:
+  valuation:
+    - all_compatible
+    - id: shapley_mc
+      params: {samples: 64}
+    - id: tmc_shapley
+      params: {samples: 64}
+    - id: ame
+      params: {samples: 128}
+    - id: least_core_mc
+      params: {samples: 64}
+    - id: data_oob
+      params: {n_estimators: 32}
+    - id: pydvl_tmc_shapley
+      params: {samples: 64}
+  procurement:
+    - all_compatible
+  trading:
+    - all_compatible

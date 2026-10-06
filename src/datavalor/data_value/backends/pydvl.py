@@ -9,6 +9,8 @@ name-based resolver for installed versions, while always returning DataValor
 from __future__ import annotations
 
 from collections.abc import Mapping
+from importlib import metadata
+from numbers import Integral
 from typing import Any, Callable
 
 from datavalor.core import ComponentSpec, RunContext, require_capability
@@ -43,9 +45,14 @@ def _estimates(raw: Any, ids: tuple[str, ...], backend: str = "pydvl") -> tuple[
     indices = list(indices() if callable(indices) else indices)
     stderr = getattr(raw, "stderr", getattr(raw, "standard_errors", None))
     stderr = list(stderr() if callable(stderr) else stderr) if stderr is not None else []
+    def logical_id(external_index: Any, position: int) -> str:
+        if isinstance(external_index, Integral) and 0 <= int(external_index) < len(ids):
+            return ids[int(external_index)]
+        return str(external_index if external_index is not None else ids[position])
+
     return tuple(
         ValueEstimate(
-            str(indices[i] if i < len(indices) else ids[i] if i < len(ids) else i),
+            logical_id(indices[i] if i < len(indices) else None, i),
             _number(value),
             "utility",
             uncertainty={"std_error": _number(stderr[i])} if i < len(stderr) else {},
@@ -74,20 +81,36 @@ class PyDVLContributionValuator(ContributionValuator):
             estimator = self.estimator
         else:
             pydvl = require_capability("pydvl", "pydvl", distribution="pydvl", extra="valuation")
+            try:
+                version = metadata.version("pydvl")
+            except metadata.PackageNotFoundError:
+                version = str(getattr(pydvl, "__version__", "unknown"))
+            if not version.startswith("0.10."):
+                raise RuntimeError(
+                    f"unsupported pyDVL version {version}; this adapter supports pyDVL 0.10.x"
+                )
             valuation = getattr(pydvl, "valuation", pydvl)
             estimator = None
-            for name in ("compute_shapley_values", "shapley", "ShapleyValuation", "compute_semivalues"):
+            for name in ("TMCShapleyValuation", "ShapleyValuation"):
                 candidate = getattr(valuation, name, None)
                 if candidate is not None:
-                    estimator = candidate() if isinstance(candidate, type) else candidate
+                    constructor_options = dict(options.pop("estimator_options", {}))
+                    external_utility = options.get("external_utility", utility)
+                    try:
+                        estimator = candidate(score=external_utility, **constructor_options)
+                    except TypeError:
+                        estimator = candidate(external_utility, **constructor_options)
                     break
             if estimator is None:
-                raise RuntimeError("installed pyDVL version exposes no supported valuation entry point")
+                raise RuntimeError(
+                    f"pyDVL {version} exposes neither TMCShapleyValuation nor ShapleyValuation"
+                )
         fit = getattr(estimator, "fit", None)
         if callable(fit):
             external_data = options.pop("external_data", ids)
-            external_utility = options.pop("external_utility", utility)
-            fitted = fit(external_data, external_utility, **options)
+            options.pop("external_utility", None)
+            options.pop("estimator_options", None)
+            fitted = fit(external_data, **options)
             result = fitted if fitted is not None else estimator
             for attribute in ("result", "values"):
                 value = getattr(result, attribute, None)

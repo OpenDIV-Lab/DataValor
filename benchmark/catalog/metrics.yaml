@@ -1,0 +1,404 @@
+schema_version: "1.2"
+metrics:
+  - {metric_id: score_mae, track: valuation, description: Mean absolute error against an exact-value reference, direction: minimize, unit: score, aggregation: macro_case_mean, formula: "mean_i |v_i-v_i^*|", version: "1.0"}
+  - {metric_id: score_spearman, track: valuation, description: Spearman rank correlation with the exact-value reference, direction: maximize, unit: correlation, aggregation: macro_case_mean, formula: "rho(rank(v),rank(v^*))", version: "1.0"}
+  - {metric_id: topk_test_utility, track: valuation, description: Held-out utility of the top-k valued owners, direction: maximize, unit: utility, aggregation: macro_case_mean, reference_keys: [opendataval_benchmark], version: "1.0"}
+  - {metric_id: bad_owner_rank, track: valuation, description: Normalized rank of a known corrupted owner, direction: maximize, unit: ratio, aggregation: macro_case_mean, reference_keys: [data_shapley], version: "1.0"}
+  - {metric_id: corruption_auroc, track: valuation, description: AUROC for identifying corrupted owners using negative value, direction: maximize, unit: ratio, aggregation: macro_case_mean, reference_keys: [opendataval_benchmark], version: "1.0"}
+  - {metric_id: corruption_auprc, track: valuation, description: AUPRC for identifying corrupted owners using negative value, direction: maximize, unit: ratio, aggregation: macro_case_mean, reference_keys: [opendataval_benchmark], version: "1.0"}
+  - {metric_id: corruption_topk_f1, track: valuation, description: F1 of the k lowest-valued owners against corruption labels, direction: maximize, unit: ratio, aggregation: macro_case_mean, reference_keys: [opendataval_benchmark], version: "1.0"}
+  - {metric_id: removal_auc, track: valuation, description: Area under held-out utility after sequential high-value removal, direction: descriptive, unit: utility_auc, aggregation: macro_case_mean, reference_keys: [opendataval_benchmark], version: "1.0"}
+  - {metric_id: addition_auc, track: valuation, description: Area under held-out utility after sequential high-value addition, direction: maximize, unit: utility_auc, aggregation: macro_case_mean, reference_keys: [opendataval_benchmark], version: "1.0"}
+  - {metric_id: utility_recovery, track: valuation, description: Rank correlation between reported values and evaluator-only owner deletion effects, direction: maximize, unit: correlation, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: efficiency_residual, track: valuation, description: Absolute difference between allocated values and grand-coalition utility gain, direction: minimize, unit: utility, aggregation: macro_case_mean, formula: "|sum_i v_i-(U(N)-U(empty))|", version: "1.0"}
+  - {metric_id: dummy_violation, track: valuation, description: Maximum absolute value assigned to declared dummy owners, direction: minimize, unit: score, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: symmetry_gap, track: valuation, description: Maximum value gap across declared symmetric owners, direction: minimize, unit: score, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: least_core_max_violation, track: valuation, description: Maximum excess beyond reported least-core epsilon, direction: minimize, unit: utility, aggregation: macro_case_mean, reference_keys: [data_least_core], version: "1.0"}
+  - {metric_id: replication_gain, track: valuation, description: Combined duplicate payoff minus original payoff before replication, direction: descriptive, unit: score, aggregation: macro_case_mean, version: "1.0"}
+  - metric_id: replication_reward_share_gain
+    track: valuation
+    description: Increase in the attacked owner's nonnegative normalized reward share relative to the factor-one case
+    direction: minimize
+    unit: share
+    aggregation: macro_case_mean
+    formula: "max(v_i,0)/sum_j max(v_j,0) - baseline_share_i"
+    reference_keys: [volume_valuation]
+    display_name: Replication Reward-Share Gain
+    question_answered: Does exact copying increase the attacker's share of the reward pool?
+    interpretation: Zero or negative means replication does not improve the attacked owner's normalized reward share.
+    good_value: Zero or below is desirable.
+    bad_value: A positive value exposes a direct reward-share incentive to copy data.
+    valid_range: [-1.0, 1.0]
+    applicability: Diagnostic for mechanisms whose scores are nonnegative transferable reward weights and have a factor-one peer with positive aggregate rewards.
+    failure_modes: [Signed attribution scores are clipped and therefore ineligible for cross-family ranking, Nonpositive total rewards, Missing factor-one peer, Reward-share normalization can hide common scale inflation]
+    ranking_role: diagnostic
+    companion_metrics: [replication_owner_rank_change, replication_score_inflation_ratio, characteristic_replication_inflation_ratio]
+    paper_protocol: Average seeds within each dataset/factor case, then macro-average datasets and factors; inspect factor curves separately.
+    version: "1.0"
+  - {metric_id: replication_score_inflation_ratio, track: valuation, description: Attacked-owner score divided by its factor-one score, direction: minimize, unit: multiple, aggregation: macro_case_mean, formula: "v_i(c)/v_i(1)", reference_keys: [volume_valuation], applicability: Requires positive baseline and nonnegative attacked-owner scores, failure_modes: [Nonpositive scores make ratios uninterpretable, Method scales are not comparable across families], ranking_role: diagnostic, companion_metrics: [replication_reward_share_gain], version: "1.0"}
+  - {metric_id: characteristic_replication_inflation_ratio, track: valuation, description: Grand-coalition characteristic value under replication divided by factor one, direction: minimize, unit: multiple, aggregation: macro_case_mean, formula: "nu(X_rep)/nu(X)", reference_keys: [volume_valuation], applicability: Volume-characteristic methods exposing characteristic_value diagnostics, failure_modes: [Not available for methods without an explicit dataset characteristic], ranking_role: diagnostic, companion_metrics: [replication_reward_share_gain], version: "1.0"}
+  - metric_id: replication_owner_rank_change
+    track: valuation
+    description: Improvement in the attacked owner's normalized rank relative to its factor-one peer
+    direction: minimize
+    unit: rank_fraction
+    aggregation: macro_case_mean
+    formula: "rank_i(1)-rank_i(c)"
+    valid_range: [-1.0, 1.0]
+    reference_keys: [volume_valuation]
+    display_name: Replication Owner-Rank Improvement
+    question_answered: Does exact copying move the attacked owner upward relative to the other owners?
+    interpretation: Zero means rank invariance; positive values expose a replication benefit; negative values mean the attacked owner falls in rank.
+    good_value: Zero or below is desirable.
+    bad_value: Positive values indicate that copying improves the attacked owner's relative position.
+    applicability: Cross-family primary for any finite signed or nonnegative owner scores with a factor-one peer over the same owner identities.
+    failure_modes: [Missing factor-one peer, Missing attacked-owner score, Tied ranks are resolved deterministically by owner ID, Rank discards score-magnitude inflation]
+    ranking_role: primary
+    companion_metrics: [replication_reward_share_gain, replication_score_inflation_ratio, characteristic_replication_inflation_ratio]
+    paper_protocol: Average seeds within each owner/dataset/factor case, then macro-average attack cases; inspect owner and factor curves separately.
+    version: "1.1"
+  - {metric_id: split_payoff_change, track: valuation, description: Combined split-owner payoff minus unsplit owner payoff, direction: descriptive, unit: score, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: kendall_stability, track: valuation, description: Pairwise Kendall rank stability over repeated runs, direction: maximize, unit: correlation, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: utility_calls, track: valuation, description: Number of coalition utility evaluations, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: score_ndcg, track: valuation, description: Discounted ranking quality against ordinary-Shapley truth, direction: maximize, unit: ratio, aggregation: macro_case_mean, valid_range: [0.0, 1.0], version: "1.0"}
+  - {metric_id: normalized_score_mae, track: valuation, description: Score MAE normalized by mean absolute oracle value, direction: minimize, unit: ratio, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: max_score_error, track: valuation, description: Maximum owner-level absolute valuation error, direction: minimize, unit: score, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: time_to_error, track: valuation, description: Wall time needed to reach the declared error threshold, direction: minimize, unit: seconds, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: payment_mae, track: valuation, description: Mean absolute downstream payment error against oracle scores, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: payment_rank_correlation, track: valuation, description: Spearman agreement of induced owner payments, direction: maximize, unit: correlation, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: payment_gini, track: valuation, description: Gini coefficient of induced owner payments, direction: descriptive, unit: ratio, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: payment_conservation_error, track: valuation, description: Absolute error in total induced payment versus oracle-score payment, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: welfare_regret, track: valuation, description: Oracle-score welfare lost by the induced allocation, direction: minimize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: allocation_regret, track: valuation, description: Fraction of owner admission decisions differing from oracle, direction: minimize, unit: fraction, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: decision_flip_rate, track: valuation, description: Fraction of binary downstream decisions flipped relative to oracle, direction: minimize, unit: fraction, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: valuation_buyer_utility, track: valuation, description: Oracle-score welfare of selected owners minus induced payments, direction: maximize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: valuation_budget_violation, track: valuation, description: Whether score-induced payments exceed the fixed downstream budget, direction: minimize, unit: boolean, aggregation: violation_rate, version: "1.0"}
+  - {metric_id: valuation_ir_violation_count, track: valuation, description: Selected paid owners receiving less than declared cost, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: duplicate_spend, track: valuation, description: Payment allocated to declared replicas or split identities, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: noisy_spend, track: valuation, description: Payment allocated to declared corrupted owners, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: sequential_stopping_regret, track: valuation, description: Absolute difference from oracle acquisition stopping index, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+
+  - {metric_id: realized_utility, track: procurement, description: Buyer utility of the selected seller set, direction: maximize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: oracle_ratio, track: procurement, description: Realized utility divided by exact or declared allocation upper bound, direction: maximize, unit: ratio, aggregation: macro_case_mean, formula: "U(S)/U(OPT)", version: "1.0"}
+  - metric_id: normalized_oracle_gain_ratio
+    track: procurement
+    display_name: Normalized oracle gain ratio
+    description: Fraction of oracle-achievable utility gain above the empty-set baseline realized by the mechanism
+    direction: maximize
+    unit: ratio
+    aggregation: macro_case_mean
+    formula: "(U(S)-U(empty))/(U(OPT)-U(empty))"
+    valid_range: [0.0, 1.0]
+    reference_keys: [triple_eagle]
+    question_answered: "How much of the procurable gain beyond the no-purchase baseline is realized?"
+    interpretation: Complements absolute oracle ratio when a downstream task has a nonzero empty-data baseline; equals oracle ratio for normalized nonnegative utilities.
+    good_value: Values near one recover nearly all attainable gain above the baseline.
+    bad_value: Values near zero recover little gain even when absolute task utility appears high.
+    applicability: Requires an exact or declared oracle outcome and nonzero oracle gain over the empty set.
+    failure_modes: [Zero oracle gain, Nonmonotone utility producing values outside the declared theorem domain]
+    ranking_role: diagnostic
+    companion_metrics: [oracle_ratio, procurement_efficiency_loss]
+    paper_protocol: Average seeds within case, then macro-average cases; always report beside absolute oracle ratio on measured-ML utilities.
+    version: "1.0"
+  - {metric_id: procurement_efficiency_loss, track: procurement, description: Fraction of allocation-oracle utility not realized by the mechanism, direction: minimize, unit: ratio, aggregation: macro_case_mean, formula: "1-U(S)/U(OPT)", valid_range: [0.0, 1.0], reference_keys: [jalaly_tardos], ranking_role: diagnostic, companion_metrics: [oracle_ratio, largest_singleton_share], version: "1.0"}
+  - metric_id: largest_singleton_share
+    track: procurement
+    description: Best singleton value divided by exact budget-feasible optimum
+    direction: descriptive
+    unit: ratio
+    aggregation: macro_case_mean
+    formula: "max_i v({i})/OPT"
+    valid_range: [0.0, 1.0]
+    reference_keys: [jalaly_tardos]
+    question_answered: "How concentrated is attainable welfare in one seller?"
+    interpretation: Lower values more closely approach the large-market condition; this finite statistic is not an asymptotic proof.
+    good_value: Context dependent; lower is easier for large-market guarantees.
+    bad_value: Values near one indicate a dominant seller and a difficult singleton tradeoff.
+    ranking_role: diagnostic
+    companion_metrics: [oracle_ratio, procurement_efficiency_loss]
+    version: "1.0"
+  - metric_id: value_oracle_queries
+    track: procurement
+    display_name: Value-oracle queries
+    description: Number of distinct normalized set-value calls made by the allocation mechanism
+    direction: minimize
+    unit: count
+    aggregation: macro_case_mean
+    formula: "count of distinct f(S)-f(empty) evaluations, including the cached empty-set query"
+    reference_keys: [triple_eagle]
+    question_answered: "How many value-oracle evaluations does the allocation rule require?"
+    interpretation: Measures the algorithmic query burden exposed by mechanisms that report audited oracle calls; it excludes evaluator-side exact optimum and strategic audits.
+    good_value: Lower is better at matched welfare and constraint performance.
+    bad_value: High query counts can make repeated market clearing impractical even when allocation welfare is strong.
+    applicability: Applicable only when the mechanism exposes a complete distinct-query counter.
+    failure_modes: [Missing query instrumentation, incomparable cached and uncached counting policies]
+    ranking_role: cost
+    companion_metrics: [oracle_ratio, procurement_efficiency_loss]
+    paper_protocol: Average seeds within case, then macro-average cases; compare only mechanisms with documented counting semantics.
+    version: "1.0"
+  - {metric_id: total_payment, track: procurement, description: Sum of transfers from buyer to selected sellers, direction: descriptive, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: budget_used_ratio, track: procurement, description: Total seller payment divided by buyer budget, direction: descriptive, unit: ratio, aggregation: macro_case_mean, formula: "sum_i p_i/B", version: "1.0"}
+  - {metric_id: budget_violation, track: procurement, description: Whether total seller payments exceed the budget, direction: minimize, unit: boolean, aggregation: violation_rate, reference_keys: [singer_budget_feasible], version: "1.0"}
+  - {metric_id: seller_ir_violation_count, track: procurement, description: Selected sellers paid below true cost, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: allocation_monotonicity_violation, track: procurement, description: Violations when a winning seller reports a lower cost, direction: minimize, unit: count, aggregation: macro_case_mean, reference_keys: [singer_budget_feasible], version: "1.0"}
+  - {metric_id: critical_payment_gap, track: procurement, description: Difference between paid amount and estimated critical cost, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: max_deviation_gain, track: procurement, description: Maximum sampled seller utility gain from unilateral cost misreport, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: profitable_deviation_count, track: procurement, description: Sampled profitable unilateral cost reports, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: buyer_utility, track: procurement, description: Buyer value minus seller payments, direction: maximize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: seller_surplus, track: procurement, description: Seller receipts minus selected sellers true costs, direction: maximize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+
+  - {metric_id: gain_from_trade_ratio, track: trading, description: Realized gains from trade divided by efficient gains from trade, direction: maximize, unit: ratio, aggregation: macro_case_mean, formula: "GFT/GFT^*", version: "1.0"}
+  - {metric_id: trade_count_loss, track: trading, description: Efficient trade count minus realized efficient trade count, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+  - metric_id: normalized_trade_loss
+    track: trading
+    description: Efficient trades forgone divided by the efficient trade count
+    direction: minimize
+    unit: ratio
+    aggregation: macro_case_mean
+    formula: "(k^*-k)/k^*"
+    valid_range: [0.0, 1.0]
+    reference_keys: [mcafee_double_auction, muda]
+    question_answered: "Does the relative allocation loss shrink in thicker markets?"
+    interpretation: A fixed one-trade loss becomes less important as efficient trade count grows.
+    good_value: Zero is efficient; decreasing values with thickness support an asymptotic-efficiency claim.
+    bad_value: A flat or increasing value indicates that market growth does not remove relative inefficiency.
+    ranking_role: diagnostic
+    companion_metrics: [gain_from_trade_ratio, efficient_trade_count]
+    paper_protocol: Plot or tabulate per efficient-trade-count case before macro-averaging.
+    version: "1.0"
+  - metric_id: count_matched_frontier_gft_ratio
+    track: trading
+    description: Maximum GFT attainable by the efficient allocation restricted to the mechanism's realized number of single-unit trades, divided by oracle GFT
+    direction: maximize
+    unit: ratio
+    aggregation: macro_case_mean
+    formula: "GFT^*_{q(m,e)}/GFT^*"
+    valid_range: [0.0, 1.0]
+    reference_keys: [mcafee_double_auction, muda]
+    question_answered: "How much GFT could any allocation attain with the same realized trade count?"
+    interpretation: This is a diagnostic frontier, not a mechanism score; it fixes realized quantity and optimizes only which efficient pairs trade.
+    good_value: A value near one means the realized quantity alone permits near-efficient welfare.
+    bad_value: A low value means foregone trade quantity already imposes a large welfare ceiling.
+    applicability: Single-unit double-auction cases with positive oracle GFT and a realized trade count no larger than the efficient count.
+    failure_modes: [nonpositive_oracle_gft, multi_unit_quantity_not_comparable, realized_count_exceeds_efficient_frontier]
+    ranking_role: diagnostic
+    companion_metrics: [gain_from_trade_ratio, trade_count_loss, capacity_loss_ratio, selection_pricing_loss_ratio]
+    paper_protocol: Report only with both loss components; never rank mechanisms by the frontier alone.
+    version: "1.0"
+  - metric_id: capacity_loss_ratio
+    track: trading
+    description: Oracle-relative GFT lost solely because the mechanism realizes fewer trades than the efficient allocation
+    direction: minimize
+    unit: ratio
+    aggregation: macro_case_mean
+    formula: "1-GFT^*_{q(m,e)}/GFT^*"
+    valid_range: [0.0, 1.0]
+    reference_keys: [mcafee_double_auction, muda]
+    question_answered: "How much of total welfare loss is explained by realized trade quantity alone?"
+    interpretation: The count-matched efficient frontier attributes only the unavoidable loss at the mechanism's realized quantity to capacity.
+    good_value: Zero means realized quantity does not constrain efficient welfare.
+    bad_value: A large value means quantity reduction is the dominant welfare bottleneck.
+    applicability: Single-unit double-auction cases satisfying the count-matched frontier contract.
+    failure_modes: [nonpositive_oracle_gft, multi_unit_quantity_not_comparable, missing_trade_count]
+    ranking_role: diagnostic
+    companion_metrics: [gain_from_trade_ratio, count_matched_frontier_gft_ratio, selection_pricing_loss_ratio]
+    paper_protocol: Verify capacity_loss_ratio plus selection_pricing_loss_ratio equals one minus gain_from_trade_ratio per run before aggregation.
+    version: "1.0"
+  - metric_id: selection_pricing_loss_ratio
+    track: trading
+    description: Oracle-relative gap between the count-matched efficient frontier and realized GFT
+    direction: minimize
+    unit: ratio
+    aggregation: macro_case_mean
+    formula: "(GFT^*_{q(m,e)}-GFT(m,e))/GFT^*"
+    valid_range: [0.0, 1.0]
+    reference_keys: [mcafee_double_auction, muda]
+    question_answered: "After matching realized trade quantity, how much welfare is still lost to pair selection or price-support decisions?"
+    interpretation: This residual separates within-count allocation quality from capacity, but does not identify pricing and partition causes without companion diagnostics.
+    good_value: Zero means the mechanism selects a welfare-maximizing set for its realized trade count.
+    bad_value: A large value means trade count alone materially understates the mechanism's welfare loss.
+    applicability: Single-unit double-auction cases satisfying the count-matched frontier contract.
+    failure_modes: [nonpositive_oracle_gft, multi_unit_quantity_not_comparable, missing_trade_count, count_matched_frontier_violation]
+    ranking_role: diagnostic
+    companion_metrics: [gain_from_trade_ratio, count_matched_frontier_gft_ratio, capacity_loss_ratio, price_dispersion]
+    paper_protocol: Interpret with partition and price-support diagnostics; do not label the residual as causal pricing loss.
+    version: "1.0"
+  - metric_id: participant_surplus_ratio
+    track: trading
+    description: Buyer plus seller surplus divided by efficient gains from trade
+    direction: maximize
+    unit: fraction
+    aggregation: macro_case_mean
+    formula: "(CS+PS)/GFT^*"
+    reference_keys: [muda, sbba]
+    question_answered: "How much efficient surplus reaches buyers and sellers rather than the platform?"
+    interpretation: Separates allocation efficiency from platform revenue or subsidy.
+    good_value: Values near one mean participants retain nearly all efficient surplus.
+    bad_value: Low values indicate inefficient allocation or large platform extraction.
+    ranking_role: diagnostic
+    companion_metrics: [gain_from_trade_ratio, auctioneer_surplus, strong_budget_balance]
+    version: "1.0"
+  - metric_id: efficient_trade_count
+    track: trading
+    description: Number of trades in the efficient allocation oracle
+    direction: descriptive
+    unit: count
+    aggregation: macro_case_mean
+    reference_keys: [mcafee_double_auction, muda]
+    question_answered: "How thick is the efficient side of this market?"
+    interpretation: This is the denominator for normalized trade loss and a setting axis rather than a quality score.
+    good_value: Context only.
+    bad_value: Context only.
+    ranking_role: diagnostic
+    companion_metrics: [normalized_trade_loss]
+    version: "1.0"
+  - {metric_id: false_trade_count, track: trading, description: Trades whose buyer value is below seller cost, direction: minimize, unit: count, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: individual_rationality, track: trading, description: Whether every matched buyer and seller has nonnegative ex-post utility, direction: maximize, unit: boolean, aggregation: satisfaction_rate, version: "1.0"}
+  - {metric_id: weak_budget_balance, track: trading, description: Whether auctioneer net revenue is nonnegative, direction: maximize, unit: boolean, aggregation: satisfaction_rate, version: "1.0"}
+  - {metric_id: strong_budget_balance, track: trading, description: Whether total buyer payments equal total seller receipts, direction: maximize, unit: boolean, aggregation: satisfaction_rate, version: "1.0"}
+  - {metric_id: auctioneer_surplus, track: trading, description: Total auctioneer receipts minus auctioneer payouts, direction: descriptive, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: buyer_surplus, track: trading, description: Matched buyer values minus buyer payments, direction: maximize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: seller_surplus_trading, track: trading, description: Seller receipts minus matched seller costs, direction: maximize, unit: utility, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: price_dispersion, track: trading, description: Standard deviation of per-trade buyer prices, direction: descriptive, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - {metric_id: trading_max_deviation_gain, track: trading, description: Maximum sampled trader utility gain from unilateral report, direction: minimize, unit: currency, aggregation: macro_case_mean, version: "1.0"}
+  - metric_id: aggregate_type_sensitivity_range
+    track: trading
+    display_name: Aggregate-type sensitivity range
+    description: Difference between a mechanism's best and worst profile-level expected GFT ratios over the declared aggregate-anchor-compatible within-bin placement grid
+    direction: minimize
+    unit: ratio
+    aggregation: profile_range
+    formula: "max_z E_seed[GFT/GFT* | z] - min_z E_seed[GFT/GFT* | z]"
+    valid_range: [0.0, 1.0]
+    reference_keys: [cnil_personal_data_monetisation]
+    question_answered: Can a mechanism's reported efficiency be changed materially by unobserved within-bin economic types that are all compatible with the same published aggregates?
+    interpretation: Zero means the evaluated profiles give the same expected efficiency; a positive range quantifies sensitivity but is not a confidence interval or a sharp identified bound.
+    good_value: Smaller values indicate less dependence on the declared placement rule.
+    bad_value: Larger values indicate that point-imputing grouped prices can materially change the mechanism assessment.
+    applicability: Aggregate sources with ordered monetary anchors, acceptance shares and an explicit model-generated sensitivity grid.
+    failure_modes: [The grid need not attain the sharp identified extrema, Stated prices need not equal incentive-compatible types, Aggregate anchors may combine noncomparable populations]
+    ranking_role: robustness
+    companion_metrics: [gain_from_trade_ratio, individual_rationality, weak_budget_balance, strong_budget_balance, aggregate_type_rank_reversal]
+    paper_protocol: Average mechanism randomness within each profile; take the range across profiles without treating profiles as sampled blocks.
+    version: "1.0"
+  - metric_id: aggregate_type_rank_reversal
+    track: trading
+    display_name: Aggregate-type rank reversal
+    description: Whether the sign of a pairwise expected-GFT difference changes across aggregate-anchor-compatible profiles beyond numerical tolerance
+    direction: minimize
+    unit: boolean
+    aggregation: pairwise_any_profile
+    formula: "min_z Delta_ab(z) < -tol and max_z Delta_ab(z) > tol"
+    valid_range: [0, 1]
+    reference_keys: [cnil_personal_data_monetisation]
+    question_answered: Is a pairwise mechanism recommendation invariant to unobserved within-bin type placement?
+    interpretation: One rejects a stable pairwise ordering on the declared grid; zero does not prove population dominance outside the grid.
+    good_value: Zero means no evaluated sign reversal.
+    bad_value: One means the preferred mechanism changes while all published aggregate anchors remain fixed.
+    applicability: A complete method-by-profile panel with mechanism randomness averaged within profile.
+    failure_modes: [Near-ties require a declared tolerance, Incomplete panels can hide reversals, No reversal on a finite grid is not a theorem]
+    ranking_role: robustness
+    companion_metrics: [gain_from_trade_ratio, aggregate_type_sensitivity_range]
+    paper_protocol: Compute paired profile-level expected-GFT differences after averaging seeds; report the headline-reference group separately from canonical guardrails, pricing baselines and diagnostic references; never pool profile rows as iid observations.
+    version: "1.0"
+  - metric_id: aggregate_type_minimax_regret
+    track: trading
+    display_name: Aggregate-type minimax GFT regret
+    description: A headline mechanism's largest expected-GFT shortfall from the best headline reference over the declared aggregate-anchor-compatible profiles
+    direction: minimize
+    unit: ratio
+    aggregation: maximum_profile_regret
+    formula: "max_z [max_{m in H} E_seed[GFT_m/GFT* | z] - E_seed[GFT_a/GFT* | z]]"
+    valid_range: [0.0, 1.0]
+    reference_keys: [cnil_personal_data_monetisation]
+    question_answered: Which headline mechanisms minimize the worst decision loss when the published aggregates do not identify within-bin economic types?
+    interpretation: The minimax set contains every headline method tied within tolerance for the smallest worst-profile regret; it is a robust recommendation on the declared grid, not population optimality.
+    good_value: Smaller values mean less welfare is lost relative to the best headline reference under the worst evaluated placement.
+    bad_value: Larger values mean the method can be materially dominated on at least one aggregate-compatible profile.
+    applicability: A complete headline-reference method-by-profile panel with mechanism randomness averaged within profile.
+    failure_modes: [The finite grid need not contain the true within-bin distribution, Regret against headline references excludes pricing baselines and allocation oracles, Equal regret does not imply equal payment or strategic properties]
+    ranking_role: decision_robustness
+    companion_metrics: [gain_from_trade_ratio, aggregate_type_sensitivity_range, aggregate_type_rank_reversal, individual_rationality, weak_budget_balance]
+    paper_protocol: Average seeds within profile, compute regret against the best headline reference in that same profile, then take each method's maximum across profiles; report all tolerance-tied minimax methods.
+    version: "1.0"
+  - metric_id: aggregate_type_point_selection_transfer_regret
+    track: trading
+    display_name: Point-profile selection transfer regret
+    description: Worst expected-GFT regret after selecting the best headline mechanism on one aggregate-compatible profile and transferring that fixed selection to the other compatible profiles
+    direction: minimize
+    unit: ratio
+    aggregation: maximum_target_profile_regret
+    formula: "max_t [max_{m in H} GFT_m(t) - GFT_selected(z)(t)]"
+    valid_range: [0.0, 1.0]
+    reference_keys: [cnil_personal_data_monetisation]
+    question_answered: How costly can a mechanism recommendation based on one grouped-data point imputation become under another type placement that preserves every published anchor?
+    interpretation: Report optimistic and pessimistic transfer when the selection profile has tied winners; the gap isolates arbitrary tie-breaking risk.
+    good_value: Values at the headline minimax regret mean the point-selected mechanism is as robust as the best declared minimax choice.
+    bad_value: A value above minimax regret means the chosen imputation can induce an avoidable mechanism-selection loss.
+    applicability: A complete headline-reference method-by-profile panel with at least two aggregate-compatible profiles.
+    failure_modes: [Profiles are sensitivity cases rather than probability draws, Optimistic tie handling can understate deployment risk, The finite grid need not include the true type distribution]
+    ranking_role: decision_transfer_robustness
+    companion_metrics: [aggregate_type_minimax_regret, aggregate_type_rank_reversal, aggregate_type_sensitivity_range]
+    paper_protocol: Select all tolerance-tied expected-GFT winners on each source profile; on every target profile compute regret using both the best and worst transferred tied winner; compare the resulting worst regret with the global headline minimax regret without treating profiles as iid.
+    version: "1.0"
+  - metric_id: constraint_fidelity_selection_shortfall
+    track: trading
+    display_name: Constraint-fidelity selection shortfall
+    description: Expected-GFT gap between the unrestricted best comparator and the best mechanism admitted by a declared empirical-constraint and provenance view on the same profile
+    direction: minimize
+    unit: ratio
+    aggregation: maximum_profile_shortfall
+    formula: "max_z [max_{m in M} GFT_m(z) - max_{m in A_v(z)} GFT_m(z)]"
+    valid_range: [0.0, 1.0]
+    reference_keys: [mcafee_double_auction, sbba, muda, cnil_personal_data_monetisation]
+    question_answered: How much raw allocation efficiency is surrendered when mechanism selection requires specified observable constraints and source-fidelity tiers?
+    interpretation: Each view reports its eligible methods, winner union, winner intersection, and maximum profile shortfall separately; no view order is collapsed into a scalar score.
+    good_value: A small shortfall means the declared admissibility requirements remove little raw expected GFT.
+    bad_value: A large shortfall exposes a material efficiency cost of the declared constraint and evidence requirements.
+    applicability: A complete method-by-profile panel with declared comparison groups, provenance kinds, and applicable empirical IR/WBB/SBB rates.
+    failure_modes: [Observed constraint satisfaction is not a theorem, Provenance classes do not totally order scientific quality, Unrestricted allocation or pricing references may lack deployable strategic properties]
+    ranking_role: admissibility_frontier
+    companion_metrics: [gain_from_trade_ratio, individual_rationality, weak_budget_balance, strong_budget_balance, aggregate_type_minimax_regret]
+    paper_protocol: Apply each declarative view within every profile, retain all tolerance-tied winners, compare its best expected GFT with the unrestricted best on that profile, and report winner unions/intersections plus worst shortfall; keep finite incentive evidence as a separate layer.
+    version: "1.0"
+  - metric_id: joint_claim_admissibility
+    track: trading
+    display_name: Joint claim-aligned admissibility
+    description: Conjunctive evidence gate requiring paper-exact headline provenance, observed IR/WBB/SBB on every declared aggregate-compatible profile, and no counterexample on the separately declared finite incentive-audit estimand
+    direction: maximize
+    unit: boolean
+    aggregation: method_conjunction
+    formula: "paper_exact AND IR_all_profiles AND WBB_all_profiles AND SBB_all_profiles AND finite_no_counterexample_on_declared_estimand"
+    valid_range: [0, 1]
+    reference_keys: [mcafee_double_auction, sbba, trade_reduction, muda, cnil_personal_data_monetisation]
+    question_answered: Does a headline mechanism simultaneously satisfy the benchmark's current source-fidelity, observable outcome-constraint, and finite strategic-evidence requirements?
+    interpretation: A pass is finite empirical admission under every declared component scope, not a strategyproofness theorem; a failure is accompanied by the exact blocking dimensions rather than collapsed into a score.
+    good_value: True means all declared gates pass jointly.
+    bad_value: False means at least one named evidence dimension blocks admission.
+    applicability: Headline mechanisms with complete profile panels, provenance labels, applicable IR/WBB/SBB measurements, and a matching finite-audit record.
+    failure_modes: [The finite report and type grid is not a theorem, Fixed seed panels need not exhaust randomized support, Requiring SBB can exclude mechanisms designed only for WBB, Paper-exact is a provenance class rather than a correctness proof]
+    ranking_role: admissibility_gate
+    companion_metrics: [constraint_fidelity_selection_shortfall, aggregate_type_minimax_regret, individual_rationality, weak_budget_balance, strong_budget_balance, trading_max_deviation_gain]
+    paper_protocol: Join profile-level constraints and finite-audit evidence by method ID; fail closed on missing evidence; publish every component and exclusion reason; never interpret no observed finite counterexample as DSIC or BIC.
+    version: "1.0"
+  - metric_id: admissibility_relaxation_frontier
+    track: trading
+    display_name: Leave-one-requirement-out admission frontier
+    description: Candidate mechanisms and worst profile-level GFT shortfalls obtained when exactly one joint-admission requirement is relaxed and every other requirement is retained
+    direction: descriptive
+    unit: method_set_and_ratio
+    aggregation: requirement_ablation
+    formula: "A_{-r} = {m : all joint requirements except r pass}; report max_z[best_headline(z)-best_{m in A_{-r}}(z)] and max_z[best_unrestricted(z)-best_{m in A_{-r}}(z)]"
+    valid_range: [0.0, 1.0]
+    reference_keys: [mcafee_double_auction, sbba, trade_reduction, muda, cnil_personal_data_monetisation]
+    question_answered: Which evidence requirements actually keep the joint candidate set empty, which mechanisms appear when each is removed, and what robust efficiency trade-off follows?
+    interpretation: A requirement is active when dropping it alone creates a nonempty candidate set; the admitted set and both regret comparators are reported without interpreting relaxation as desirable.
+    good_value: No universal optimum; a smaller shortfall means the mechanisms admitted by that counterfactual retain more profile-robust GFT.
+    bad_value: A large shortfall means resolving the empty gate by ignoring that requirement would select a less robust mechanism set.
+    applicability: An empty or nonempty joint-admission table plus a complete headline and unrestricted method-by-profile expected-GFT panel.
+    failure_modes: [Leave-one-out analysis does not identify interactions among multiple simultaneous relaxations, Empty candidate sets have undefined efficiency, Requirement removal is not a deployment recommendation, Finite profiles do not establish population regret]
+    ranking_role: evidence_bottleneck_diagnostic
+    companion_metrics: [joint_claim_admissibility, constraint_fidelity_selection_shortfall, aggregate_type_minimax_regret, aggregate_type_point_selection_transfer_regret]
+    paper_protocol: Evaluate the full gate and exactly five single-requirement removals; fail closed on missing evidence; report empty sets as N/A rather than zero regret; compare active relaxations against both the per-profile headline best and unrestricted best.
+    version: "1.0"
+  - {metric_id: runtime_seconds, track: all, description: Wall-clock method execution time, direction: minimize, unit: seconds, aggregation: macro_case_mean, version: "1.0"}

@@ -1,0 +1,22 @@
+schema_version: "1.0"
+purpose: >-
+  Audited methods that are relevant to data-mechanism evaluation but are not
+  admitted to a leaderboard until their upstream protocol can be reproduced
+  faithfully in a compatible setting.
+candidates:
+  - method_id: elr_residual_leverage
+    track: valuation
+    reference_url: local:docs/research/elr_vrds_broad_validation.md
+    status: validated_controlled_only
+    blocker: >-
+      Strong cost-matched cached-game results exist, including unseen n=8 and
+      n=10 controlled games, but real Fashion-MNIST/CIFAR/text model-training
+      coalition tables are still required before a broad real-task claim.
+  - {method_id: trak, track: valuation, reference_url: https://proceedings.mlr.press/v202/park23c.html, status: deferred, blocker: requires checkpoint ensembles and PyTorch model protocol}
+  - {method_id: lava, track: valuation, reference_url: "https://openreview.net/forum?id=JJuP86nBl4q", status: deferred, blocker: owner-level optimal-transport aggregation and geomloss dependency need fidelity tests}
+  - {method_id: dvrl, track: valuation, reference_url: https://proceedings.mlr.press/v119/yoon20a.html, status: deferred, blocker: reinforcement-learning training budget is not comparable to current native protocol}
+  - {method_id: information_gain_shapley, track: valuation, reference_url: https://proceedings.neurips.cc/paper/2021/hash/59a3adea76fadcb6dd9e54c96fc155d1-Abstract.html, status: deferred, blocker: Gaussian-process posterior and shared prior protocol are absent from the current owner-data contract}
+  - {method_id: davinz, track: valuation, reference_url: https://github.com/ZhaoxuanWu/DAVINZ-DataValuation, status: deferred, blocker: neural-tangent features and model-initialization protocol require a PyTorch track}
+  - {method_id: optimal_statistical_data_acquisition, track: procurement, reference_url: https://www.microsoft.com/en-us/research/publication/optimal-data-acquisition-for-statistical-estimation/, status: deferred, blocker: correlated data-cost distributions and estimator-loss schema are absent from the current prior-free cases}
+  - {method_id: gjlz_additive_optimal, track: procurement, reference_url: https://arxiv.org/abs/1902.04635, status: deferred, blocker: distributional-prior input is absent from current procurement case schema}
+  - {method_id: mida, track: trading, reference_url: https://arxiv.org/abs/1712.06848, status: out_of_scope, blocker: multi-item market and demand-oracle schema are intentionally outside this benchmark release}

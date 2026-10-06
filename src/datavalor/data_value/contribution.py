@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import itertools
 import math
 import random
 from typing import Any, Sequence
@@ -67,16 +66,37 @@ def exact_shapley_values(ids: Sequence[str], utility, *, max_records: int = 10, 
     if len(set(ids)) != n:
         raise ValueError("contribution unit IDs must be unique")
     if n > max_records: raise ValueError(f"Exact Shapley exceeds max_records={max_records}")
-    baseline = float(utility((), context)); values = [0.0] * n; calls = 1
-    for permutation in itertools.permutations(range(n)):
-        coalition: list[str] = []; previous = baseline
-        for index in permutation:
-            coalition.append(ids[index]); current = float(utility(tuple(coalition), context)); calls += 1
-            values[index] += current - previous; previous = current
-    denominator = float(math.factorial(n)) if n else 1.0
-    estimates = tuple(ValueEstimate(ids[i], values[i] / denominator, "utility") for i in range(n))
-    return ContributionReport("", "shapley_exact", estimates, utility_calls=calls, converged=True,
-                              diagnostics={"baseline_utility": baseline, "max_records": max_records})
+    coalition_values: dict[int, float] = {}
+    for mask in range(1 << n):
+        coalition = tuple(ids[index] for index in range(n) if mask & (1 << index))
+        coalition_values[mask] = float(utility(coalition, context))
+
+    values = [0.0] * n
+    denominator = math.factorial(n) if n else 1
+    for index in range(n):
+        owner_bit = 1 << index
+        for mask in range(1 << n):
+            if mask & owner_bit:
+                continue
+            coalition_size = mask.bit_count()
+            coefficient = (
+                math.factorial(coalition_size)
+                * math.factorial(n - coalition_size - 1)
+                / denominator
+            )
+            values[index] += coefficient * (
+                coalition_values[mask | owner_bit] - coalition_values[mask]
+            )
+
+    estimates = tuple(ValueEstimate(ids[i], values[i], "utility") for i in range(n))
+    return ContributionReport(
+        "",
+        "shapley_exact",
+        estimates,
+        utility_calls=len(coalition_values),
+        converged=True,
+        diagnostics={"baseline_utility": coalition_values[0], "max_records": max_records},
+    )
 
 
 def monte_carlo_shapley_values(ids: Sequence[str], utility, *, samples: int = 256, seed: int = 0, context: RunContext | None = None) -> ContributionReport:

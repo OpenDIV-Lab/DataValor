@@ -1,16 +1,20 @@
 from decimal import Decimal
 
+import pytest
+
 from datavalor.core import DataProduct, DataReference, RunContext
 from datavalor.data_price import (
     Ask,
     Bid,
     BudgetAwareProcurement,
     FreshnessAdjustedPostedPrice,
+    McAfeeDoubleAuction,
     Money,
     MultiUnitUniformPriceAuction,
     Payment,
     PricingOutcome,
     PricingRequest,
+    ProportionalShareProcurement,
     QualityAwareProcurement,
     check_budget_feasibility,
     check_capacity_feasibility,
@@ -65,6 +69,38 @@ def test_budget_aware_procurement_ignores_nonpositive_asks():
     assert set(outcome.diagnostics["skipped_asks"]) == {"zero", "negative"}
 
 
+def test_proportional_share_golden_allocation_and_critical_payments():
+    asks = (_ask("s1", 1, 1), _ask("s2", 2, 1), _ask("s3", 5, 1))
+    request = PricingRequest(
+        (_product(),),
+        asks=asks,
+        market_context={
+            "budget": "6",
+            "buyer_id": "buyer",
+            "seller_values": {"s1": 1, "s2": 1, "s3": 1},
+        },
+    )
+    outcome = ProportionalShareProcurement().price(request, RunContext("r"))
+
+    assert {payment.payee_id for payment in outcome.payments} == {"s1", "s2"}
+    assert {payment.amount.amount for payment in outcome.payments} == {Decimal("3")}
+    assert sum((payment.amount.amount for payment in outcome.payments), Decimal("0")) <= Decimal("6")
+    assert all(
+        payment.amount.amount >= next(ask.reserve.amount for ask in asks if ask.seller_id == payment.payee_id)
+        for payment in outcome.payments
+    )
+    assert "s3" not in {payment.payee_id for payment in outcome.payments}
+    assert outcome.diagnostics["assumption"] == "additive_public_values"
+
+    lowered = PricingRequest(
+        (_product(),),
+        asks=(_ask("s1", 1, 1), _ask("s2", 1, 1), _ask("s3", 5, 1)),
+        market_context=request.market_context,
+    )
+    lowered_outcome = ProportionalShareProcurement().price(lowered, RunContext("r2"))
+    assert "s2" in {payment.payee_id for payment in lowered_outcome.payments}
+
+
 def test_quality_aware_procurement_prefers_quality_per_cost():
     asks = (_ask("low", 10, 1, quality=0.5), _ask("high", 20, 1, quality=2.0))
     outcome = QualityAwareProcurement().price(PricingRequest((_product(),), asks=asks, market_context={"budget": "20", "buyer_id": "b"}), RunContext("r"))
@@ -109,3 +145,66 @@ def test_uniform_auction_rejects_mixed_seller_revenue_currency():
         assert "mixed currencies" in str(exc)
     else:
         raise AssertionError("mixed revenue currencies must be rejected")
+
+
+def test_mcafee_candidate_price_and_trade_reduction_branches():
+    candidate = PricingRequest(
+        (_product(),),
+        bids=(_bid("b1", 10, 1), _bid("b2", 8, 1), _bid("b3", 5, 1)),
+        asks=(_ask("s1", 2, 1), _ask("s2", 4, 1), _ask("s3", 9, 1)),
+    )
+    candidate_outcome = McAfeeDoubleAuction().price(candidate, RunContext("m1"))
+    assert candidate_outcome.diagnostics["branch"] == "candidate_price"
+    assert candidate_outcome.diagnostics["trade_count"] == 2
+    assert {payment.amount.amount for payment in candidate_outcome.payments} == {Decimal("7")}
+
+    reduction = PricingRequest(
+        (_product(),),
+        bids=(_bid("b1", 10, 1), _bid("b2", 8, 1), _bid("b3", 1, 1)),
+        asks=(_ask("s1", 2, 1), _ask("s2", 7, 1), _ask("s3", 9, 1)),
+    )
+    reduced = McAfeeDoubleAuction().price(reduction, RunContext("m2"))
+    assert reduced.diagnostics["branch"] == "trade_reduction"
+    assert reduced.diagnostics["trade_count"] == 1
+    assert reduced.diagnostics["buyer_price"] == "8"
+    assert reduced.diagnostics["seller_price"] == "7"
+    assert reduced.diagnostics["auctioneer_surplus"] == "1"
+
+
+def test_mcafee_edge_cases_and_deterministic_ties():
+    no_trade = PricingRequest(
+        (_product(),), bids=(_bid("b", 1, 1),), asks=(_ask("s", 2, 1),)
+    )
+    assert not McAfeeDoubleAuction().price(no_trade, RunContext("none")).allocations
+
+    one_profitable = PricingRequest(
+        (_product(),),
+        bids=(_bid("b1", 10, 1), _bid("b2", 9, 1)),
+        asks=(_ask("s1", 2, 1), _ask("s2", 20, 1)),
+    )
+    assert not McAfeeDoubleAuction().price(one_profitable, RunContext("one")).allocations
+
+    all_profitable = PricingRequest(
+        (_product(),),
+        bids=(_bid("b2", 10, 1), _bid("b1", 10, 1)),
+        asks=(_ask("s2", 2, 1), _ask("s1", 2, 1)),
+    )
+    all_outcome = McAfeeDoubleAuction().price(all_profitable, RunContext("all"))
+    assert all_outcome.diagnostics["trade_count"] == 1
+    assert all_outcome.allocations[0].buyer_id == "b1"
+    assert all_outcome.allocations[0].metadata["seller_id"] == "s1"
+
+
+def test_mcafee_rejects_currency_mismatch_and_non_unit_reports():
+    mismatch = PricingRequest(
+        (_product(),),
+        bids=(_bid("b", 10, 1),),
+        asks=(Ask("s", "s", ("p1",), Money(Decimal("2"), "USD")),),
+    )
+    with pytest.raises(ValueError, match="currency"):
+        McAfeeDoubleAuction().price(mismatch, RunContext("currency"))
+    non_unit = PricingRequest(
+        (_product(),), bids=(_bid("b", 10, 2),), asks=(_ask("s", 2, 1),)
+    )
+    with pytest.raises(ValueError, match="unit quantity"):
+        McAfeeDoubleAuction().price(non_unit, RunContext("quantity"))

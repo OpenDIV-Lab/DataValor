@@ -1,0 +1,56 @@
+schema_version: "1.0"
+layers:
+  - layer_id: task_utility
+    semantic: observed_task_utility
+    evidence_unit: source-disjoint trained prediction task
+    allowed_claim: valuation performance on frozen task utility
+    forbidden_claim: observed market price or private participant type
+  - layer_id: cross_domain_proxy
+    semantic: proxy_type_distribution
+    evidence_unit: public-procurement date or electricity-market date
+    allowed_claim: source-conditioned structural transfer stress
+    forbidden_claim: data-market reservation cost, buyer value, or transaction
+  - layer_id: data_market_listing_ask
+    semantic: listing_ask
+    evidence_unit: normalized data-product listing cohort
+    allowed_claim: procurement sensitivity to observed listing-price support
+    forbidden_claim: accepted price, settlement, or seller reservation cost
+  - layer_id: aggregate_acceptance_anchor
+    semantic: aggregate_acceptance
+    evidence_unit: published supply/demand acceptance anchor
+    allowed_claim: sensitivity across anchor-compatible latent type geometries
+    forbidden_claim: reconstructed respondent type or population welfare
+  - layer_id: reported_data_licensing_deal
+    semantic: reported_deal_disclosure
+    evidence_unit: public corporate data-licensing deal
+    allowed_claim: pricing-basis landscape, disclosure audit, and amount support
+    forbidden_claim: mechanism outcome, buyer value, or seller reservation cost
+  - layer_id: executed_settlement_candidate
+    semantic: executed_data_access_settlement
+    evidence_unit: data-token asset cluster
+    allowed_claim: source-eligibility and releaseability diagnosis only
+    forbidden_claim: leaderboard input until reuse rights and inference contract pass
+
+track_support:
+  valuation:
+    performance_support: direct_task_utility
+    private_type_support: none
+    transaction_outcome_support: none
+    interpretation: Predictive utility is observed; data-owner market participation is constructed.
+  procurement:
+    performance_support: task_utility_with_proxy_costs_and_listing_support
+    private_type_support: none
+    transaction_outcome_support: none
+    interpretation: Utility is measured, while costs are proxies and listed asks only stress support.
+  trading:
+    performance_support: proxy_types_with_aggregate_geometry_sensitivity
+    private_type_support: none
+    transaction_outcome_support: none
+    interpretation: Clearing is evaluated on proxy and anchor-compatible types, not observed data trades.
+
+forbidden_claims:
+  - observed_seller_reservation_cost
+  - observed_buyer_value
+  - observed_data_market_mechanism_outcome
+  - row_iid_deal_inference
+  - universal_deployment_performance

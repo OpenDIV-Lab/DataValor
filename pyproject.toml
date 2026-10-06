@@ -22,7 +22,8 @@ classifiers = [
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "ruff>=0.4"]
+dev = ["pytest>=7", "ruff>=0.4", "python-pptx>=1.0", "Pillow>=10"]
+presentation = ["python-pptx>=1.0", "Pillow>=10"]
 ui = ["fastapi>=0.110", "uvicorn>=0.29"]
 quality = ["cleanlab>=2.0", "great-expectations>=0.18", "evidently>=0.4"]
 profiling = ["ydata-profiling>=4.0"]
@@ -46,6 +47,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["pydvl: optional integration test requiring pyDVL 0.10.x"]
 pythonpath = ["src", "."]
 
 [tool.ruff]

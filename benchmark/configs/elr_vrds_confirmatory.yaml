@@ -1,0 +1,8 @@
+name: elr-vrds-confirmatory
+split: confirmatory
+physical_gpus: [1, 2, 3, 4, 5, 6, 7]
+setting_ids: [gen-fashion-head-n8, gen-cifar-head-n10]
+seeds: [11, 17, 23]
+cache_dir: benchmark/outputs/elr_vrds_confirmatory/cache
+fixture_mode: false
+fidelities: [low, medium, high]

@@ -59,6 +59,12 @@ from .models import (
     ValuationTarget,
     ValueEstimate,
 )
+from .multifidelity_shapley import (
+    ExactLowResidualShapleyValuator,
+    MultiFidelityCost,
+    MultiFidelityShapleyResult,
+    exact_low_residual_shapley,
+)
 from .registry import (
     CONTRIBUTION_VALUATORS,
     TRAINABLE_VALUATORS,
@@ -66,6 +72,16 @@ from .registry import (
     VALUATORS,
 )
 from .requirements import load_requirements, merge_requirement_bundles
+from .shapley_sampling import (
+    AntitheticShapleyValuator,
+    OwenShapleyValuator,
+    StratifiedShapleyValuator,
+    TruncatedMonteCarloShapleyValuator,
+    antithetic_shapley_values,
+    owen_shapley_values,
+    stratified_shapley_values,
+    truncated_monte_carlo_shapley_values,
+)
 from .task_metrics import (
     binary_roc_auc,
     classification_scores,
@@ -83,6 +99,11 @@ for _component, _registry in (
     (LeaveOneOutValuator(), CONTRIBUTION_VALUATORS),
     (ExactShapleyValuator(), CONTRIBUTION_VALUATORS),
     (MonteCarloShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (ExactLowResidualShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (AntitheticShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (OwenShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (TruncatedMonteCarloShapleyValuator(), CONTRIBUTION_VALUATORS),
+    (StratifiedShapleyValuator(), CONTRIBUTION_VALUATORS),
     (BanzhafValuator(), CONTRIBUTION_VALUATORS),
     (SymbolicValuator(), VALUATORS),
     (LearnedLinearValuator(), TRAINABLE_VALUATORS),
@@ -123,12 +144,24 @@ __all__ = [
     "ExactShapleyValuator",
     "LeaveOneOutValuator",
     "MonteCarloShapleyValuator",
+    "ExactLowResidualShapleyValuator",
+    "MultiFidelityCost",
+    "MultiFidelityShapleyResult",
+    "AntitheticShapleyValuator",
+    "OwenShapleyValuator",
+    "TruncatedMonteCarloShapleyValuator",
+    "StratifiedShapleyValuator",
     "WeightedUserTaskValuator",
     "exact_shapley_values",
     "leave_one_out_values",
     "load_requirements",
     "merge_requirement_bundles",
     "monte_carlo_shapley_values",
+    "exact_low_residual_shapley",
+    "antithetic_shapley_values",
+    "owen_shapley_values",
+    "truncated_monte_carlo_shapley_values",
+    "stratified_shapley_values",
     "allocate_value_by_contribution",
     "TabularTaskUtility",
     "LearnedLinearValuator",

@@ -6,6 +6,17 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 
 当前版本为 `pre-alpha`。仓库里已经有公共模型、接口、registry、基准实验工具和离线示例；生产环境所需的存储、调度、权限系统和外部服务连接，需要在接入项目中补齐。建议先运行 `examples/` 下的脚本，再替换成自己的数据和后端。
 
+## 两个清晰分层的交付面
+
+本仓库包含一个基础库和一个相对独立的研究 benchmark，二者不要混为同一产品：
+
+| 交付面 | 位置 | 主要职责 | 默认读者入口 |
+|---|---|---|---|
+| DataValor Python library | `src/datavalor/` | 数据治理、评估、估值、定价、市场与查询的可复用模型、接口和实现 | 本 README |
+| DataMechBench | `benchmark/` | 数据估值、预算采购和双边交易机制的 claim-/constraint-aware 评估 | [`benchmark/README.md`](benchmark/README.md) |
+
+可复用机制优先进入 `src/datavalor`；benchmark 特有的 setting、证据协议、指标、runner 和报告进入 `benchmark/src/datamechbench`。基础库不依赖 benchmark，benchmark 可以 import 基础库。DataMechBench 的主要 novelty、技术构件和三项贡献统一维护在 [`benchmark/docs/core_contribution.md`](benchmark/docs/core_contribution.md)，不以方法总数或运行数代替贡献。
+
 代码按用途分成三组：
 
 1. **价值发现（Value Discovery）**：DataGov、DataProf、DataEval、DataValue；
@@ -44,6 +55,7 @@ DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理�
 - [最小扩展方式](#extension-example)
 - [安装与验证](#installation)
 - [可运行示例](examples/README.md)
+- [数据估值定价机制 Benchmark](benchmark/README.md)
 - [文档与调研资料](#documentation)
 - [开发原则](#development-principles)
 
@@ -71,6 +83,7 @@ DataValor/
 │   ├── examples/
 │   └── dataflow_data/
 ├── tests/
+├── benchmark/                    # 相对独立的 DataMechBench 研究 artifact
 ├── UI/                           # 本地工作流编辑器和运行界面
 ├── outputs/                      # 默认不纳入版本控制
 └── docs/
@@ -728,6 +741,14 @@ python -m pip install -e ".[query]"        # DB-GPT/Vanna
 <a id="documentation"></a>
 
 ## 文档与调研资料
+
+DataMechBench 使用独立文档入口，避免与基础库的模块调研混杂：
+
+- [DataMechBench 范围、结果和运行入口](benchmark/README.md)
+- [DataMechBench 核心贡献与技术主线](benchmark/docs/core_contribution.md)
+- [DataMechBench 文档导航](benchmark/docs/README.md)
+
+DataValor 基础库文档：
 
 - [架构与模块契约](docs/architecture.md)
 - [系统框架与接口设计](docs/interfaces.md)

@@ -1,0 +1,50 @@
+schema_version: "1.0"
+release_id: datamechbench-reference-v0.3-code
+artifact_license: Apache-2.0
+license_file:
+  path: LICENSE
+  sha256: 119b0b62b85a07999f47a19c91801e1ebc0e6e033fba9109b33c12fde120ae67
+
+# The artifact is a native Python source library. No Docker/OCI/container
+# image is built, required, or accepted as the canonical reproduction path.
+distribution:
+  kind: python_source_library
+  root_project: pyproject.toml
+  benchmark_project: benchmark/pyproject.toml
+  cpu_lock: benchmark/reproduction/requirements-cpu.lock
+  container_image: false
+
+candidate:
+  # The verifier rejects this pair if its bound reproduction-manifest hash no
+  # longer matches benchmark/reproduction/kdd2027_core_manifest.json.
+  archive: benchmark/dist/datamechbench-kdd2027-core.tar.gz
+  manifest: benchmark/dist/datamechbench-kdd2027-core.manifest.json
+
+# These fields are deliberately null until they identify real, publicly
+# resolvable artifacts. Local files or placeholder identifiers do not satisfy
+# the public-release readiness gate.
+publication:
+  public_repository_url:
+  archive_url:
+  archive_doi:
+
+# Deposit metadata is checked against this release record. Creators and the
+# publication date remain empty until the real archive deposit is made; the
+# auditor reports that absence as not_evidenced rather than accepting invented
+# identities or placeholders.
+citation:
+  title: "DataMechBench: Claim- and Constraint-Aware Benchmarking for Data-Market Mechanisms"
+  description: "A native Python benchmark for evaluating data valuation, procurement, and trading mechanisms under explicit applicability constraints."
+  version: datamechbench-reference-v0.3-code
+  resource_type: software
+  license: Apache-2.0
+  keywords:
+    - data markets
+    - mechanism design
+    - data valuation
+    - data pricing
+    - benchmark
+  creators: []
+  publication_date:
+
+artifact_badge_pledge: true

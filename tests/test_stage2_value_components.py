@@ -39,7 +39,7 @@ def test_tabular_utility_and_registered_contribution_methods():
     context = RunContext("v2", seed=9)
     assert 0 < utility.score(product, ("a", "b"), task, context) <= 1
     exact = ExactShapleyValuator().value_contributions(request, utility, context)
-    assert exact.converged is True and exact.utility_calls == 19
+    assert exact.converged is True and exact.utility_calls == 8
     mc = MonteCarloShapleyValuator().value_contributions(ContributionRequest(product, request.units, task, {"samples": 32, "seed": 3}), utility, context)
     assert mc.utility_calls == 1 + 32 * (len(request.units))
     banzhaf = BanzhafValuator().value_contributions(request, utility, context)

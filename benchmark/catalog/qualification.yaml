@@ -1,0 +1,18 @@
+schema_version: "1.0"
+policies:
+  - policy_id: procurement_mechanism_constraints
+    track: procurement
+    settings: [P-ADDITIVE, P-SUBMODULAR, P-ML-ACQUISITION, P-MARKET-CONCENTRATION, procurement_additive, procurement_submodular, procurement_ml]
+    rules:
+      - {metric: budget_violation, relation: le, threshold: 0, requirement: mandatory}
+      - {metric: seller_ir_violation_count, relation: le, threshold: 0, requirement: mandatory}
+      - {metric: max_deviation_gain, relation: le, threshold: 1.0e-9, requirement: if_capability, capability: strategic_reports}
+
+  - policy_id: trading_mechanism_constraints
+    track: trading
+    settings: [T-BILATERAL, T-DOUBLE, T-CORRELATED, T-NO-TRADE, T-MARKET-THICKNESS, single_sale, double_auction]
+    rules:
+      - {metric: individual_rationality, relation: ge, threshold: 1, requirement: mandatory}
+      - {metric: weak_budget_balance, relation: ge, threshold: 1, requirement: mandatory}
+      - {metric: false_trade_count, relation: le, threshold: 0, requirement: mandatory}
+      - {metric: trading_max_deviation_gain, relation: le, threshold: 1.0e-9, requirement: if_capability, capability: strategic_reports}

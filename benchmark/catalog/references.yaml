@@ -1,0 +1,362 @@
+schema_version: "1.0"
+references:
+  - reference_id: datamechbench_repo
+    kind: project
+    title: DataMechBench implementation in DataValor
+    authors: [DataValor contributors]
+    year: 2026
+    venue: software
+    url: https://github.com/yusen/DataValor
+
+  - reference_id: opendataval_benchmark
+    kind: benchmark
+    title: OpenDataVal - A Unified Benchmark for Data Valuation
+    authors: [Kevin Fu Jiang, Weixin Liang, James Zou, Yongchan Kwon]
+    year: 2023
+    venue: NeurIPS Datasets and Benchmarks
+    url: https://proceedings.neurips.cc/paper_files/paper/2023/hash/5b047c7d862059a5df623c1ce2982fca-Abstract-Datasets_and_Benchmarks.html
+    repository_url: https://github.com/opendataval/opendataval
+    license: MIT
+
+  - reference_id: data_shapley
+    kind: paper
+    title: Data Shapley - Equitable Valuation of Data for Machine Learning
+    authors: [Amirata Ghorbani, James Zou]
+    year: 2019
+    venue: ICML
+    url: https://proceedings.mlr.press/v97/ghorbani19c.html
+
+  - reference_id: knn_shapley
+    kind: paper
+    title: Towards Efficient Data Valuation Based on the Shapley Value
+    authors: [Ruoxi Jia, David Dao, Boxin Wang, Frances Ann Hubis, Nick Hynes, Nezihe Merve Gurel, Bo Li, Ce Zhang, Dawn Song, Costas J. Spanos]
+    year: 2019
+    venue: AISTATS
+    url: https://proceedings.mlr.press/v89/jia19a.html
+
+  - reference_id: beta_shapley
+    kind: paper
+    title: Beta Shapley - A Unified and Noise-reduced Data Valuation Framework for Machine Learning
+    authors: [Yongchan Kwon, James Zou]
+    year: 2022
+    venue: AISTATS
+    url: https://proceedings.mlr.press/v151/kwon22a.html
+    repository_url: https://github.com/ykwon0407/beta_shapley
+
+  - reference_id: data_banzhaf
+    kind: paper
+    title: Data Banzhaf - A Robust Data Valuation Framework for Machine Learning
+    authors: [Jiachen T. Wang, Ruoxi Jia]
+    year: 2023
+    venue: AISTATS
+    url: https://proceedings.mlr.press/v206/wang23e.html
+
+  - reference_id: data_oob
+    kind: paper
+    title: Data-OOB - Out-of-bag Estimate as a Simple and Efficient Data Value
+    authors: [Yongchan Kwon, James Zou]
+    year: 2023
+    venue: ICML
+    url: https://proceedings.mlr.press/v202/kwon23e.html
+
+  - reference_id: volume_valuation
+    kind: paper
+    title: Validation Free and Replication Robust Volume-based Data Valuation
+    authors: [Xinyi Xu, Zhaoxuan Wu, Chuan Sheng Foo, Bryan Kian Hsiang Low]
+    year: 2021
+    venue: NeurIPS
+    url: https://proceedings.neurips.cc/paper/2021/hash/59a3adea76fadcb6dd9e54c96fc155d1-Abstract.html
+    repository_url: https://github.com/ZhaoxuanWu/VolumeBased-DataValuation
+
+  - reference_id: influence_functions
+    kind: paper
+    title: Understanding Black-box Predictions via Influence Functions
+    authors: [Pang Wei Koh, Percy Liang]
+    year: 2017
+    venue: ICML
+    url: https://proceedings.mlr.press/v70/koh17a.html
+
+  - reference_id: ame
+    kind: paper
+    title: Measuring the Effect of Training Data on Deep Learning Predictions via Randomized Experiments
+    authors: [Jinkun Lin, Anqi Zhang, Mathias Lecuyer, Jinyang Li, Aurojit Panda, Siddhartha Sen]
+    year: 2022
+    venue: ICML
+    url: https://arxiv.org/abs/2206.10013
+
+  - reference_id: data_least_core
+    kind: paper
+    title: If You Like Shapley Then You Will Love the Core
+    authors: [Tom Yan, Ariel D. Procaccia]
+    year: 2021
+    venue: AAAI
+    url: https://ojs.aaai.org/index.php/AAAI/article/view/16721
+
+  - reference_id: pydvl_repo
+    kind: repository
+    title: pyDVL - Data Valuation Library
+    authors: [AppliedAI Institute]
+    year: 2022
+    venue: GitHub
+    url: https://github.com/aai-institute/pyDVL
+    repository_url: https://github.com/aai-institute/pyDVL
+    license: LGPL-3.0
+
+  - reference_id: svarm
+    kind: paper
+    title: Approximating the Shapley Value without Marginal Contributions
+    authors: [Patrick Kolpaczki, Viktor Bengs, Maximilian Muschalik, Eyke Hüllermeier]
+    year: 2024
+    venue: AAAI
+    url: https://arxiv.org/abs/2302.00736
+    repository_url: https://github.com/kolpaczki/Approximating-the-Shapley-Value-without-Marginal-Contributions
+    license: MIT
+
+  - reference_id: regression_msr
+    kind: paper
+    title: Regression-adjusted Monte Carlo Estimators for Shapley Values and Probabilistic Values
+    authors: [R. Teal Witter, Yurong Liu, Christopher Musco]
+    year: 2025
+    venue: NeurIPS
+    url: https://proceedings.neurips.cc/paper_files/paper/2025/hash/1e77af93008ee6cd248a31723ce357d8-Abstract-Conference.html
+    doi: 10.52202/085713-0715
+    repository_url: https://github.com/rtealwitter/regressionMSR
+    version: 77525daf334aadffa8157b6d2693dc34ce33ecf6
+
+  - reference_id: shapiq
+    kind: repository
+    title: shapiq - Shapley Interactions and Shapley Values for Machine Learning
+    authors: [shapiq contributors]
+    year: 2026
+    venue: software
+    url: https://github.com/mmschlk/shapiq
+    repository_url: https://github.com/mmschlk/shapiq
+    license: MIT
+
+  - reference_id: unbiased_kernel_shap
+    kind: paper
+    title: Improving KernelSHAP - Practical Shapley Value Estimation via Linear Regression
+    authors: [Ian Covert, Su-In Lee]
+    year: 2021
+    venue: AISTATS
+    url: https://proceedings.mlr.press/v130/covert21a.html
+
+  - reference_id: asss
+    kind: paper
+    title: ASSS - Adaptive Stratified Sampling for Shapley-like Values
+    authors: [Junyuan Pang, Jiayao Zhang, Jiazheng Song, Jinfei Liu, Kui Ren]
+    year: 2026
+    venue: Proceedings of the ACM on Management of Data
+    url: https://doi.org/10.1145/3802016
+    license: CC-BY-4.0
+
+  - reference_id: tracin
+    kind: paper
+    title: Estimating Training Data Influence by Tracing Gradient Descent
+    authors: [Garima Pruthi, Frederick Liu, Satyen Kale, Mukund Sundararajan]
+    year: 2020
+    venue: NeurIPS
+    url: https://proceedings.neurips.cc/paper/2020/hash/e6385d39ec9394f2f3a354d9d2b88eec-Abstract.html
+
+  - reference_id: datainf
+    kind: paper
+    title: DataInf - Efficiently Estimating Data Influence in LoRA-tuned LLMs and Diffusion Models
+    authors: [Yongchan Kwon, Eric Wu, Kevin Wu, James Zou]
+    year: 2024
+    venue: ICLR
+    url: https://openreview.net/forum?id=9m02ib92Wz
+    repository_url: https://github.com/ykwon0407/DataInf
+
+  - reference_id: dattri
+    kind: repository
+    title: dattri - A Library for Efficient Data Attribution
+    authors: [TRAILab contributors]
+    year: 2024
+    venue: GitHub
+    url: https://github.com/TRAIS-Lab/dattri
+    repository_url: https://github.com/TRAIS-Lab/dattri
+    license: Apache-2.0
+
+  - reference_id: singer_budget_feasible
+    kind: paper
+    title: Budget Feasible Mechanisms
+    authors: [Yaron Singer]
+    year: 2010
+    venue: FOCS
+    url: https://arxiv.org/abs/1002.2334
+
+  - reference_id: cgl_budget_feasible
+    kind: paper
+    title: On the Approximability of Budget Feasible Mechanisms
+    authors: [Ning Chen, Nick Gravin, Pinyan Lu]
+    year: 2011
+    venue: SODA
+    url: https://arxiv.org/abs/1007.3801
+    doi: 10.1137/1.9781611973082.54
+
+  - reference_id: jalaly_tardos
+    kind: paper
+    title: Simple and Efficient Budget Feasible Mechanisms
+    authors: [Pooya Jalaly, Eva Tardos]
+    year: 2018
+    venue: WINE
+    url: https://arxiv.org/abs/1703.10681
+
+  - reference_id: triple_eagle
+    kind: paper
+    title: "Triple Eagle: Simple, Fast and Practical Budget-Feasible Mechanisms"
+    authors: [Kai Han, You Wu, He Huang, Shuang Cui]
+    year: 2023
+    venue: NeurIPS
+    url: https://papers.neurips.cc/paper_files/paper/2023/hash/6af779991368999ab3da0d366c208fba-Abstract-Conference.html
+
+  - reference_id: bfm_vm_2026
+    kind: paper
+    title: Budget-Feasible Mechanisms for Submodular Welfare Maximization in Procurement Auctions
+    authors: [Shuang Cui, He Huang, Yu-E Sun, Chen Xue]
+    year: 2026
+    venue: ICML
+    url: https://proceedings.mlr.press/v306/cui26b.html
+
+  - reference_id: bfm_swm_author_code
+    kind: repository
+    title: BFM-SWM experiment code
+    authors: [Shuang Cui, He Huang, Yu-E Sun, Chen Xue]
+    year: 2026
+    venue: GitHub
+    url: https://github.com/xue74193-dot/BFM-SWM
+    repository_url: https://github.com/xue74193-dot/BFM-SWM
+    version: 82f97be91f4404a9f943c5ebf3d60a272a76a13d
+
+  - reference_id: gjlz_additive
+    kind: paper
+    title: Optimal Budget-Feasible Mechanisms for Additive Valuations
+    authors: [Nick Gravin, Yaonan Jin, Pinyan Lu, Chenhao Zhang]
+    year: 2020
+    venue: ACM EC
+    url: https://arxiv.org/abs/1902.04635
+
+  - reference_id: posted_procurement
+    kind: paper
+    title: Online Procurement Auctions
+    authors: [Ashwinkumar Badanidiyuru, Robert Kleinberg, Yaron Singer]
+    year: 2012
+    venue: EC
+    url: https://doi.org/10.1145/2229012.2229026
+    doi: 10.1145/2229012.2229026
+
+  - reference_id: dataperf_dam
+    kind: benchmark
+    title: Data Acquisition - A New Frontier in Data-centric AI
+    authors: [Lingjiao Chen, Bilge Acun, Newsha Ardalani, Yifan Sun, Feiyang Kang, Hanrui Lyu, Yongchan Kwon, Ruoxi Jia, Carole-Jean Wu, Matei Zaharia, James Zou]
+    year: 2025
+    venue: Journal of Data-centric Machine Learning Research
+    url: https://openreview.net/forum?id=5ARbfIHxtk
+    repository_url: https://github.com/facebookresearch/Data_Acquisition_for_ML_Benchmark
+    license: Apache-2.0
+
+  - reference_id: vickrey_auction
+    kind: paper
+    title: Counterspeculation, Auctions, and Competitive Sealed Tenders
+    authors: [William Vickrey]
+    year: 1961
+    venue: Journal of Finance
+    url: https://doi.org/10.2307/2977633
+    doi: 10.2307/2977633
+
+  - reference_id: myerson_optimal_auction
+    kind: paper
+    title: Optimal Auction Design
+    authors: [Roger B. Myerson]
+    year: 1981
+    venue: Mathematics of Operations Research
+    url: https://doi.org/10.1287/moor.6.1.58
+    doi: 10.1287/moor.6.1.58
+
+  - reference_id: auction_theory_survey
+    kind: paper
+    title: Auctions and Bidding - A Primer
+    authors: [Paul Milgrom]
+    year: 1989
+    venue: Journal of Economic Perspectives
+    url: https://doi.org/10.1257/jep.3.3.3
+    doi: 10.1257/jep.3.3.3
+
+  - reference_id: all_pay_auction
+    kind: paper
+    title: All-pay Auctions with Complete Information
+    authors: [Michael R. Baye, Dan Kovenock, Casper G. de Vries]
+    year: 1996
+    venue: Economic Theory
+    url: https://doi.org/10.1007/BF01213906
+    doi: 10.1007/BF01213906
+
+  - reference_id: mcafee_double_auction
+    kind: paper
+    title: A Dominant Strategy Double Auction
+    authors: [R. Preston McAfee]
+    year: 1992
+    venue: Journal of Economic Theory
+    url: https://doi.org/10.1016/0022-0531(92)90091-U
+    doi: 10.1016/0022-0531(92)90091-U
+
+  - reference_id: sbba
+    kind: paper
+    title: "SBBA: a Strongly-Budget-Balanced Double-Auction Mechanism"
+    authors: [Erel Segal-Halevi, Avinatan Hassidim, Yonatan Aumann]
+    year: 2016
+    venue: SAGT
+    url: https://arxiv.org/abs/1607.05139
+    doi: 10.1007/978-3-662-53354-3_21
+
+  - reference_id: generalized_sbb_multisided
+    kind: paper
+    title: Strongly Budget Balanced Auctions for Multi-Sided Markets
+    authors: [Rica Gonen, Erel Segal-Halevi]
+    year: 2020
+    venue: AAAI
+    url: https://ojs.aaai.org/index.php/AAAI/article/view/5571
+    doi: 10.1609/aaai.v34i02.5571
+
+  - reference_id: muda
+    kind: paper
+    title: MUDA - A Truthful Multi-Unit Double-Auction Mechanism
+    authors: [Erel Segal-Halevi, Avinatan Hassidim, Yonatan Aumann]
+    year: 2018
+    venue: AAAI
+    url: https://ojs.aaai.org/index.php/AAAI/article/view/11450
+
+  - reference_id: chatterjee_samuelson
+    kind: paper
+    title: Bargaining under Incomplete Information
+    authors: [Kalyan Chatterjee, William Samuelson]
+    year: 1983
+    venue: Operations Research
+    url: https://doi.org/10.1287/opre.31.5.835
+    doi: 10.1287/opre.31.5.835
+
+  - reference_id: pay_as_bid_electricity
+    kind: paper
+    title: Designing Electricity Auctions
+    authors: [Natalia Fabra, Nils-Henrik von der Fehr, David Harbord]
+    year: 2006
+    venue: RAND Journal of Economics
+    url: https://doi.org/10.1111/j.1756-2171.2006.tb00003.x
+    doi: 10.1111/j.1756-2171.2006.tb00003.x
+
+  - reference_id: pay_as_bid_comparison
+    kind: paper
+    title: Uniform Pricing or Pay-as-Bid Pricing - A Dilemma for California and Beyond
+    authors: [Alfred E. Kahn, Peter C. Cramton, Robert H. Porter, Richard D. Tabors]
+    year: 2001
+    venue: Electricity Journal
+    url: https://doi.org/10.1016/S1040-6190(01)00175-1
+    doi: 10.1016/S1040-6190(01)00175-1
+
+  - reference_id: cnil_personal_data_monetisation
+    kind: project
+    title: "Monetisation of Personal Data: How Much Is Our Data Worth?"
+    authors: [Commission Nationale de l'Informatique et des Libertés]
+    year: 2025
+    venue: CNIL official survey report
+    url: https://www.cnil.fr/en/monetisation-personal-data-how-much-our-data-worth

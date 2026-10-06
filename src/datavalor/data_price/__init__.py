@@ -1,6 +1,7 @@
 """DataPrice: pricing algorithms and mechanism design."""
 
 from .constraints import PriceBandConstraint, VolumeDiscountConstraint
+from .demand_estimation import fit_monotone_acceptance, select_revenue_price
 from .extensions import (
     ElasticityPricingModel,
     QuoteCalibration,
@@ -179,4 +180,6 @@ __all__ = [
     "AcceptanceTrainingReport",
     "ExpectedRevenuePricingModel",
     "SafeExplorationPricingModel",
+    "fit_monotone_acceptance",
+    "select_revenue_price",
 ]

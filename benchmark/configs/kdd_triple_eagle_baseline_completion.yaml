@@ -1,0 +1,24 @@
+schema_version: "1.0"
+name: datamechbench-kdd-triple-eagle-baseline-completion-2026-10-03
+output_dir: benchmark/outputs/kdd_triple_eagle_baseline_completion
+evidence_scope: post_freeze_exploratory_missing_cell_completion
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+strategic_audit: true
+
+cases:
+  valuation: []
+  procurement: [PML-clean-b30, PML-clean-b50, PML-clean-b70]
+  trading: []
+
+methods:
+  valuation: []
+  procurement:
+    - budget_optimum
+    - generalized_proportional_share
+    - cgl_deterministic
+    - cgl_randomized
+    - jt_greedy_tm
+    - jt_random_tm
+    - jt_random_eom
+    - jt_deterministic_eom
+  trading: []
