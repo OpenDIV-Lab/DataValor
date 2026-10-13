@@ -1,0 +1,68 @@
+{
+  "artifacts": [
+    {
+      "bytes": 8910,
+      "path": "benchmark/external/erelsgl_auctions/mcafee_protocol.py",
+      "role": "external_source",
+      "sha256": "4f084fcb1aa17a5e5f51c97f528d75969983c789caf82bcdbca76e233f9c49ef"
+    },
+    {
+      "bytes": 3416,
+      "path": "benchmark/external/erelsgl_auctions/agents.py",
+      "role": "external_dependency_agents",
+      "sha256": "59ec8cdb818c79a56916c075dee00c21da29475179eec917ae2007ddb1b4d6b2"
+    },
+    {
+      "bytes": 9652,
+      "path": "benchmark/external/erelsgl_auctions/markets.py",
+      "role": "external_dependency_markets",
+      "sha256": "16ef56d2dd86fba0357f7b05d9651fac72557b61aa4aba123f44cd250a2bea54"
+    },
+    {
+      "bytes": 5529,
+      "path": "benchmark/external/erelsgl_auctions/trade.py",
+      "role": "external_dependency_trade",
+      "sha256": "851e2253d0bf9c2aecbb99fbaf44c4dc87c242d9123c68fd73ab0df239456ef4"
+    },
+    {
+      "bytes": 1074,
+      "path": "benchmark/external/erelsgl_auctions/LICENSE.txt",
+      "role": "external_license",
+      "sha256": "b7c6d729e5646327fb2c69913e5daca0059014a86d6d1ea809a0409af68135ea"
+    },
+    {
+      "bytes": 1916,
+      "path": "benchmark/external/erelsgl_auctions/mcafee_fixtures.json",
+      "role": "comparison_fixtures",
+      "sha256": "42f4f1088c41fbd485f6ee1ba050f02c97ec397cc100ccbb6654b72ca32e0e72"
+    },
+    {
+      "bytes": 6178,
+      "path": "benchmark/evidence/external_erelsgl_mcafee_results_v1.json",
+      "role": "comparison_results",
+      "sha256": "938136ce2f4ceca0b845cc012b92378e605cfcceb4ca7c6e879b964717732f84"
+    },
+    {
+      "bytes": 3660,
+      "path": "benchmark/scripts/run_external_mcafee_validation.py",
+      "role": "validation_runner",
+      "sha256": "3c42049e271e02331537f51f2883a3eb614fc51a0e5d2894b0a3c03a14fa69c2"
+    }
+  ],
+  "claim_boundary": "single-unit homogeneous McAfee allocation, branch, prices, gain-from-trade, and auctioneer-surplus observables",
+  "external_implementation": {
+    "archive_sha256": "d44b31327155c4a226ebef65548c9be053b10914f98bddd0233b237aed51ac6b",
+    "commit_sha": "d1a55eaacb337ecebeaf5f57a67bcd6a9d4411eb",
+    "license_id": "MIT",
+    "name": "Erel Segal-Halevi auctions McAfee trade-reduction protocol",
+    "origin": "official_upstream",
+    "repository_url": "https://github.com/erelsgl/auctions",
+    "source_sha256": "4f084fcb1aa17a5e5f51c97f528d75969983c789caf82bcdbca76e233f9c49ef",
+    "source_url": "https://github.com/erelsgl/auctions/blob/d1a55eaacb337ecebeaf5f57a67bcd6a9d4411eb/mcafee_protocol.py"
+  },
+  "method_id": "mcafee",
+  "record_kind": "external_implementation_validation",
+  "schema_version": "1.0",
+  "track": "trading",
+  "validation_id": "erelsgl-auctions-mcafee-d1a55eaa"
+}

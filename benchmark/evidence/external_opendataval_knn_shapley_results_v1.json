@@ -1,0 +1,108 @@
+{
+  "all_close": true,
+  "comparisons": [
+    {
+      "case_id": "binary-alternating-k2",
+      "external_scores": [
+        0.28333336114883423,
+        -0.21666663885116577,
+        0.28333336114883423,
+        -0.04999999701976776,
+        0.20000000298023224
+      ],
+      "k": 2,
+      "local_scores": [
+        0.2833333333333333,
+        -0.21666666666666667,
+        0.2833333333333333,
+        -0.04999999999999999,
+        0.2
+      ],
+      "maximum_absolute_error": 2.781550090258378e-08,
+      "owner_ids": [
+        "o0",
+        "o1",
+        "o2",
+        "o3",
+        "o4"
+      ]
+    },
+    {
+      "case_id": "binary-two-validation-k3",
+      "external_scores": [
+        0.1666666716337204,
+        0.1666666716337204,
+        0.1666666716337204,
+        0.1666666716337204,
+        0.1666666716337204,
+        0.1666666716337204
+      ],
+      "k": 3,
+      "local_scores": [
+        0.16666666666666666,
+        0.16666666666666666,
+        0.16666666666666666,
+        0.16666666666666666,
+        0.16666666666666666,
+        0.16666666666666666
+      ],
+      "maximum_absolute_error": 4.967053740534411e-09,
+      "owner_ids": [
+        "o0",
+        "o1",
+        "o2",
+        "o3",
+        "o4",
+        "o5"
+      ]
+    },
+    {
+      "case_id": "multiclass-two-dimensional-k2",
+      "external_scores": [
+        0.2083333283662796,
+        0.0833333283662796,
+        -0.0416666716337204,
+        0.0833333283662796,
+        0.2083333283662796,
+        -0.0416666716337204
+      ],
+      "k": 2,
+      "local_scores": [
+        0.20833333333333334,
+        0.08333333333333334,
+        -0.04166666666666666,
+        0.08333333333333334,
+        0.20833333333333334,
+        -0.04166666666666666
+      ],
+      "maximum_absolute_error": 4.967053740534411e-09,
+      "owner_ids": [
+        "o0",
+        "o1",
+        "o2",
+        "o3",
+        "o4",
+        "o5"
+      ]
+    }
+  ],
+  "executed_source_sha256": "9c66a528a1fa5e16c0bf2b2d7498d395a1a64c5ff9c59893a491d657e8f38177",
+  "execution_environment": {
+    "numpy": "2.3.5",
+    "python": "3.13.5",
+    "scikit_learn": "1.6.1",
+    "torch": "2.9.0+cu128",
+    "tqdm": "4.67.1"
+  },
+  "external_commit": "5c2856b95237a07ee4565638060e043f1e410822",
+  "fixture_count": 3,
+  "maximum_absolute_error": 2.781550090258378e-08,
+  "method_id": "knn_shapley",
+  "preprocessing_alignment": "StandardScaler is fitted on training features only; both implementations receive the same transformed features at the KNN recurrence boundary.",
+  "result_kind": "external_implementation_comparison",
+  "schema_version": "1.0",
+  "source_execution": "unchanged_upstream_file_with_minimal_api_import_shim",
+  "tolerance": 1e-07,
+  "upstream_archive_sha256": "e13ff293c86c51796445d0de3bb74b3511ab8cc994eb9496b01c2582e2689dd0",
+  "validation_id": "opendataval-knn-shapley-5c2856b9"
+}

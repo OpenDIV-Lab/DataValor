@@ -1,0 +1,8 @@
+{
+  "cohort_id": "datarade--one-off",
+  "description": "Anonymous aggregate excerpt from the frozen DaDaDa calibration; open-development example, not held-out evidence.",
+  "normalized_listing_asks": [0.584130098, 0.588345033, 0.785043927, 0.936471122, 1.063528878, 1.23238328, 1.385859425, 1.566719709],
+  "source_row_count": 695,
+  "source_unit_id": "dadada-datarade-one-off",
+  "transformation": "winsorize 0.025/0.975, log1p, divide by selected cohort median, then take eight anonymous quantile representatives"
+}

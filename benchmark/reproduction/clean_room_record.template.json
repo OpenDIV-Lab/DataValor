@@ -1,0 +1,62 @@
+{
+  "attestation": {
+    "no_source_modifications": false,
+    "operator_confirmed": false,
+    "unexpected_differences": [
+      "<describe every difference, or replace with an empty list after verification>"
+    ]
+  },
+  "environment": {
+    "isolation": "fresh_venv",
+    "os": "<name and version>",
+    "preflight": {
+      "container_or_vm_image_required": false,
+      "errors": [
+        "<replace by the machine-generated native Python preflight>"
+      ],
+      "lock_file": "benchmark/reproduction/requirements-cpu.lock",
+      "lock_sha256": "<64 lowercase hex characters>",
+      "package_counts": {
+        "matched": 0,
+        "mismatched": 0,
+        "missing": 0
+      },
+      "packages": [],
+      "passed": false,
+      "python_version": "<exact version>",
+      "report_kind": "native_python_environment_preflight",
+      "repository_root": ".",
+      "runtime_kind": "native_python_source_library",
+      "schema_version": "1.0"
+    },
+    "preflight_sha256": "<hash computed by the operator-record command>",
+    "python": "<exact version>"
+  },
+  "execution": {
+    "command": "python benchmark/scripts/reproduce_kdd_core.py --run --report reproduction-report.json",
+    "exit_code": -1,
+    "setup_minutes": -1
+  },
+  "operator": {
+    "independent_of_implementation": false,
+    "operator_id": "<stable pseudonymous operator id>"
+  },
+  "record_kind": "clean_room_reproduction",
+  "release": {
+    "artifact_verification": "not_run",
+    "manifest_path": "benchmark/reproduction/kdd2027_core_manifest.json",
+    "manifest_sha256": "<64 lowercase hex characters>",
+    "scientific_digest": "<digest printed by the reproduction command>",
+    "source_archive": {
+      "sha256": "<SHA-256 measured on the downloaded public source archive>",
+      "url": "<resolvable HTTPS URL used to download that archive>"
+    }
+  },
+  "schema_version": "1.1",
+  "status": "template",
+  "tracks": [
+    "valuation",
+    "procurement",
+    "trading"
+  ]
+}

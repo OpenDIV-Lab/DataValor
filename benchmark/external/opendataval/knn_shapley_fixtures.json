@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "fixture_kind": "knn_shapley_external_crosscheck",
+  "preprocessing_alignment": "StandardScaler is fitted on training features only; both implementations receive the same transformed features at the KNN recurrence boundary.",
+  "cases": [
+    {
+      "case_id": "binary-alternating-k2",
+      "k": 2,
+      "x_train": [[0.0], [1.0], [2.0], [3.0], [4.0]],
+      "y_train": [0, 1, 0, 1, 0],
+      "x_validation": [[0.1]],
+      "y_validation": [0]
+    },
+    {
+      "case_id": "binary-two-validation-k3",
+      "k": 3,
+      "x_train": [[0.0, 0.0], [1.0, 0.0], [0.0, 2.0], [3.0, 3.0], [4.0, 3.0], [3.0, 5.0]],
+      "y_train": [0, 0, 0, 1, 1, 1],
+      "x_validation": [[0.2, 0.1], [3.8, 4.0]],
+      "y_validation": [0, 1]
+    },
+    {
+      "case_id": "multiclass-two-dimensional-k2",
+      "k": 2,
+      "x_train": [[0.0, 0.0], [1.0, 0.2], [0.2, 1.0], [3.0, 3.0], [4.0, 3.0], [3.0, 4.0]],
+      "y_train": [0, 1, 2, 0, 1, 2],
+      "x_validation": [[0.1, 0.2], [3.4, 3.2]],
+      "y_validation": [0, 1]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "artifacts": [
+    {
+      "bytes": 10047,
+      "path": "benchmark/external/erelsgl_auctions/trade_reduction_protocol.py",
+      "role": "external_source",
+      "sha256": "54d73de744842c960302fc7eddd6e94241a1ecb3a6ae0f0270ab2ffe50c440ea"
+    },
+    {
+      "bytes": 3416,
+      "path": "benchmark/external/erelsgl_auctions/agents.py",
+      "role": "external_dependency_agents",
+      "sha256": "59ec8cdb818c79a56916c075dee00c21da29475179eec917ae2007ddb1b4d6b2"
+    },
+    {
+      "bytes": 9652,
+      "path": "benchmark/external/erelsgl_auctions/markets.py",
+      "role": "external_dependency_markets",
+      "sha256": "16ef56d2dd86fba0357f7b05d9651fac72557b61aa4aba123f44cd250a2bea54"
+    },
+    {
+      "bytes": 5529,
+      "path": "benchmark/external/erelsgl_auctions/trade.py",
+      "role": "external_dependency_trade",
+      "sha256": "851e2253d0bf9c2aecbb99fbaf44c4dc87c242d9123c68fd73ab0df239456ef4"
+    },
+    {
+      "bytes": 1074,
+      "path": "benchmark/external/erelsgl_auctions/LICENSE.txt",
+      "role": "external_license",
+      "sha256": "b7c6d729e5646327fb2c69913e5daca0059014a86d6d1ea809a0409af68135ea"
+    },
+    {
+      "bytes": 3033,
+      "path": "benchmark/external/erelsgl_auctions/sbba_fixtures.json",
+      "role": "comparison_fixtures",
+      "sha256": "d87fa4aef46b511f7e512cae6ed267b8398caa7093fb4976f11c1b50fb7660bd"
+    },
+    {
+      "bytes": 9491,
+      "path": "benchmark/evidence/external_erelsgl_sbba_results_v1.json",
+      "role": "comparison_results",
+      "sha256": "2ce2aba4cb516d704ca531e895e9c4101c73625c8a690b61a8ea9a4b2bfdcc13"
+    },
+    {
+      "bytes": 2445,
+      "path": "benchmark/scripts/run_external_sbba_validation.py",
+      "role": "validation_runner",
+      "sha256": "f11a17f924e39d6c792a97d19c9ad8e6ece2efc5eb238118a30ad381fc03486a"
+    }
+  ],
+  "claim_boundary": "general-position two-category [1,1] specialization: branch, trade count, uniform price, candidate support, randomized side, expected gain from trade, and strong budget balance; no identity-level random draw parity; zero-external-competition tie disclosed separately",
+  "external_implementation": {
+    "archive_sha256": "d44b31327155c4a226ebef65548c9be053b10914f98bddd0233b237aed51ac6b",
+    "commit_sha": "d1a55eaacb337ecebeaf5f57a67bcd6a9d4411eb",
+    "license_id": "MIT",
+    "name": "Erel Segal-Halevi auctions SBB external-competition protocol, two-category recipe specialization",
+    "origin": "official_upstream",
+    "repository_url": "https://github.com/erelsgl/auctions",
+    "source_sha256": "54d73de744842c960302fc7eddd6e94241a1ecb3a6ae0f0270ab2ffe50c440ea",
+    "source_url": "https://github.com/erelsgl/auctions/blob/d1a55eaacb337ecebeaf5f57a67bcd6a9d4411eb/trade_reduction_protocol.py"
+  },
+  "method_id": "sbba",
+  "record_kind": "external_implementation_validation",
+  "schema_version": "1.0",
+  "track": "trading",
+  "validation_id": "erelsgl-auctions-sbba-specialization-d1a55eaa"
+}

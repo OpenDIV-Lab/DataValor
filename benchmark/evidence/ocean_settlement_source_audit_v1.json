@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0",
+  "audit_id": "ocean-polygon-fixed-rate-settlement-v1",
+  "audit_date": "2026-10-04",
+  "decision": "not_eligible",
+  "decision_reason_codes": [
+    "derivative_analysis_rights_not_explicit",
+    "api_output_redistribution_rights_not_explicit",
+    "asset_level_dependence_requires_frozen_inference_contract"
+  ],
+  "observed_semantic": "executed_base_token_settlement_for_data_access_order",
+  "forbidden_interpretations": [
+    "buyer_value",
+    "seller_reservation_cost",
+    "provider_net_revenue",
+    "fiat_transaction_price",
+    "market_equilibrium"
+  ],
+  "chain": {
+    "name": "Polygon PoS",
+    "chain_id": 137,
+    "fixed_block_range": [
+      28443969,
+      94893474
+    ],
+    "fixed_rate_exchange_contract": "0xb28Ab1AaDe4c75F8cF013136fc0c290AeaeA9BA6"
+  },
+  "event_contract": {
+    "swapped_signature": "Swapped(bytes32,address,uint256,uint256,address,uint256,uint256,uint256)",
+    "swapped_topic0": "0x7b072645ce5b6a2fc627a544edee544b786747cafd1bb8f0e3238aa5f2e80646",
+    "order_started_signature": "OrderStarted(address,address,uint256,uint256,uint256,address,uint256)",
+    "order_started_topic0": "0xe1c4fa794edfa8f619b8257a077398950357b9c6398528f94480307352f9afcc",
+    "exchange_created_signature": "ExchangeCreated(bytes32,address,address,address,uint256)",
+    "exchange_created_topic0": "0xeb7a353641f7d3cc54b497ef1553fdc292b64d9cc3be8587c23dfba01f310b19",
+    "contract_source": "https://github.com/oceanprotocol/contracts/blob/main/contracts/pools/fixedRate/FixedRateExchange.sol",
+    "order_source": "https://github.com/oceanprotocol/contracts/blob/main/contracts/templates/ERC20Template4.sol",
+    "source_code_license": "Apache-2.0 AND CC-BY-4.0"
+  },
+  "acquisition": {
+    "transport": "Polygon Blockscout legacy logs API",
+    "api_spec": "https://github.com/blockscout/blockscout-api-v2-swagger/blob/main/swagger.yaml",
+    "fixed_rate_swap_query_count": 316,
+    "fixed_rate_swap_block_range_observed": [
+      37117035,
+      56413155
+    ],
+    "partition_reconciliation": {
+      "partition_counts": [
+        17,
+        299,
+        0,
+        0
+      ],
+      "partition_total": 316,
+      "whole_query_total": 316,
+      "same_event_set": true
+    },
+    "order_query_partitions": [
+      {
+        "from_block": 28443969,
+        "to_block": 45000000,
+        "event_count": 16,
+        "response_sha256": "a71f9f9072f3c63c34f70e365d6680470d8653016bd73f15a0647cbe0be783b0"
+      },
+      {
+        "from_block": 45000001,
+        "to_block": 50000000,
+        "event_count": 118,
+        "response_sha256": "cdb3fa993e3986fb26c70becdf0fdca54529870e38eeac0e55e026891ff7cb96"
+      },
+      {
+        "from_block": 50000001,
+        "to_block": 55000000,
+        "event_count": 499,
+        "response_sha256": "dbc2b7616f5335decf31a2905dd4f258eb3e45ee60e3da92f059da450ae3d4fb"
+      },
+      {
+        "from_block": 55000001,
+        "to_block": 60000000,
+        "event_count": 264,
+        "response_sha256": "5ef538a34bddaef224a9b1b15ce29fb0ab0ef5998046aaf3695fcaa35ee7c5ed"
+      }
+    ],
+    "canonical_event_set_sha256": {
+      "swapped": "0ba6d5b8bdd50a3902caf2e58b4226744250afc106df647493b0d3bff49429cf",
+      "order_started": "926cb09e294e391b44193b2ab983420124a0414aca386a9f00fc235e1dbfdb16",
+      "exchange_created": "b0b79d52813aacf309be0f878261e6003a38c2c20d45e9a92b682ae09cca190e"
+    },
+    "raw_payload_release": false,
+    "identity_release": false
+  },
+  "qualification_pipeline": {
+    "swapped_events": 316,
+    "unique_swap_transactions": 316,
+    "same_transaction_order_started": 220,
+    "exchange_created_events": 425,
+    "swap_events_joined_to_exchange": 293,
+    "fully_qualified_settlements": 198,
+    "qualification_predicates": [
+      "same transaction contains Swapped and OrderStarted",
+      "exchangeId joins to ExchangeCreated",
+      "Swapped.tokenOutAddress equals the exchange datatoken",
+      "OrderStarted emitter equals the exchange datatoken"
+    ],
+    "settlement_amount_rule": "Swapped.baseTokenSwappedAmount is the gross amount pulled from the buyer and already includes the three reported swap fees; fees must not be added again",
+    "distinct_exchange_ids": 56,
+    "distinct_datatokens": 56,
+    "calendar_months": 8,
+    "exchange_event_count_histogram": {
+      "1": 52,
+      "2": 2,
+      "69": 1,
+      "73": 1
+    },
+    "base_token_contract_cohorts": [
+      {
+        "contract": "0x282d8efCe846A88B159800bd4130ad77443Fa1A1",
+        "reported_symbol": "OCEAN",
+        "decimals": 18,
+        "qualified_settlements": 193,
+        "distinct_exchange_ids": 52
+      },
+      {
+        "contract": "0x0998ee9b2a85Ce0f1c236701A5342b58aD11cb2C",
+        "reported_symbol": "USDC",
+        "decimals": 6,
+        "qualified_settlements": 5,
+        "distinct_exchange_ids": 4,
+        "warning": "contract-specific token cohort; do not relabel as canonical USDC"
+      }
+    ]
+  },
+  "eligibility_checks": {
+    "data_access_trade_documented": "pass",
+    "actor_asset_payment_semantics_documented": "pass",
+    "observable_classified_as_settlement": "pass",
+    "repeatable_fixed_query": "pass_with_endpoint_availability_caveat",
+    "redistribution_rights_explicit": "fail",
+    "derivative_analysis_rights_explicit": "fail",
+    "identities_can_be_excluded": "pass",
+    "independent_unit_contract_frozen": "fail",
+    "normalization_and_censoring_auditable": "pass_with_contract_token_cohorting"
+  },
+  "release_boundary": {
+    "leaderboard_input": false,
+    "heldout_source_block": false,
+    "paper_claim_support": "negative source-eligibility evidence only",
+    "next_required_evidence": [
+      "written permission or an explicit licence covering derivative analysis and release of anonymous aggregates",
+      "a frozen asset-level inference contract that does not treat repeated transactions as independent",
+      "an immutable or independently mirrored event-set deposit with provenance"
+    ]
+  }
+}

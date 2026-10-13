@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0",
+  "manifest_kind": "independent_case_bank",
+  "benchmark_version": "0.3.0",
+  "cohort_policy": "development_only_inspected_2026-10-02",
+  "results": {
+    "path": "benchmark/outputs/full/raw_results.jsonl",
+    "sha256": "16fdd6370cd4e7293ef303cc0db5931064bc59eee4c29d56fbfdee31d08d4c35"
+  },
+  "tracks": {
+    "valuation": {
+      "blocks": [
+        {
+          "block_id": "v-vrep-breast-cancer",
+          "cohort": "development",
+          "setting_id": "V-REPLICATION-ROBUSTNESS",
+          "generator_family": "real_owner_replication",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_breast_cancer",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "ea9d68ba909692c60e45215922a6d88aa3fa2fa268288e00809320bba094c23f",
+          "case_ids": [
+            "VREP-breast_cancer-c1", "VREP-breast_cancer-c2", "VREP-breast_cancer-c4",
+            "VREP-breast_cancer-o2-c2", "VREP-breast_cancer-o2-c4",
+            "VREP-breast_cancer-o4-c2", "VREP-breast_cancer-o4-c4",
+            "VREP-breast_cancer-o6-c2", "VREP-breast_cancer-o6-c4"
+          ]
+        },
+        {
+          "block_id": "v-vrep-wine",
+          "cohort": "development",
+          "setting_id": "V-REPLICATION-ROBUSTNESS",
+          "generator_family": "real_owner_replication",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_wine",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "f012048978f153970a9a19b24c8c824ae276b610cf7b9b0322bf17f9f772269b",
+          "case_ids": [
+            "VREP-wine-c1", "VREP-wine-c2", "VREP-wine-c4",
+            "VREP-wine-o2-c2", "VREP-wine-o2-c4", "VREP-wine-o4-c2",
+            "VREP-wine-o4-c4", "VREP-wine-o6-c2", "VREP-wine-o6-c4"
+          ]
+        },
+        {
+          "block_id": "v-vrep-digits",
+          "cohort": "development",
+          "setting_id": "V-REPLICATION-ROBUSTNESS",
+          "generator_family": "real_owner_replication",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_digits",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "fd5094fb12c28e46249c266e555d3bbd7e1bc11bb61a54f78c0c82b33e214a99",
+          "case_ids": [
+            "VREP-digits-c1", "VREP-digits-c2", "VREP-digits-c4",
+            "VREP-digits-o2-c2", "VREP-digits-o2-c4", "VREP-digits-o4-c2",
+            "VREP-digits-o4-c4", "VREP-digits-o6-c2", "VREP-digits-o6-c4"
+          ]
+        },
+        {
+          "block_id": "v-corruption-breast-cancer",
+          "cohort": "development",
+          "setting_id": "V-CORRUPTION",
+          "generator_family": "real_corruption_stress",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_breast_cancer",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "ea9d68ba909692c60e45215922a6d88aa3fa2fa268288e00809320bba094c23f",
+          "case_ids": [
+            "VCORR-breast_cancer-feature-40", "VCORR-breast_cancer-label-20",
+            "VCORR-breast_cancer-label-40"
+          ]
+        },
+        {
+          "block_id": "v-corruption-wine",
+          "cohort": "development",
+          "setting_id": "V-CORRUPTION",
+          "generator_family": "real_corruption_stress",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_wine",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "f012048978f153970a9a19b24c8c824ae276b610cf7b9b0322bf17f9f772269b",
+          "case_ids": ["VCORR-wine-label-40"]
+        },
+        {
+          "block_id": "v-corruption-digits",
+          "cohort": "development",
+          "setting_id": "V-CORRUPTION",
+          "generator_family": "real_corruption_stress",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_digits",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "fd5094fb12c28e46249c266e555d3bbd7e1bc11bb61a54f78c0c82b33e214a99",
+          "case_ids": ["VCORR-digits-label-40"]
+        },
+        {
+          "block_id": "v-axiom-controlled",
+          "cohort": "development",
+          "setting_id": "V-AXIOM",
+          "generator_family": "analytic_axiom_games",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/valuation.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "dcda40a5564bda59a5069177409b1e3b42c36a8c84a64d853e47d4c27cf96398",
+          "case_ids": ["VAX-additive", "VAX-complementary", "VAX-dummy", "VAX-harmful", "VAX-symmetric"]
+        }
+      ]
+    },
+    "procurement": {
+      "blocks": [
+        {
+          "block_id": "p-market-concentration",
+          "cohort": "development",
+          "setting_id": "P-MARKET-CONCENTRATION",
+          "generator_family": "singleton_concentration_axis",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/procurement.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "bfc28e7e94fb48eefebf284f1dcf3a175aed868b84c2578fae9463182cd131b0",
+          "case_ids": [
+            "PCONC-diffuse-b2", "PCONC-diffuse-b3", "PCONC-diffuse-b4", "PCONC-diffuse-b5",
+            "PCONC-dominant-b2", "PCONC-dominant-b3", "PCONC-dominant-b4", "PCONC-dominant-b5",
+            "PCONC-high-b2", "PCONC-high-b3", "PCONC-high-b4", "PCONC-high-b5",
+            "PCONC-low-b2", "PCONC-low-b3", "PCONC-low-b4", "PCONC-low-b5",
+            "PCONC-moderate-b2", "PCONC-moderate-b3", "PCONC-moderate-b4", "PCONC-moderate-b5"
+          ]
+        },
+        {
+          "block_id": "p-additive-correlations",
+          "cohort": "development",
+          "setting_id": "P-ADDITIVE",
+          "generator_family": "additive_cost_value_correlation",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/procurement.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "bfc28e7e94fb48eefebf284f1dcf3a175aed868b84c2578fae9463182cd131b0",
+          "case_ids": [
+            "PADD-independent-b30", "PADD-independent-b60", "PADD-negative-b30",
+            "PADD-negative-b60", "PADD-positive-b30", "PADD-positive-b60"
+          ]
+        },
+        {
+          "block_id": "p-weighted-coverage",
+          "cohort": "development",
+          "setting_id": "P-SUBMODULAR",
+          "generator_family": "weighted_coverage_submodular",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/procurement.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "bfc28e7e94fb48eefebf284f1dcf3a175aed868b84c2578fae9463182cd131b0",
+          "case_ids": [
+            "PSMOD-coverage-b30", "PSMOD-coverage-b50", "PSMOD-coverage-b70",
+            "PSMOD-coverage-negative-corr-b50", "PSMOD-coverage-positive-corr-b50"
+          ]
+        },
+        {
+          "block_id": "p-real-ml-acquisition",
+          "cohort": "development",
+          "setting_id": "P-ML-ACQUISITION",
+          "generator_family": "real_owner_ml_acquisition",
+          "independence_unit": "base_dataset",
+          "source_kind": "open_dataset",
+          "source_uri": "sklearn:load_breast_cancer",
+          "license_id": "CC-BY-4.0",
+          "input_hash": "ea9d68ba909692c60e45215922a6d88aa3fa2fa268288e00809320bba094c23f",
+          "case_ids": ["PML-clean-b30", "PML-clean-b50", "PML-clean-b70"]
+        }
+      ]
+    },
+    "trading": {
+      "blocks": [
+        {
+          "block_id": "t-market-thickness",
+          "cohort": "development",
+          "setting_id": "T-MARKET-THICKNESS",
+          "generator_family": "controlled_thickness_margin",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/trading.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "892173f17a466e4d57959ca575af0358509b2b828a39ad98f28e0eeb7f53b070",
+          "case_ids": [
+            "TTHICK-n16-k12", "TTHICK-n16-k12-narrow", "TTHICK-n16-k12-tight", "TTHICK-n16-k12-very_wide", "TTHICK-n16-k12-wide",
+            "TTHICK-n2-k1", "TTHICK-n2-k1-narrow", "TTHICK-n2-k1-tight", "TTHICK-n2-k1-very_wide", "TTHICK-n2-k1-wide",
+            "TTHICK-n4-k3", "TTHICK-n4-k3-narrow", "TTHICK-n4-k3-tight", "TTHICK-n4-k3-very_wide", "TTHICK-n4-k3-wide",
+            "TTHICK-n8-k6", "TTHICK-n8-k6-narrow", "TTHICK-n8-k6-tight", "TTHICK-n8-k6-very_wide", "TTHICK-n8-k6-wide"
+          ]
+        },
+        {
+          "block_id": "t-independent-double",
+          "cohort": "development",
+          "setting_id": "T-DOUBLE",
+          "generator_family": "independent_private_value_double",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/trading.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "892173f17a466e4d57959ca575af0358509b2b828a39ad98f28e0eeb7f53b070",
+          "case_ids": [
+            "TDOUBLE-n10-high", "TDOUBLE-n10-low", "TDOUBLE-n10-medium",
+            "TDOUBLE-n2-high", "TDOUBLE-n2-low", "TDOUBLE-n2-medium",
+            "TDOUBLE-n5-high", "TDOUBLE-n5-low", "TDOUBLE-n5-medium"
+          ]
+        },
+        {
+          "block_id": "t-correlated-double",
+          "cohort": "development",
+          "setting_id": "T-CORRELATED",
+          "generator_family": "correlated_common_component",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/trading.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "892173f17a466e4d57959ca575af0358509b2b828a39ad98f28e0eeb7f53b070",
+          "case_ids": ["TCORR-n2", "TCORR-n5", "TCORR-n10"]
+        },
+        {
+          "block_id": "t-bilateral-priors",
+          "cohort": "development",
+          "setting_id": "T-BILATERAL",
+          "generator_family": "bilateral_prior_families",
+          "independence_unit": "generator_family",
+          "source_kind": "controlled_generator",
+          "source_uri": "benchmark/src/datamechbench/settings/trading.py",
+          "license_id": "Apache-2.0",
+          "input_hash": "892173f17a466e4d57959ca575af0358509b2b828a39ad98f28e0eeb7f53b070",
+          "case_ids": ["TBIL-uniform", "TBIL-beta", "TBIL-mixture"]
+        }
+      ]
+    }
+  }
+}

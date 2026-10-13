@@ -1,0 +1,53 @@
+schema_version: "1.0"
+submission_kind: open_case_admission
+contributor: DataMechBench maintainers
+case_pack_id: dadada-listing-example-v1
+example_only: true
+track: procurement
+cohort: open_development
+setting_id: P-ADDITIVE
+
+source:
+  source_uri: https://raw.githubusercontent.com/ZJU-DIVER/DaDaDa/ead4f7f88f22933fcdc3a8bf2f239294a6cb6c3c/DaDaDa/data/final_data.csv
+  source_version: ead4f7f88f22933fcdc3a8bf2f239294a6cb6c3c
+  license_id: Apache-2.0
+  license_url: https://raw.githubusercontent.com/ZJU-DIVER/DaDaDa/ead4f7f88f22933fcdc3a8bf2f239294a6cb6c3c/LICENSE
+  redistributable: true
+  input_path: source_snapshot.json
+  input_sha256: 864c4bb544bf07f8d4de7b1d3d6ea3b400dfdd882e4ed0df860aaa1df817c7c2
+
+privacy:
+  classification: no_personal_data
+  review: Anonymous aggregate support only; no account, seller, or buyer identifiers.
+
+independence:
+  unit: market_source
+  unit_ids:
+    - dadada-datarade-one-off
+
+realism:
+  data: Eight anonymous quantile representatives derived from 695 public Datarade one-off listing asks.
+  utility: Controlled additive procurement utility, deliberately not inferred from asks.
+  participant_type: Listing asks are stress proxies and are not treated as private costs.
+  institutional: Public marketplace listings without observed transactions or buyer values.
+
+economic_observable:
+  semantic: listing_ask
+  observed_measure: Anonymous normalized public listing ask.
+  benchmark_role: Procurement cost-support stress only.
+  claims_supported:
+    - listing_ask
+  claims_forbidden:
+    - transaction_price
+    - reservation_value
+    - buyer_value
+
+transformation:
+  code_path: transform_case.py
+  code_sha256: 424523593238a5f3d12f0cc786c5489c44ce249dcc5045a9587e65e387a58932
+  deterministic: true
+  description: Normalize the anonymous ask support and emit one additive-procurement payload.
+
+cases:
+  - case_id: OPEN-dadada-datarade-one-off-q8
+    source_unit_id: dadada-datarade-one-off

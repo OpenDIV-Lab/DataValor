@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "fixture_kind": "mcafee_official_external_crosscheck",
+  "semantic_alignment": {
+    "domain": "homogeneous single-unit bilateral double auction",
+    "buyer_values": "positive bids, descending order immaterial",
+    "seller_values": "positive asks mapped to the upstream signed negative convention",
+    "tie_rule": "fixtures avoid identity-sensitive ties except the zero-GFT boundary",
+    "price_mapping": "upstream seller payment is negative; seller_receipt is its negation",
+    "gft_mapping": "sum of selected buyer bids minus selected seller asks",
+    "branch_codes": {
+      "no_trade": 0,
+      "candidate_price": 1,
+      "trade_reduction": 2
+    }
+  },
+  "observable_names": [
+    "trade_count",
+    "buyer_price",
+    "seller_receipt",
+    "realized_gain_from_trade",
+    "auctioneer_surplus",
+    "branch_code"
+  ],
+  "cases": [
+    {
+      "case_id": "candidate-price-full-trade",
+      "bids": ["17", "14", "13", "9", "6"],
+      "asks": ["1", "4", "5", "8", "11"],
+      "expected_branch": "candidate_price",
+      "expected_scores": [4, 8.5, 8.5, 35, 0, 1]
+    },
+    {
+      "case_id": "candidate-price-rejected",
+      "bids": ["17", "14", "13", "9", "6"],
+      "asks": ["1", "4", "5", "8", "13"],
+      "expected_branch": "trade_reduction",
+      "expected_scores": [3, 9, 8, 34, 3, 2]
+    },
+    {
+      "case_id": "exhausted-side-reduction",
+      "bids": ["10", "8"],
+      "asks": ["2", "7"],
+      "expected_branch": "trade_reduction",
+      "expected_scores": [1, 8, 7, 8, 1, 2]
+    },
+    {
+      "case_id": "zero-gft-boundary",
+      "bids": ["5", "4"],
+      "asks": ["5", "6"],
+      "expected_branch": "candidate_price",
+      "expected_scores": [1, 5, 5, 0, 0, 1]
+    },
+    {
+      "case_id": "no-trade",
+      "bids": ["1", "0"],
+      "asks": ["2", "3"],
+      "expected_branch": "no_trade",
+      "expected_scores": [0, 0, 0, 0, 0, 0]
+    }
+  ]
+}

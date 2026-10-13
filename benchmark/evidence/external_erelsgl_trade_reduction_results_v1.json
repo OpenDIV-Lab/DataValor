@@ -1,0 +1,168 @@
+{
+  "all_close": true,
+  "comparisons": [
+    {
+      "branch": "trade_reduction",
+      "branch_match": true,
+      "case_id": "candidate-price-rejected",
+      "expected_scores": [
+        3.0,
+        9.0,
+        8.0,
+        34.0,
+        3.0,
+        2.0
+      ],
+      "external_branch": "trade_reduction",
+      "external_scores": [
+        3.0,
+        9.0,
+        8.0,
+        34.0,
+        3.0,
+        2.0
+      ],
+      "local_branch": "trade_reduction",
+      "local_scores": [
+        3.0,
+        9.0,
+        8.0,
+        34.0,
+        3.0,
+        2.0
+      ],
+      "maximum_absolute_error": 0.0,
+      "maximum_fixture_oracle_error": 0.0,
+      "observable_names": [
+        "trade_count",
+        "buyer_price",
+        "seller_receipt",
+        "realized_gain_from_trade",
+        "auctioneer_surplus",
+        "branch_code"
+      ]
+    },
+    {
+      "branch": "trade_reduction",
+      "branch_match": true,
+      "case_id": "exhausted-side-reduction",
+      "expected_scores": [
+        1.0,
+        8.0,
+        7.0,
+        8.0,
+        1.0,
+        2.0
+      ],
+      "external_branch": "trade_reduction",
+      "external_scores": [
+        1.0,
+        8.0,
+        7.0,
+        8.0,
+        1.0,
+        2.0
+      ],
+      "local_branch": "trade_reduction",
+      "local_scores": [
+        1.0,
+        8.0,
+        7.0,
+        8.0,
+        1.0,
+        2.0
+      ],
+      "maximum_absolute_error": 0.0,
+      "maximum_fixture_oracle_error": 0.0,
+      "observable_names": [
+        "trade_count",
+        "buyer_price",
+        "seller_receipt",
+        "realized_gain_from_trade",
+        "auctioneer_surplus",
+        "branch_code"
+      ]
+    },
+    {
+      "branch": "trade_reduction",
+      "branch_match": true,
+      "case_id": "multi-unit-reduction",
+      "expected_scores": [
+        2.0,
+        7.0,
+        6.0,
+        18.0,
+        2.0,
+        2.0
+      ],
+      "external_branch": "trade_reduction",
+      "external_scores": [
+        2.0,
+        7.0,
+        6.0,
+        18.0,
+        2.0,
+        2.0
+      ],
+      "local_branch": "trade_reduction",
+      "local_scores": [
+        2.0,
+        7.0,
+        6.0,
+        18.0,
+        2.0,
+        2.0
+      ],
+      "maximum_absolute_error": 0.0,
+      "maximum_fixture_oracle_error": 0.0,
+      "observable_names": [
+        "trade_count",
+        "buyer_price",
+        "seller_receipt",
+        "realized_gain_from_trade",
+        "auctioneer_surplus",
+        "branch_code"
+      ]
+    }
+  ],
+  "executed_source_files": {
+    "external_dependency_agents": "59ec8cdb818c79a56916c075dee00c21da29475179eec917ae2007ddb1b4d6b2",
+    "external_dependency_markets": "16ef56d2dd86fba0357f7b05d9651fac72557b61aa4aba123f44cd250a2bea54",
+    "external_dependency_trade": "851e2253d0bf9c2aecbb99fbaf44c4dc87c242d9123c68fd73ab0df239456ef4",
+    "external_source": "4f084fcb1aa17a5e5f51c97f528d75969983c789caf82bcdbca76e233f9c49ef"
+  },
+  "executed_source_sha256": "4f084fcb1aa17a5e5f51c97f528d75969983c789caf82bcdbca76e233f9c49ef",
+  "execution_environment": {
+    "python": "3.13.5"
+  },
+  "external_commit": "d1a55eaacb337ecebeaf5f57a67bcd6a9d4411eb",
+  "fixture_count": 3,
+  "maximum_absolute_error": 0.0,
+  "maximum_fixture_oracle_error": 0.0,
+  "method_id": "trade_reduction",
+  "result_kind": "external_implementation_comparison",
+  "schema_version": "1.0",
+  "semantic_alignment": {
+    "buyer_values": "positive bids, descending order immaterial",
+    "domain": "homogeneous single-unit bilateral double auction",
+    "excluded_claim": "no equivalence claim for the separate generalized trade_reduction_protocol.py",
+    "external_scope": "trade-reduction fallback branch of the pinned McAfee implementation",
+    "local_scope": "standalone McAfee k-minus-one trade-reduction rule",
+    "price_mapping": "upstream seller payment is negative; seller_receipt is its negation",
+    "seller_values": "positive asks mapped to the upstream signed negative convention",
+    "tie_rule": "fixtures use general-position values"
+  },
+  "source_execution": "upstream_files_with_one_terminal_newline_normalization",
+  "source_normalizations": [
+    {
+      "executed_sha256": "851e2253d0bf9c2aecbb99fbaf44c4dc87c242d9123c68fd73ab0df239456ef4",
+      "normalization": "one terminal newline appended by text vendoring",
+      "path": "trade.py",
+      "semantic_effect": "none",
+      "upstream_sha256": "41c23c1008d84c4bd8fce9d7bf6d8e7c68005c65187466ed84a32b820d53873f"
+    }
+  ],
+  "tolerance": 1e-12,
+  "upstream_archive_sha256": "d44b31327155c4a226ebef65548c9be053b10914f98bddd0233b237aed51ac6b",
+  "validation_id": "erelsgl-auctions-trade-reduction-d1a55eaa"
+}
