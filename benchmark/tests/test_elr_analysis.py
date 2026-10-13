@@ -88,3 +88,4 @@ def test_analysis_reports_paired_cells_geomean_and_losses() -> None:
     assert analysis.criteria[1].passed
     assert analysis.criteria[4].passed
     assert analysis.criteria[5].passed
+

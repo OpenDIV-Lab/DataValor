@@ -135,7 +135,13 @@ def test_runner_retains_statuses_and_has_deterministic_ids():
         "selected_ids": [],
         "allocations": [],
         "payments": [],
-        "diagnostics": {},
+        "diagnostics": {
+            "resource_usage": {
+                "submitted_reports": 11,
+                "clearing_passes": 1,
+                "randomization_events": 0,
+            }
+        },
     }
     assert any(result.method_id == "test_echo" for result in first)
     assert any(result.method_id == "test_no_trade" for result in first)

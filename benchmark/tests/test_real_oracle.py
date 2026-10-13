@@ -3,9 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
-
 import pytest
-
 from datamechbench.game_builders.real_models import (
     FidelityPrediction,
     ModelTrajectoryConfig,
@@ -37,6 +35,9 @@ def test_oracle_is_lazy_and_one_training_emits_every_fidelity(tmp_path: Path) ->
 
     assert calls == []
     assert oracle.value(3, "low") == pytest.approx(0.3)
+    # Repeated fidelity queries in one experiment must reuse the validated
+    # in-memory trajectory rather than reparsing the JSON record each time.
+    oracle._path(3).unlink()
     assert oracle.value(3, "high") == pytest.approx(0.9)
     assert calls == [3]
     assert oracle.trajectory_builds == 1
@@ -66,6 +67,48 @@ def test_oracle_replay_uses_atomic_cache_without_evaluator(tmp_path: Path) -> No
         evaluator=forbidden,
     )
     assert replay.value(1, "medium") == pytest.approx(0.2)
+    assert replay.trajectory_builds == 0
+
+
+def test_prefix_oracle_builds_only_requested_fidelity_then_upgrades(tmp_path: Path) -> None:
+    calls: list[tuple[int, str]] = []
+
+    def evaluate_prefix(mask: int, fidelity: str):
+        calls.append((mask, fidelity))
+        names = ("low", "medium", "high")
+        stop = names.index(fidelity) + 1
+        return (
+            {name: mask * (index + 1) / 10 for index, name in enumerate(names[:stop])},
+            float(stop),
+            {name: name[0] for name in names[:stop]},
+        )
+
+    oracle = CachedTrajectoryOracle(
+        owner_ids=("o0", "o1"),
+        input_hash="prefix-game-v1",
+        cache_dir=tmp_path,
+        evaluator=None,
+        prefix_evaluator=evaluate_prefix,
+    )
+
+    assert oracle.value(1, "medium") == pytest.approx(0.2)
+    assert oracle.value(1, "low") == pytest.approx(0.1)
+    assert calls == [(1, "medium")]
+    assert oracle.value(1, "high") == pytest.approx(0.3)
+    assert calls == [(1, "medium"), (1, "high")]
+    assert oracle.trajectory_builds == 2
+    assert oracle.physical_fit_seconds == pytest.approx(5.0)
+
+    replay = CachedTrajectoryOracle(
+        owner_ids=("o0", "o1"),
+        input_hash="prefix-game-v1",
+        cache_dir=tmp_path,
+        evaluator=None,
+        prefix_evaluator=lambda mask, fidelity: (_ for _ in ()).throw(
+            AssertionError("upgraded prefix record should replay from disk")
+        ),
+    )
+    assert replay.value(1, "high") == pytest.approx(0.3)
     assert replay.trajectory_builds == 0
 
 

@@ -140,6 +140,38 @@ def test_neural_head_checkpoints_are_epoch_prefixes_and_replay_on_cpu() -> None:
         assert first.predictions[name].checkpoint_hash == first.checkpoint_hashes[name]
 
 
+def test_medium_neural_trajectory_stops_early_and_matches_full_prefix() -> None:
+    rng = np.random.default_rng(137)
+    features = rng.normal(size=(80, 9)).astype(np.float32)
+    targets = np.repeat(np.asarray([0, 1], dtype=np.int64), 40)
+    evaluation = rng.normal(size=(11, 9)).astype(np.float32)
+    config = ModelTrajectoryConfig(
+        model_family="neural_head",
+        task="classification",
+        global_classes=(0, 1),
+    )
+
+    medium = build_trajectory(
+        config,
+        (features, targets),
+        evaluation,
+        seed=43,
+        device="cpu",
+        max_fidelity="medium",
+    )
+    full = build_trajectory(
+        config, (features, targets), evaluation, seed=43, device="cpu"
+    )
+
+    assert tuple(medium.predictions) == ("low", "medium")
+    assert medium.checkpoint_epochs == {"low": 1, "medium": 3}
+    assert_array_equal(
+        medium.predictions["medium"].values,
+        full.predictions["medium"].values,
+    )
+    assert medium.checkpoint_hashes["medium"] == full.checkpoint_hashes["medium"]
+
+
 def test_digits_features_are_normalized_and_content_addressed(tmp_path) -> None:
     source = declared_real_sources()["digits"]
     pixels = np.asarray(

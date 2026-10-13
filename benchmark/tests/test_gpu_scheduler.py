@@ -48,3 +48,4 @@ def test_failed_job_has_no_completion_marker_and_resumes(tmp_path: Path) -> None
     assert marker["physical_gpu"] == 1
     assert marker["local_cuda_index"] == 0
     assert not list(job.output_dir.glob("*.tmp"))
+

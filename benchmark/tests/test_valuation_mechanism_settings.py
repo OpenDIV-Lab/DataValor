@@ -62,3 +62,4 @@ def test_revenue_allocation_conserves_declared_pool() -> None:
     scores = {owner: float(index + 1) for index, owner in enumerate(setting.owner_ids)}
     decision = bridge_valuation_scores(setting, scores)
     assert sum(decision.payments.values(), Decimal("0")) == setting.budget
+

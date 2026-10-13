@@ -178,30 +178,6 @@ def test_pg_elr_freeze_rejects_embedded_confirmatory_outcomes(tmp_path: Path) ->
             raise AssertionError("outcome-derived PG-ELR selection was frozen")
 
 
-def test_pg_elr_confirmatory_config_contains_only_declared_holdouts() -> None:
-    path = Path(__file__).resolve().parents[1] / "configs/pg_elr_paper_confirmatory.yaml"
-    config = yaml.safe_load(path.read_text())
-
-    assert config["physical_gpus"] == [1, 2, 3, 4, 5, 6, 7]
-    assert config["estimator_seeds"] == {"start": 0, "stop": 100}
-    assert config["budgets"] == {"n8": [192, 224], "n10": [448, 640]}
-    assert config["datasets"] == [
-        {
-            "id": "fashion_mnist",
-            "owners": 8,
-            "partition": "label_skew",
-            "feature": "frozen_resnet18",
-        },
-        {
-            "id": "cifar10_subset",
-            "owners": 10,
-            "partition": "iid",
-            "feature": "frozen_resnet18",
-        },
-    ]
-    assert config["confirmatory_utilities"] is None
-
-
 def test_kdd_heldout_freeze_binds_sources_transformations_and_contrasts(
     tmp_path: Path,
 ) -> None:

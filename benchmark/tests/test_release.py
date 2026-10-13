@@ -53,7 +53,7 @@ def _manifest(tmp_path: Path, value: float, *, with_config: bool = True) -> dict
     assert {path.name for path in paths} == {
         "benchmark_manifest.json",
         "benchmark_card.md",
-        "paper_evidence.md",
+        "evidence_overview.md",
     }
     return json.loads((output / "benchmark_manifest.json").read_text(encoding="utf-8"))
 
@@ -70,8 +70,8 @@ def test_release_manifest_records_environment_counts_digests_and_artifacts(tmp_p
     assert manifest["inputs"]["benchmark_source"]["status"] == "available"
     assert manifest["inputs"]["benchmark_source"]["file_count"] > 0
     assert len(manifest["inputs"]["benchmark_source"]["sha256"]) == 64
-    assert manifest["inputs"]["kdd_submission"]["status"] == "available"
-    assert len(manifest["inputs"]["kdd_submission"]["sha256"]) == 64
+    assert manifest["inputs"]["headline_suite"]["status"] == "available"
+    assert len(manifest["inputs"]["headline_suite"]["sha256"]) == 64
     assert manifest["inputs"]["case_bank_development_v1"]["status"] == "available"
     assert len(manifest["inputs"]["case_bank_development_v1"]["sha256"]) == 64
     for artifact in manifest["artifacts"]:

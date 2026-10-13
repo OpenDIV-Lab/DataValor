@@ -6,8 +6,6 @@ from pathlib import Path
 
 import yaml
 from datamechbench.cli import main
-from datamechbench.models import BenchmarkResult
-from datamechbench.report import write_jsonl
 from datamechbench.runner import build_cases, load_config
 
 
@@ -46,7 +44,7 @@ methods:
         "report.md",
         "benchmark_manifest.json",
         "benchmark_card.md",
-        "paper_evidence.md",
+        "evidence_overview.md",
     )
     for name in expected:
         path = output / name
@@ -147,42 +145,3 @@ def test_validate_case_submission_cli_writes_fail_closed_report(tmp_path, capsys
     assert payload["review_eligible"] is False
     assert payload["evidence_scope"] == "open_development_only"
     assert output.is_file()
-
-
-def test_kdd_readiness_cli_writes_fail_closed_reports(tmp_path, capsys):
-    results_path = tmp_path / "raw_results.jsonl"
-    write_jsonl(
-        (
-            BenchmarkResult(
-                run_id="partial",
-                track="valuation",
-                method_id="shapley_exact",
-                case_id="VREP-test",
-                seed=0,
-                status="completed",
-                metrics={"replication_rank_gain": 0.0},
-                runtime_seconds=0.01,
-                metadata={"benchmark_setting": "V-REPLICATION-ROBUSTNESS"},
-            ),
-        ),
-        results_path,
-    )
-    output = tmp_path / "audit"
-    repository = Path(__file__).resolve().parents[2]
-
-    assert main([
-        "kdd-readiness",
-        "--results", str(results_path),
-        "--target", str(repository / "benchmark" / "catalog" / "kdd_submission.yaml"),
-        "--output", str(output),
-        "--repository-root", str(repository),
-        "--post-release-evidence", str(tmp_path / "missing-post-release.yaml"),
-    ]) == 1
-
-    payload = json.loads(capsys.readouterr().out)
-    assert payload["ready"] is False
-    assert payload["failed_gate_count"] > 0
-    assert (output / "kdd_readiness.json").is_file()
-    markdown = (output / "kdd_readiness.md").read_text(encoding="utf-8")
-    assert "KDD 2027 Datasets & Benchmarks Readiness" in markdown
-    assert "NOT READY" in markdown

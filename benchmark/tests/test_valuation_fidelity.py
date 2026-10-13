@@ -83,3 +83,4 @@ def test_corruption_metrics_use_evaluator_only_labels() -> None:
     assert metrics["corruption_auroc"].value == 1.0
     assert metrics["corruption_auprc"].value == 1.0
     assert metrics["corruption_topk_f1"].value == 1.0
+

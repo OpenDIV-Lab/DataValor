@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-from datamechbench.kdd_readiness import load_kdd_target
+from datamechbench.headline_suite import load_headline_suite
 from datamechbench.risk_cards import (
     RISK_DIMENSIONS,
     build_mechanism_risk_artifacts,
@@ -19,12 +19,12 @@ from datamechbench.risk_cards import (
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 CATALOG = REPOSITORY_ROOT / "benchmark" / "catalog" / "mechanism_risk_cards.yaml"
-TARGET = REPOSITORY_ROOT / "benchmark" / "catalog" / "kdd_submission.yaml"
+TARGET = REPOSITORY_ROOT / "benchmark" / "catalog" / "headline_suite.yaml"
 SCRIPT = REPOSITORY_ROOT / "benchmark" / "scripts" / "build_mechanism_risk_cards.py"
 
 
 def test_default_risk_cards_cover_every_headline_with_explicit_non_composite_boundaries() -> None:
-    target = load_kdd_target(TARGET)
+    target = load_headline_suite(TARGET)
     catalog = load_mechanism_risk_cards(
         CATALOG,
         target=target,
@@ -33,7 +33,7 @@ def test_default_risk_cards_cover_every_headline_with_explicit_non_composite_bou
 
     assert catalog.no_cross_method_composite is True
     assert len(catalog.cards) == 17
-    assert {card.method_id for card in catalog.cards} == set(target.headline_method_ids)
+    assert {card.method_id for card in catalog.cards} == set(target.method_ids)
     assert {track: sum(card.track == track for card in catalog.cards) for track in (
         "valuation",
         "procurement",
@@ -72,7 +72,7 @@ def test_risk_card_loader_rejects_incomplete_coverage_and_unsupported_dimension_
     with pytest.raises(ValueError, match="headline coverage mismatch"):
         load_mechanism_risk_cards(
             incomplete,
-            target=load_kdd_target(TARGET),
+            target=load_headline_suite(TARGET),
             repository_root=REPOSITORY_ROOT,
         )
 
@@ -106,7 +106,7 @@ def test_risk_card_loader_rejects_unrecognized_claims_and_unverifiable_evidence(
     with pytest.raises(ValueError, match=message):
         load_mechanism_risk_cards(
             malformed,
-            target=load_kdd_target(TARGET),
+            target=load_headline_suite(TARGET),
             repository_root=REPOSITORY_ROOT,
         )
 
@@ -124,7 +124,7 @@ def test_risk_card_loader_pins_the_frozen_seventeen_independently_of_target(
     with pytest.raises(ValueError, match="frozen headline suite mismatch"):
         load_mechanism_risk_cards(
             CATALOG,
-            target=load_kdd_target(reduced_target),
+            target=load_headline_suite(reduced_target),
             repository_root=REPOSITORY_ROOT,
         )
 
@@ -140,7 +140,7 @@ def test_risk_card_loader_pins_the_frozen_seventeen_independently_of_target(
     with pytest.raises(ValueError, match="not_auditable.*reason"):
         load_mechanism_risk_cards(
             malformed,
-            target=load_kdd_target(TARGET),
+            target=load_headline_suite(TARGET),
             repository_root=REPOSITORY_ROOT,
         )
 

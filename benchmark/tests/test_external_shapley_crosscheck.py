@@ -17,7 +17,7 @@ def test_svarm_exact_shapley_crosscheck_executes_shared_and_boundary_fixtures(
     )
 
     repository = tmp_path / "repo"
-    source_root = REPOSITORY_ROOT / "benchmark/external/svarm_official"
+    source_root = REPOSITORY_ROOT / "benchmark/external/svarm_exact_snapshot"
     external = repository / "benchmark/external/svarm_official"
     scripts = repository / "benchmark/scripts"
     evidence = repository / "benchmark/evidence"
@@ -99,7 +99,7 @@ def test_svarm_exact_shapley_crosscheck_rejects_source_drift(tmp_path: Path) -> 
     )
 
     repository = tmp_path / "repo"
-    source_root = REPOSITORY_ROOT / "benchmark/external/svarm_official"
+    source_root = REPOSITORY_ROOT / "benchmark/external/svarm_exact_snapshot"
     external = repository / "benchmark/external/svarm_official"
     external.mkdir(parents=True)
     source_files = (

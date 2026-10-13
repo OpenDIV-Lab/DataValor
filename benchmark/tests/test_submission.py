@@ -20,7 +20,7 @@ def _metadata(**updates) -> dict:
         "implementation_license": "Apache-2.0",
         "division": "open",
         "benchmark_version": "0.3.0",
-        "result_schema_version": "1.1",
+        "result_schema_version": "1.2",
         "submission_schema_version": "1.1",
         "environment": {"python": "3.11"},
         "supported_settings": ["V-AXIOM"],
@@ -50,7 +50,7 @@ def _row(**updates) -> dict:
             "method_family": "external_family",
             "benchmark_setting": "V-AXIOM",
         },
-        "schema_version": "1.1",
+        "schema_version": "1.2",
     }
     value.update(updates)
     return value

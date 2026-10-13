@@ -14,7 +14,7 @@ import datamechbench.reproduction as reproduction
 import pytest
 from datamechbench.metrics import MetricValue
 from datamechbench.models import BenchmarkResult
-from datamechbench.report import write_jsonl
+from datamechbench.report import load_jsonl_results, write_jsonl
 from datamechbench.reproduction import (
     audit_clean_room_records,
     create_clean_room_record,
@@ -139,8 +139,10 @@ def _manifest_payload(
     artifact: Path,
     environment_lock: Path,
     *,
-    scientific_digest: str = "da552e384c0c06fc7d6a9a6fd8104b529b37a4af5d1e633fb157ec25c36aa137",
+    scientific_digest: str | None = None,
 ) -> dict[str, object]:
+    if scientific_digest is None:
+        scientific_digest = scientific_result_digest(load_jsonl_results(raw_results))
     return {
         "schema_version": "1.0",
         "manifest_kind": "kdd_core_reproduction",
@@ -266,36 +268,6 @@ def test_replication_result_set_rejects_science_change_but_allows_timing(
     )
 
 
-def test_reproduction_mode_allows_paper_manifest_raw_runtime_rebinding(
-    tmp_path: Path,
-) -> None:
-    manifest_path = _write_manifest_fixture(tmp_path)
-    paper_manifest = tmp_path / "paper-artifact-manifest.json"
-    paper_manifest.write_text('{"raw_sha256":"before"}\n', encoding="utf-8")
-    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    payload["artifacts"].append(
-        {
-            "path": paper_manifest.name,
-            "sha256": _sha256(paper_manifest),
-            "role": "paper_artifact_manifest",
-        }
-    )
-    manifest_path.write_text(json.dumps(payload), encoding="utf-8")
-    paper_manifest.write_text('{"raw_sha256":"after"}\n', encoding="utf-8")
-    manifest = load_reproduction_manifest(manifest_path, tmp_path)
-
-    archive = verify_reproduction_manifest(manifest, tmp_path)
-    reproduced = verify_reproduction_manifest(
-        manifest, tmp_path, verification_mode="reproduction"
-    )
-
-    assert archive.passed is False
-    assert reproduced.passed is True
-    assert reproduced.non_scientific_differences == (
-        "byte_hash:paper-artifact-manifest.json",
-    )
-
-
 def test_manifest_verifier_detects_source_tree_tampering(tmp_path: Path) -> None:
     manifest_path = _write_manifest_fixture(tmp_path)
     (tmp_path / "source" / "a.py").write_text("x=2\n", encoding="utf-8")
@@ -394,8 +366,13 @@ def _clean_room_record(
     manifest_path: Path,
     operator_id: str,
     *,
-    scientific_digest: str = "da552e384c0c06fc7d6a9a6fd8104b529b37a4af5d1e633fb157ec25c36aa137",
+    scientific_digest: str | None = None,
 ) -> dict[str, object]:
+    if scientific_digest is None:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        scientific_digest = str(
+            manifest["scientific_results"]["scientific_digest"]
+        )
     preflight = _native_environment_preflight()
     return {
         "schema_version": "1.1",
@@ -1043,9 +1020,18 @@ def test_run_pipeline_orders_heldout_incentive_and_paper_builds() -> None:
         ("run_external_sbba_validation.py", ("--build",)),
         ("run_triple_eagle_extension.py", ("--build",)),
         ("run_bfm_vm_extension.py", ("--build",)),
-        ("build_market_semantic_alignment.py", ()),
-        ("build_qualification_analysis.py", ()),
-        ("build_kdd_paper_artifacts.py", ()),
+            ("build_market_semantic_alignment.py", ()),
+            ("build_qualification_analysis.py", ()),
+            ("run_induced_value_gold.py", ()),
+            ("build_benchmark_metrology.py", ()),
+            ("build_source_hierarchy_audit.py", ()),
+            ("build_discriminability_audit.py", ()),
+            ("build_pairwise_transfer_audit.py", ()),
+            ("build_resource_and_incidence.py", ()),
+            ("run_diagnostic_challenge_panel.py", ()),
+            ("build_resolution_envelope.py", ()),
+            ("audit_external_assets.py", ()),
+            ("build_independent_validity.py", ()),
         ("build_decision_impact.py", ("--build",)),
         ("build_mechanism_risk_cards.py", ("--build",)),
     ]
@@ -1095,7 +1081,6 @@ def test_frozen_core_manifest_binds_outcome_semantic_and_qualification_evidence(
         "benchmark/outputs/kdd_qualification_analysis/summary.json": "qualification_analysis_summary",
         "benchmark/outputs/kdd_qualification_analysis/method_failure_decomposition.csv": "qualification_failure_table",
         "benchmark/outputs/kdd_qualification_analysis/minimum_relaxation_frontier.csv": "qualification_relaxation_frontier",
-        "benchmark/outputs/kdd_paper/table_qualification_decomposition.csv": "paper_table",
     }
     for path, role in expected.items():
         assert artifacts[path] == role

@@ -111,3 +111,4 @@ vector<S_class> S_prev;
 
     assert json.loads(output.read_text(encoding="utf-8")) == expected
     assert output.read_text(encoding="utf-8").endswith("\n")
+

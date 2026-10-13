@@ -228,3 +228,4 @@ def test_default_catalog_has_corrected_pay_as_bid_source() -> None:
     assert record.provenance_kind == "common_baseline"
     assert all("S0004370217300735" not in ref.url for ref in record.references)
     assert record.baseline_usage_references
+

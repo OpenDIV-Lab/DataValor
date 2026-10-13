@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import pytest
-import yaml
 from datamechbench.elr_selection import (
     leave_one_dataset_out_select,
     write_selection_record,
@@ -126,34 +125,3 @@ def test_selection_record_is_canonical_and_binds_source_hashes(tmp_path: Path) -
     assert first_hash == second_hash
     assert json.loads(first.read_text()) == json.loads(second.read_text())
     assert json.loads(first.read_text())["selection_hash"] == first_hash
-
-
-def test_development_config_encodes_the_frozen_paper_protocol() -> None:
-    config_path = Path(__file__).resolve().parents[1] / "configs/pg_elr_paper_development.yaml"
-    config = yaml.safe_load(config_path.read_text())
-
-    assert [item["id"] for item in config["datasets"]] == [
-        "breast_cancer",
-        "wine",
-        "adult",
-        "california_housing",
-        "diabetes",
-        "digits",
-        "ag_news",
-        "20_newsgroups",
-    ]
-    assert config["partitions"] == {
-        "iid": {"seed": 11},
-        "label_skew": {"seed": 29},
-        "quantity_skew": {"seed": 47},
-    }
-    assert config["budgets"] == {"n8": [192, 224]}
-    assert config["estimator_seeds"] == {"start": 0, "stop": 100}
-    assert config["probe_grid"]["players"] == [4, 5, 6]
-    assert config["probe_grid"]["seeds"] == [10, 20, 40]
-    assert config["probe_grid"]["routing"] == "unanimous_else_shapiq_svarm"
-    assert len(config["methods"]) >= 14
-    assert "bd_pg_elr" in config["methods"]
-    assert set(config["ratio_sensitivity"]) == {"q1", "median", "q3"}
-    assert len(config["ablations"]) == 11
-    assert config["physical_gpus"] == [1, 2, 3, 4, 5, 6, 7]

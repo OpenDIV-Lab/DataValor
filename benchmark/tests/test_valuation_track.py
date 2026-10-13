@@ -36,6 +36,7 @@ def test_all_valuation_methods_are_explicitly_registered(valuation_registry):
         "shapiq_unbiased_kernel_shap",
         "shapiq_owen",
         "shapiq_leverage_shap",
+        "shapiq_regression_msr",
         "official_stratified_svarm",
         "official_stratified_svarm_plus",
         "official_linear_regression_msr",

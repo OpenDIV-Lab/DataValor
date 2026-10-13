@@ -42,6 +42,7 @@ def _game(kind: str, n: int = 6) -> CoalitionGameTable:
         "shapiq_unbiased_kernel_shap",
         "shapiq_owen",
         "shapiq_leverage_shap",
+        "shapiq_regression_msr",
     ],
 )
 def test_shapiq_adapters_preserve_owner_order_and_budget(method_id: str) -> None:
@@ -65,6 +66,7 @@ def test_sota_adapters_agree_with_exact_when_full_game_is_consumed(kind: str) ->
         "shapiq_kernel_shap",
         "shapiq_unbiased_kernel_shap",
         "shapiq_leverage_shap",
+        "shapiq_regression_msr",
     ):
         estimate = evaluate_sota(method_id, table, budget=64, seed=0)
         assert estimate.scores == pytest.approx(exact.scores, abs=1e-5)
@@ -78,6 +80,23 @@ def test_sota_adapter_is_seed_deterministic_under_partial_budget() -> None:
     assert first.utility_calls == second.utility_calls
 
 
+def test_regression_msr_exposes_a_replayable_paired_sampling_plan() -> None:
+    high = _game("random")
+    low = CoalitionGameTable(
+        high.owner_ids,
+        {mask: 0.7 * value + 0.1 * mask.bit_count() for mask, value in high.values.items()},
+        fidelity="low",
+    )
+
+    high_output = evaluate_sota("shapiq_regression_msr", high, budget=36, seed=23)
+    low_output = evaluate_sota("shapiq_regression_msr", low, budget=36, seed=23)
+
+    assert high_output.diagnostics["sampled_mask_sequence"]
+    assert high_output.diagnostics["sampled_mask_sequence"] == low_output.diagnostics[
+        "sampled_mask_sequence"
+    ]
+
+
 def test_sota_methods_are_registered_with_same_target_metadata() -> None:
     registry = MethodRegistry()
     register_valuation_methods(registry)
@@ -89,6 +108,7 @@ def test_sota_methods_are_registered_with_same_target_metadata() -> None:
         "shapiq_unbiased_kernel_shap",
         "shapiq_owen",
         "shapiq_leverage_shap",
+        "shapiq_regression_msr",
         "official_stratified_svarm",
         "official_stratified_svarm_plus",
         "official_linear_regression_msr",
@@ -113,6 +133,7 @@ def test_sota_minimum_budgets_are_explicit() -> None:
     assert sota_minimum_budget("exact_table", 6) == 64
     assert sota_minimum_budget("shapiq_svarm", 6) == 2
     assert sota_minimum_budget("shapiq_leverage_shap", 6) == 2
+    assert sota_minimum_budget("shapiq_regression_msr", 6) == 2
     assert sota_minimum_budget("official_stratified_svarm", 6) == 13
     assert sota_minimum_budget("pydvl_vrds", 6) == 2
 
