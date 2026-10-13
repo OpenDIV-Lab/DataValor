@@ -19,11 +19,11 @@ REPOSITORY_ROOT = PACKAGE_ROOT.parent
 DEFAULT_OUTPUT_DIR = PACKAGE_ROOT / "outputs" / "kdd_decision_impact"
 DEFAULT_INPUTS = {
     "confirmatory_contrasts": PACKAGE_ROOT
-    / "outputs/kdd_paper/table_confirmatory_contrasts.csv",
+    / "outputs/kdd_decision_impact/inputs/confirmatory_contrasts.csv",
     "constraint_profiles": PACKAGE_ROOT
-    / "outputs/kdd_paper/table_constraint_profiles.csv",
+    / "outputs/kdd_decision_impact/inputs/constraint_profiles.csv",
     "finite_incentives": PACKAGE_ROOT
-    / "outputs/kdd_paper/table_finite_incentives.csv",
+    / "outputs/kdd_decision_impact/inputs/finite_incentives.csv",
 }
 
 DETAIL_COLUMNS = (

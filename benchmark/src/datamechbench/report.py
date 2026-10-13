@@ -276,7 +276,7 @@ def write_research_artifacts(
         materialized, include_pilots=False, view="paper"
     )
     paper_main_path = _write_dict_csv(
-        destination / "leaderboard_paper_main.csv",
+        destination / "leaderboard_reference_main.csv",
         [row.to_dict() for row in paper_main],
         leaderboard_fields,
     )
@@ -298,7 +298,7 @@ def write_research_artifacts(
         )
     ]
     paper_settings_path = _write_dict_csv(
-        destination / "leaderboard_paper_settings.csv",
+        destination / "leaderboard_reference_settings.csv",
         [row.to_dict() for row in paper_setting_rows],
         leaderboard_fields,
     )

@@ -24,7 +24,6 @@ _RUNTIME_BEARING_ROLES = frozenset({
     "headline_table",
     "setting_table",
     "metric_statistics",
-    "paper_artifact_manifest",
     "replication_scientific_results",
     "replication_evidence",
     "replication_metric_statistics",

@@ -35,6 +35,9 @@ class CachedTrajectoryRecord:
 TrajectoryEvaluator = Callable[
     [int], tuple[Mapping[str, float], float, Mapping[str, str]]
 ]
+PrefixTrajectoryEvaluator = Callable[
+    [int, str], tuple[Mapping[str, float], float, Mapping[str, str]]
+]
 
 
 class CachedTrajectoryOracle:
@@ -46,7 +49,8 @@ class CachedTrajectoryOracle:
         owner_ids: tuple[str, ...],
         input_hash: str,
         cache_dir: Path,
-        evaluator: TrajectoryEvaluator,
+        evaluator: TrajectoryEvaluator | None,
+        prefix_evaluator: PrefixTrajectoryEvaluator | None = None,
     ) -> None:
         owners = tuple(map(str, owner_ids))
         if len(owners) < 2 or len(set(owners)) != len(owners):
@@ -56,9 +60,14 @@ class CachedTrajectoryOracle:
         self.owner_ids = owners
         self.input_hash = str(input_hash)
         self.cache_dir = Path(cache_dir)
+        if (evaluator is None) == (prefix_evaluator is None):
+            raise ValueError("provide exactly one evaluator or prefix_evaluator")
         self.evaluator = evaluator
+        self.prefix_evaluator = prefix_evaluator
         self.trajectory_builds = 0
+        self.physical_fit_seconds = 0.0
         self.logical_calls = {name: 0 for name in FIDELITIES}
+        self._memory_records: dict[int, CachedTrajectoryRecord] = {}
 
     @property
     def root(self) -> Path:
@@ -74,10 +83,16 @@ class CachedTrajectoryOracle:
             str(name): float(value)
             for name, value in dict(payload.get("utilities", {})).items()
         }
-        if set(utilities) != set(FIDELITIES) or not all(
+        utility_names = tuple(name for name in FIDELITIES if name in utilities)
+        if (
+            not utility_names
+            or utility_names != FIDELITIES[: len(utility_names)]
+            or set(utilities) != set(utility_names)
+            or not all(
             math.isfinite(value) for value in utilities.values()
+            )
         ):
-            raise ValueError("coalition record must contain every finite fidelity")
+            raise ValueError("coalition record must contain a finite fidelity prefix")
         fit_seconds = float(payload.get("fit_seconds", float("nan")))
         if not math.isfinite(fit_seconds) or fit_seconds < 0.0:
             raise ValueError("coalition record has invalid fit_seconds")
@@ -92,14 +107,22 @@ class CachedTrajectoryOracle:
             },
         )
 
-    def _load_or_build(self, mask: int) -> CachedTrajectoryRecord:
+    def _load_or_build(self, mask: int, fidelity: str) -> CachedTrajectoryRecord:
+        if mask in self._memory_records and fidelity in self._memory_records[mask].utilities:
+            return self._memory_records[mask]
         path = self._path(mask)
         if path.exists():
             record = self._record(json.loads(path.read_text()))
             if record.mask != mask:
                 raise ValueError("coalition record mask mismatch")
-            return record
-        utilities, fit_seconds, checkpoint_hashes = self.evaluator(mask)
+            self._memory_records[mask] = record
+            if fidelity in record.utilities:
+                return record
+        if self.prefix_evaluator is not None:
+            utilities, fit_seconds, checkpoint_hashes = self.prefix_evaluator(mask, fidelity)
+        else:
+            assert self.evaluator is not None
+            utilities, fit_seconds, checkpoint_hashes = self.evaluator(mask)
         payload = {
             "mask": int(mask),
             "input_hash": self.input_hash,
@@ -113,6 +136,8 @@ class CachedTrajectoryOracle:
         temporary.write_text(json.dumps(payload, sort_keys=True, indent=2) + "\n")
         os.replace(temporary, path)
         self.trajectory_builds += 1
+        self.physical_fit_seconds += float(fit_seconds)
+        self._memory_records[mask] = record
         return record
 
     def value(self, mask: int, fidelity: str) -> float:
@@ -121,7 +146,7 @@ class CachedTrajectoryOracle:
         full_mask = (1 << len(self.owner_ids)) - 1
         if not isinstance(mask, int) or mask < 0 or mask > full_mask:
             raise ValueError("mask lies outside the owner domain")
-        record = self._load_or_build(mask)
+        record = self._load_or_build(mask, fidelity)
         self.logical_calls[fidelity] += 1
         return float(record.utilities[fidelity])
 

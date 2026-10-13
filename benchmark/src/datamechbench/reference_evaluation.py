@@ -14,7 +14,7 @@ from .metrics import (
     evaluate_trading_metrics,
     evaluate_valuation_metrics,
 )
-from .models import BenchmarkResult, ValuationCase, ValuationOutput
+from .models import BenchmarkResult
 from .outcomes import parse_outcome
 from .registry import MethodRegistry, validate_output
 from .report import load_jsonl_results

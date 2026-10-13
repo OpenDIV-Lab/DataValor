@@ -8,8 +8,8 @@ import random
 import subprocess
 import sys
 import warnings
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Mapping, Sequence
 
 import numpy as np

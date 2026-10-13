@@ -135,14 +135,14 @@ Until a benchmark paper is published, cite the DataValor repository, the version
     return path
 
 
-def _write_paper_evidence(
+def _write_evidence_overview(
     path: Path,
     results: tuple[BenchmarkResult, ...],
     counts: dict[str, object],
 ) -> Path:
     status = counts["statuses"]
     path.write_text(
-        f"""# Paper Evidence Index
+        f"""# Benchmark Evidence Index
 
 ## Benchmark contributions supported by artifacts
 
@@ -213,13 +213,15 @@ def write_release_artifacts(
         "observed_cases": len({row.case_id for row in materialized}),
     }
     card = _write_benchmark_card(destination / "benchmark_card.md", release, counts)
-    evidence = _write_paper_evidence(destination / "paper_evidence.md", materialized, counts)
+    evidence = _write_evidence_overview(
+        destination / "evidence_overview.md", materialized, counts
+    )
     catalog_names = (
         "mechanisms.yaml", "references.yaml", "metrics.yaml", "expectations.yaml",
         "qualification.yaml", "assumption_transfers.yaml", "benchmark_release.yaml",
     )
     inputs = {name.removesuffix(".yaml"): _input_entry(CATALOG_DIR / name) for name in catalog_names}
-    inputs["kdd_submission"] = _input_entry(CATALOG_DIR / "kdd_submission.yaml")
+    inputs["headline_suite"] = _input_entry(CATALOG_DIR / "headline_suite.yaml")
     inputs["case_bank_development_v1"] = _input_entry(
         PACKAGE_ROOT / "evidence" / "case_bank_development_v1.json"
     )

@@ -1,4 +1,4 @@
-"""Fail-closed contracts for a source-disjoint held-out replication wave."""
+"""Fail-closed contracts for a separately frozen held-out replication wave."""
 
 from __future__ import annotations
 

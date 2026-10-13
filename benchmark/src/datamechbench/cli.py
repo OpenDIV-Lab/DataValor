@@ -4,20 +4,12 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import replace
 from pathlib import Path
 from typing import Sequence
 
 from .case_submission import validate_case_submission
 from .elr_analysis import analyze_elr_results
 from .elr_evidence_report import write_elr_evidence_report
-from .kdd_readiness import (
-    DEFAULT_TARGET,
-    audit_kdd_readiness,
-    load_kdd_target,
-    write_kdd_readiness_report,
-)
-from .provenance import load_provenance
 from .reference_evaluation import write_reference_outcome_audit
 from .release import write_release_artifacts
 from .report import (
@@ -80,27 +72,12 @@ def _parser() -> argparse.ArgumentParser:
     evidence.add_argument("--results", required=True, help="raw result JSONL")
     evidence.add_argument("--output", required=True, help="artifact output directory")
     evidence.add_argument("--bootstrap-samples", type=int, default=10_000)
-    readiness = commands.add_parser(
-        "kdd-readiness", help="audit a release against the frozen KDD benchmark gates"
-    )
-    readiness.add_argument("--results", required=True, help="raw result JSONL")
-    readiness.add_argument("--output", required=True, help="readiness artifact directory")
-    readiness.add_argument(
-        "--target", default=str(DEFAULT_TARGET), help="KDD submission target YAML"
-    )
     reference = commands.add_parser(
         "audit-reference-outcomes",
         help="recompute standard metrics from persisted reference outcomes",
     )
     reference.add_argument("--results", required=True, help="raw result JSONL")
     reference.add_argument("--output", required=True, help="audit JSON path")
-    readiness.add_argument(
-        "--repository-root", default=".", help="root used to resolve evidence paths"
-    )
-    readiness.add_argument(
-        "--post-release-evidence",
-        help="optional post-release evidence manifest outside the immutable archive",
-    )
     return parser
 
 
@@ -182,31 +159,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         payload = json.loads(output.read_text(encoding="utf-8"))
         print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
         return 0 if payload["passed"] else 1
-    if args.command == "kdd-readiness":
-        results = load_jsonl_results(args.results)
-        provenance = load_provenance()
-        target = load_kdd_target(args.target, provenance=provenance)
-        if args.post_release_evidence:
-            target = replace(
-                target,
-                post_release_evidence_manifest=args.post_release_evidence,
-            )
-        report = audit_kdd_readiness(
-            results,
-            target,
-            provenance=provenance,
-            repository_root=args.repository_root,
-        )
-        paths = write_kdd_readiness_report(report, args.output)
-        failed = sum(gate.status == "fail" for gate in report.gates)
-        not_evidenced = sum(gate.status == "not_evidenced" for gate in report.gates)
-        print(json.dumps({
-            "ready": report.ready,
-            "failed_gate_count": failed,
-            "not_evidenced_gate_count": not_evidenced,
-            "reports": [str(path) for path in paths],
-        }, ensure_ascii=False, indent=2, sort_keys=True))
-        return 0 if report.ready else 1
     if args.command == "validate":
         results = load_jsonl_results(args.results)
         run_ids = [row.run_id for row in results]

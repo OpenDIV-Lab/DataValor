@@ -313,6 +313,11 @@ def register_valuation_methods(registry: MethodRegistry) -> None:
                 ("shapiq_unbiased_kernel_shap", ("shapiq", "unbiased_kernel_shap"), "shapiq.UnbiasedKernelSHAP"),
                 ("shapiq_owen", ("shapiq",), "shapiq.OwenSamplingSV"),
                 ("shapiq_leverage_shap", ("shapiq",), "shapiq.LeverageSHAP"),
+                (
+                    "shapiq_regression_msr",
+                    ("shapiq", "regression_msr"),
+                    "shapiq.RegressionMSR",
+                ),
             )
         ),
         (

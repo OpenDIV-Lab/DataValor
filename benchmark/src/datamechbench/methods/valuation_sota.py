@@ -27,6 +27,7 @@ _SHAPIQ_CLASSES = {
     "shapiq_unbiased_kernel_shap": "UnbiasedKernelSHAP",
     "shapiq_owen": "OwenSamplingSV",
     "shapiq_leverage_shap": "LeverageSHAP",
+    "shapiq_regression_msr": "RegressionMSR",
 }
 _OFFICIAL_SVARM_COMMIT = "c4e30395b14b8bf9a8687d839d5b406f825bb23d"
 
@@ -89,6 +90,7 @@ def _shapiq(
     n_players = len(table.owner_ids)
     calls = 0
     observed_masks: set[int] = set()
+    sampled_masks: list[int] = []
 
     def game(coalitions: np.ndarray) -> np.ndarray:
         nonlocal calls
@@ -103,10 +105,19 @@ def _shapiq(
         if calls > budget:
             raise RuntimeError("external estimator exceeded declared coalition budget")
         observed_masks.update(masks)
+        sampled_masks.extend(masks)
         return np.asarray([table.values[mask] for mask in masks], dtype=float)
 
     approximator_class = getattr(shapiq, _SHAPIQ_CLASSES[method_id])
-    approximator = approximator_class(n=n_players, random_state=seed)
+    if method_id == "shapiq_regression_msr":
+        approximator = approximator_class(
+            n=n_players,
+            index="SV",
+            proxy_model="linear",
+            random_state=seed,
+        )
+    else:
+        approximator = approximator_class(n=n_players, random_state=seed)
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore", message="Not all budget is required due to the border-trick"
@@ -121,6 +132,7 @@ def _shapiq(
             "estimand": "ordinary_shapley",
             "logical_calls": calls,
             "unique_coalitions": len(observed_masks),
+            "sampled_mask_sequence": tuple(sampled_masks),
             "declared_budget": budget,
             "backend": "shapiq",
             "backend_version": shapiq.__version__,

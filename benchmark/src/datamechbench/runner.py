@@ -27,6 +27,11 @@ from .metrics import (
     evaluate_trading_metrics,
     evaluate_valuation_metrics,
 )
+from .market_resources import (
+    attach_resource_usage,
+    instrument_procurement_input,
+    trading_resource_usage,
+)
 from .models import BenchmarkResult
 from .outcomes import serialize_outcome
 from .provenance import load_provenance
@@ -246,11 +251,23 @@ def run_benchmark(
                             output = method.evaluate(case, seed)
                             public_case = case
                         elif track == "procurement":
-                            output = method.allocate(case.public, seed)
-                            public_case = case.public
+                            public_case, utility_counter = instrument_procurement_input(
+                                case.public
+                            )
+                            output = method.allocate(public_case, seed)
+                            output = attach_resource_usage(
+                                output,
+                                {"utility_oracle_calls": utility_counter.calls},
+                            )
                         else:
                             output = method.clear(case.public, seed)
                             public_case = case.public
+                            output = attach_resource_usage(
+                                output,
+                                trading_resource_usage(
+                                    method_id, public_case, output
+                                ),
+                            )
                         validate_output(spec, public_case, output)
                     except OptionalMethodUnavailable as exc:
                         records.append(

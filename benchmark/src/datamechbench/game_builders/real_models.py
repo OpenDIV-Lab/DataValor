@@ -82,9 +82,11 @@ def _forest_trajectory(
     targets: np.ndarray,
     evaluation: np.ndarray,
     seed: int,
+    max_fidelity: str,
 ) -> tuple[Any, dict[str, FidelityPrediction]]:
     ladder = fidelity_ladder("tree_ensemble")
-    high_capacity = ladder[-1].capacity
+    visible_ladder = ladder[: tuple(row.name for row in ladder).index(max_fidelity) + 1]
+    high_capacity = visible_ladder[-1].capacity
     if config.task == "classification":
         from sklearn.ensemble import RandomForestClassifier
 
@@ -94,7 +96,7 @@ def _forest_trajectory(
             n_jobs=1,
         ).fit(features, targets)
         predictions = {}
-        for fidelity in ladder:
+        for fidelity in visible_ladder:
             local = np.mean(
                 [tree.predict_proba(evaluation) for tree in estimator.estimators_[: fidelity.capacity]],
                 axis=0,
@@ -113,7 +115,7 @@ def _forest_trajectory(
         n_jobs=1,
     ).fit(features, targets)
     predictions = {}
-    for fidelity in ladder:
+    for fidelity in visible_ladder:
         values = np.mean(
             [tree.predict(evaluation) for tree in estimator.estimators_[: fidelity.capacity]],
             axis=0,
@@ -130,9 +132,11 @@ def _boosting_trajectory(
     targets: np.ndarray,
     evaluation: np.ndarray,
     seed: int,
+    max_fidelity: str,
 ) -> tuple[Any, dict[str, FidelityPrediction]]:
     ladder = fidelity_ladder("boosting")
-    high_capacity = ladder[-1].capacity
+    visible_ladder = ladder[: tuple(row.name for row in ladder).index(max_fidelity) + 1]
+    high_capacity = visible_ladder[-1].capacity
     if config.task == "classification":
         unique_targets = np.unique(targets)
         if len(unique_targets) == 1:
@@ -150,7 +154,7 @@ def _boosting_trajectory(
                         config.global_classes,
                     ),
                 )
-                for fidelity in ladder
+                for fidelity in visible_ladder
             }
             return estimator, predictions
         from sklearn.ensemble import GradientBoostingClassifier
@@ -170,7 +174,7 @@ def _boosting_trajectory(
                     config.global_classes,
                 ),
             )
-            for fidelity in ladder
+            for fidelity in visible_ladder
         }
         return estimator, predictions
 
@@ -187,7 +191,7 @@ def _boosting_trajectory(
             fidelity.capacity,
             staged[fidelity.capacity - 1],
         )
-        for fidelity in ladder
+        for fidelity in visible_ladder
     }
     return estimator, predictions
 
@@ -210,6 +214,7 @@ def _neural_trajectory(
     evaluation: np.ndarray,
     seed: int,
     device: str,
+    max_fidelity: str,
 ) -> tuple[
     Any,
     dict[str, FidelityPrediction],
@@ -247,12 +252,13 @@ def _neural_trajectory(
         loss_function = torch.nn.MSELoss()
 
     ladder = fidelity_ladder("neural_head")
-    by_epoch = {fidelity.capacity: fidelity for fidelity in ladder}
+    visible_ladder = ladder[: tuple(row.name for row in ladder).index(max_fidelity) + 1]
+    by_epoch = {fidelity.capacity: fidelity for fidelity in visible_ladder}
     predictions: dict[str, FidelityPrediction] = {}
     checkpoints: dict[str, Mapping[str, np.ndarray]] = {}
     checkpoint_hashes: dict[str, str] = {}
     checkpoint_epochs: dict[str, int] = {}
-    for epoch in range(1, ladder[-1].capacity + 1):
+    for epoch in range(1, visible_ladder[-1].capacity + 1):
         estimator.train()
         optimizer.zero_grad(set_to_none=True)
         loss = loss_function(estimator(train_features), train_targets)
@@ -293,8 +299,11 @@ def build_trajectory(
     *,
     seed: int,
     device: str,
+    max_fidelity: str = "high",
 ) -> NestedTrajectory:
-    """Fit one high trajectory and expose only strict low/medium prefixes."""
+    """Fit through ``max_fidelity`` and expose its exact nested prefixes."""
+    if max_fidelity not in {"low", "medium", "high"}:
+        raise ValueError("max_fidelity must be low, medium, or high")
     if device != "cpu" and config.model_family != "neural_head":
         raise ValueError("tree and boosting trajectories run deterministically on cpu")
     features, targets = (np.asarray(train[0]), np.asarray(train[1]))
@@ -305,11 +314,11 @@ def build_trajectory(
     checkpoint_epochs: dict[str, int] = {}
     if config.model_family == "tree_ensemble":
         estimator, predictions = _forest_trajectory(
-            config, features, targets, evaluation_array, seed
+            config, features, targets, evaluation_array, seed, max_fidelity
         )
     elif config.model_family == "boosting":
         estimator, predictions = _boosting_trajectory(
-            config, features, targets, evaluation_array, seed
+            config, features, targets, evaluation_array, seed, max_fidelity
         )
     elif config.model_family == "neural_head":
         (
@@ -319,7 +328,7 @@ def build_trajectory(
             checkpoint_hashes,
             checkpoint_epochs,
         ) = _neural_trajectory(
-            config, features, targets, evaluation_array, seed, device
+            config, features, targets, evaluation_array, seed, device, max_fidelity
         )
     else:
         raise ValueError(f"unsupported model family: {config.model_family}")

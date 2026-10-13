@@ -13,16 +13,15 @@ import json
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 import yaml
 
-if TYPE_CHECKING:
-    from .kdd_readiness import KDDTarget
+from .headline_suite import HeadlineSuite, load_headline_suite
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CATALOG = PACKAGE_ROOT / "catalog" / "mechanism_risk_cards.yaml"
-DEFAULT_TARGET = PACKAGE_ROOT / "catalog" / "kdd_submission.yaml"
+DEFAULT_TARGET = PACKAGE_ROOT / "catalog" / "headline_suite.yaml"
 DEFAULT_METRIC_CATALOG = PACKAGE_ROOT / "catalog" / "metrics.yaml"
 DEFAULT_CORE_MANIFEST = PACKAGE_ROOT / "reproduction" / "kdd2027_core_manifest.json"
 DEFAULT_OUTPUT_DIR = PACKAGE_ROOT / "outputs" / "kdd_mechanism_risks"
@@ -320,7 +319,7 @@ def _metric_coverage(
 def load_mechanism_risk_cards(
     path: str | Path = DEFAULT_CATALOG,
     *,
-    target: KDDTarget | None = None,
+    target: HeadlineSuite | None = None,
     repository_root: str | Path,
 ) -> MechanismRiskCatalog:
     """Load risk cards and require exact coverage of the frozen headline suite."""
@@ -334,9 +333,7 @@ def load_mechanism_risk_cards(
     if raw.get("no_cross_method_composite") is not True:
         raise ValueError("no_cross_method_composite must be true")
     if target is None:
-        from .kdd_readiness import load_kdd_target
-
-        target = load_kdd_target(DEFAULT_TARGET)
+        target = load_headline_suite(DEFAULT_TARGET)
     root = Path(repository_root)
     metric_tracks = _metric_tracks(root)
     release_bound_paths = _release_bound_paths(root)
@@ -565,9 +562,7 @@ def build_mechanism_risk_artifacts(
     root = Path(repository_root)
     catalog_file = Path(catalog_path)
     target_file = Path(target_path)
-    from .kdd_readiness import load_kdd_target
-
-    target = load_kdd_target(target_file)
+    target = load_headline_suite(target_file)
     catalog = load_mechanism_risk_cards(
         catalog_file,
         target=target,
@@ -801,9 +796,7 @@ def verify_mechanism_risk_artifacts(
             )
             for error in errors
         ):
-            from .kdd_readiness import load_kdd_target
-
-            target = load_kdd_target(resolved_inputs["target"])
+            target = load_headline_suite(resolved_inputs["target"])
             catalog = load_mechanism_risk_cards(
                 resolved_inputs["catalog"],
                 target=target,
