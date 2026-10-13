@@ -13,7 +13,7 @@ dimension_templates:
       evidence_metric_ids: [replication_owner_rank_change, replication_reward_share_gain, topk_test_utility]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_confirmatory_contrasts.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/confirmatory_contrasts.csv
     payment_incidence:
       status: not_auditable
       reason: The headline valuation protocol emits scores but does not define or observe a real transfer rule.
@@ -29,7 +29,7 @@ dimension_templates:
       evidence_metric_ids: [replication_owner_rank_change, replication_reward_share_gain, replication_score_inflation_ratio]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_confirmatory_contrasts.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/confirmatory_contrasts.csv
     subgroup_fairness:
       status: not_auditable
       reason: The released cases do not provide lawful, meaningful protected-group labels or a registered fairness estimand.
@@ -44,35 +44,35 @@ dimension_templates:
       evidence_metric_ids: [oracle_ratio, buyer_utility, seller_surplus]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     payment_incidence:
       status: audited_scope
       scope: Mechanism-emitted seller transfers and their aggregate budget use; it does not observe real seller welfare.
       evidence_metric_ids: [total_payment, budget_used_ratio, seller_surplus]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     individual_rationality:
       status: audited_scope
       scope: Ex-post selected-seller payments relative to evaluator-held proxy true costs.
       evidence_metric_ids: [seller_ir_violation_count]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     budget_feasibility:
       status: audited_scope
       scope: Total mechanism payments relative to the declared hard buyer budget.
       evidence_metric_ids: [budget_violation, budget_used_ratio]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     manipulation_evidence:
       status: audited_scope
       scope: Finite unilateral cost-report deviations over the declared type/report grids and mechanism random-seed panels.
       evidence_metric_ids: [max_deviation_gain, profitable_deviation_count, allocation_monotonicity_violation]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_finite_incentives.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/finite_incentives.csv
         - benchmark/evidence/kdd_finite_incentive_audit_v1.json
     subgroup_fairness:
       status: not_auditable
@@ -88,35 +88,35 @@ dimension_templates:
       evidence_metric_ids: [gain_from_trade_ratio, buyer_surplus, seller_surplus_trading, auctioneer_surplus]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     payment_incidence:
       status: audited_scope
       scope: Per-side transfers, participant surplus, and platform surplus produced by the released mechanism implementation.
       evidence_metric_ids: [buyer_surplus, seller_surplus_trading, auctioneer_surplus, strong_budget_balance]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     individual_rationality:
       status: audited_scope
       scope: Ex-post utility of matched buyers and sellers against evaluator-held proxy types.
       evidence_metric_ids: [individual_rationality, false_trade_count]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     budget_feasibility:
       status: audited_scope
       scope: Weak and strong budget balance plus observed auctioneer surplus for the released clearing outcome.
       evidence_metric_ids: [weak_budget_balance, strong_budget_balance, auctioneer_surplus]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
     manipulation_evidence:
       status: audited_scope
       scope: Finite unilateral value/cost report deviations on the declared profiles; randomized rules use fixed seed panels, not exhaustive random support.
       evidence_metric_ids: [trading_max_deviation_gain]
       evidence_paths:
         - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-        - benchmark/outputs/kdd_paper/table_finite_incentives.csv
+        - benchmark/outputs/kdd_decision_impact/inputs/finite_incentives.csv
         - benchmark/evidence/kdd_finite_incentive_audit_v1.json
     subgroup_fairness:
       status: not_auditable
@@ -242,21 +242,21 @@ cards:
         evidence_metric_ids: [oracle_ratio, buyer_utility, seller_surplus]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
       payment_incidence:
         status: audited_scope
         scope: Seller transfers, budget use, and seller surplus cover 12 of 18 released runs; the other 6 are explicit missing_payments records and are not treated as zero transfers.
         evidence_metric_ids: [total_payment, budget_used_ratio, seller_surplus]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
       budget_feasibility:
         status: audited_scope
         scope: Payment-based budget feasibility covers 12 of 18 released runs; 6 missing_payments runs remain an explicit evidence gap.
         evidence_metric_ids: [budget_violation, budget_used_ratio]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
 
   - method_id: jt_deterministic_eom
     track: procurement
@@ -314,21 +314,21 @@ cards:
         evidence_metric_ids: [gain_from_trade_ratio, buyer_surplus, seller_surplus_trading, auctioneer_surplus]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
       payment_incidence:
         status: audited_scope
         scope: Transfers and surplus cover only 3 of 18 released runs; 15 missing_payments records are an evidence gap and are not interpreted as zero transfers.
         evidence_metric_ids: [buyer_surplus, seller_surplus_trading, auctioneer_surplus, strong_budget_balance]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
       budget_feasibility:
         status: audited_scope
         scope: Weak budget balance is observed in all 18 runs, but strong balance and auctioneer surplus are observed in only 3; 15 runs are explicit missing_payments cases.
         evidence_metric_ids: [weak_budget_balance, strong_budget_balance, auctioneer_surplus]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
 
   - method_id: vickrey_muda
     track: trading
@@ -346,18 +346,18 @@ cards:
         evidence_metric_ids: [gain_from_trade_ratio, buyer_surplus, seller_surplus_trading, auctioneer_surplus]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
       payment_incidence:
         status: audited_scope
         scope: Transfers and surplus cover only 3 of 18 released runs; 15 missing_payments records are an evidence gap and are not interpreted as zero transfers.
         evidence_metric_ids: [buyer_surplus, seller_surplus_trading, auctioneer_surplus, strong_budget_balance]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv
       budget_feasibility:
         status: audited_scope
         scope: Weak budget balance is observed in all 18 runs, but strong balance and auctioneer surplus are observed in only 3; 15 runs are explicit missing_payments cases.
         evidence_metric_ids: [weak_budget_balance, strong_budget_balance, auctioneer_surplus]
         evidence_paths:
           - benchmark/outputs/kdd_heldout_confirmatory/raw_results.jsonl
-          - benchmark/outputs/kdd_paper/table_constraint_profiles.csv
+          - benchmark/outputs/kdd_decision_impact/inputs/constraint_profiles.csv

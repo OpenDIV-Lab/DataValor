@@ -40,3 +40,4 @@ Result, submission, case, catalog, and release schemas are versioned.  Breaking
 changes require a migration note in `CHANGELOG.md`.  New research-paper
 experiments should live outside the benchmark package unless they implement a
 general benchmark method, setting, or evaluator.
+

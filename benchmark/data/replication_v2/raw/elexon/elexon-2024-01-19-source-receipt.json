@@ -1,0 +1,26 @@
+{
+  "artifact_kind": "official_api_source_receipt",
+  "date": "2024-01-19",
+  "endpoint_template": "https://data.elexon.co.uk/bmrs/api/v1/balancing/bid-offer/all?settlementDate={date}&settlementPeriod={period}&format=json",
+  "schema_version": "1.0",
+  "settlement_periods": [
+    8,
+    24,
+    40
+  ],
+  "source_files": [
+    {
+      "path": "benchmark/data/replication_v2/raw/elexon/bod-2024-01-19-sp8.json",
+      "sha256": "0dc6150ef18f7d18afffb634e303b2e16725819ebcf5f68a895a3a7bd7c92fa6"
+    },
+    {
+      "path": "benchmark/data/replication_v2/raw/elexon/bod-2024-01-19-sp24.json",
+      "sha256": "05a430c7cbe08606938936e03a2958fdd487af652083e31877bebf67ff24777f"
+    },
+    {
+      "path": "benchmark/data/replication_v2/raw/elexon/bod-2024-01-19-sp40.json",
+      "sha256": "336c05dd90edd7c5b3aec98c232b528ee40f60f7898f5fd4534f3c37e3f21dd2"
+    }
+  ],
+  "source_id": "elexon-bod"
+}

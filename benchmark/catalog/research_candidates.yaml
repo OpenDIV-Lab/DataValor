@@ -6,7 +6,7 @@ purpose: >-
 candidates:
   - method_id: elr_residual_leverage
     track: valuation
-    reference_url: local:docs/research/elr_vrds_broad_validation.md
+    reference_url: local:src/datamechbench/methods/valuation_multifidelity.py
     status: validated_controlled_only
     blocker: >-
       Strong cost-matched cached-game results exist, including unseen n=8 and

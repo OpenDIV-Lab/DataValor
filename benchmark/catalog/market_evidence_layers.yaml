@@ -2,7 +2,7 @@ schema_version: "1.0"
 layers:
   - layer_id: task_utility
     semantic: observed_task_utility
-    evidence_unit: source-disjoint trained prediction task
+    evidence_unit: dataset-disjoint trained prediction task
     allowed_claim: valuation performance on frozen task utility
     forbidden_claim: observed market price or private participant type
   - layer_id: cross_domain_proxy

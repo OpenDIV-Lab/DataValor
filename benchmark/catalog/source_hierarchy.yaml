@@ -1,0 +1,27 @@
+schema_version: "1.0"
+cross_source_minimum: 3
+declared_track_status:
+  valuation: multi_dataset_single_institution
+  procurement: temporal_transfer_only
+  trading: temporal_transfer_only
+
+# institution_id is conservative: public hosting does not prove that upstream
+# creators form independently sampled institutions.  OpenML datasets therefore
+# remain multiple source families under one unresolved upstream-institution tier.
+blocks:
+  - {block_id: VHO-spambase, track: valuation, wave: v1, temporal_block_id: VHO-spambase, dataset_id: openml-44, source_family_id: spambase-origin, institution_id: openml-upstream-unresolved}
+  - {block_id: VHO-credit-g, track: valuation, wave: v1, temporal_block_id: VHO-credit-g, dataset_id: openml-31, source_family_id: credit-g-origin, institution_id: openml-upstream-unresolved}
+  - {block_id: VHO-bank-marketing, track: valuation, wave: v1, temporal_block_id: VHO-bank-marketing, dataset_id: openml-1461, source_family_id: bank-marketing-origin, institution_id: openml-upstream-unresolved}
+  - {block_id: VR2-openml-46913, track: valuation, wave: v2, temporal_block_id: VR2-openml-46913, dataset_id: openml-46913, source_family_id: blood-transfusion-origin, institution_id: openml-upstream-unresolved}
+  - {block_id: VR2-openml-46924, track: valuation, wave: v2, temporal_block_id: VR2-openml-46924, dataset_id: openml-46924, source_family_id: ecommerce-shipping-origin, institution_id: openml-upstream-unresolved}
+  - {block_id: PHO-chile-may, track: procurement, wave: v1, temporal_block_id: chile-2024-05-17, dataset_id: chilecompra-2024, source_family_id: chilecompra-ocds, institution_id: chilecompra}
+  - {block_id: PHO-chile-jun, track: procurement, wave: v1, temporal_block_id: chile-2024-06-14, dataset_id: chilecompra-2024, source_family_id: chilecompra-ocds, institution_id: chilecompra}
+  - {block_id: PHO-chile-sep, track: procurement, wave: v1, temporal_block_id: chile-2024-09-13, dataset_id: chilecompra-2024, source_family_id: chilecompra-ocds, institution_id: chilecompra}
+  - {block_id: PR2-chile-20240119, track: procurement, wave: v2, temporal_block_id: chile-2024-01-19, dataset_id: chilecompra-2024, source_family_id: chilecompra-ocds, institution_id: chilecompra}
+  - {block_id: PR2-chile-20241115, track: procurement, wave: v2, temporal_block_id: chile-2024-11-15, dataset_id: chilecompra-2024, source_family_id: chilecompra-ocds, institution_id: chilecompra}
+  - {block_id: THO-elexon-20240315, track: trading, wave: v1, temporal_block_id: elexon-2024-03-15, dataset_id: elexon-bod-2024, source_family_id: elexon-bmrs, institution_id: elexon}
+  - {block_id: THO-elexon-20240614, track: trading, wave: v1, temporal_block_id: elexon-2024-06-14, dataset_id: elexon-bod-2024, source_family_id: elexon-bmrs, institution_id: elexon}
+  - {block_id: THO-elexon-20240913, track: trading, wave: v1, temporal_block_id: elexon-2024-09-13, dataset_id: elexon-bod-2024, source_family_id: elexon-bmrs, institution_id: elexon}
+  - {block_id: TR2-elexon-20240119, track: trading, wave: v2, temporal_block_id: elexon-2024-01-19, dataset_id: elexon-bod-2024, source_family_id: elexon-bmrs, institution_id: elexon}
+  - {block_id: TR2-elexon-20241115, track: trading, wave: v2, temporal_block_id: elexon-2024-11-15, dataset_id: elexon-bod-2024, source_family_id: elexon-bmrs, institution_id: elexon}
+

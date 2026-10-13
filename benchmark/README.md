@@ -19,6 +19,11 @@ DataMechBench 是 DataValor 中相对独立的、面向**数据估值与定价�
 2. **Claim-aligned evidence。** 将论文/代码来源、实现 fidelity、假设、随机性 estimand、source-block 推断、经济约束和有限域激励证据绑定到同一个判定。
 3. **Structural decision impact。** 围绕复制、采购集中度和交易几何构造压力轴，并量化忽略统计、支付、约束或反例时，机制 claim 与选择会如何改变。
 
+在这三项主贡献之上，代码库把 benchmark 本身当作测量仪器校验：受控诱导价值
+gold cases 提供可重放的直接机制语义；method-complete mutation matrix 检验 evaluator 是否能发现
+科学结果污染；source-block 子集分析量化榜单稳定性；v1-only 选型再在 v2 上前瞻评估，
+避免看过复现波次后重新挑方法。这些是主证据链的质量保障，不增加跨轨总分。
+
 扩展 catalog 的方法数量用于说明覆盖面和可扩展性，**不是 novelty 论据**。
 
 ## 这套系统评估能做什么
@@ -29,7 +34,7 @@ DataMechBench 将榜单转化为可执行的研究和选型流程：
 - **复核论文结论：**把 source claim、实现偏差、假设、随机性和有限反例放在同一证据链中，定位结论成立的边界；
 - **诊断机制失效：**区分复制提取、卖方集中度、成交容量、随机分割与定价选择造成的损失；
 - **辅助机制选型：**先看任务效用或福利，再按 payment、budget、IR、WBB/SBB 和 auditability 筛选候选，而不是直接部署 raw winner；
-- **评估跨来源鲁棒性：**用 source-disjoint blocks、结构曲线、assumption transfer 和 minimax regret 判断推荐是否依赖单一数据源或类型插补；
+- **评估证据迁移：**显式区分 temporal block、dataset、source family 和 institution，再用结构曲线、assumption transfer 与 minimax regret 判断推荐依赖何种证据范围；
 - **持续扩展 benchmark：**通过 reference/open division 加入新方法和新 case，同时保留旧版本结论和负结果。
 
 这些输出用于研究、工程预选和风险诊断；它们不构成自动采购决策、合规认证或部署许可。更完整的使用者—任务—决策映射见 [`docs/core_contribution.md`](docs/core_contribution.md)。
@@ -67,7 +72,7 @@ reference suite 冻结 17 个 headline 机制族，并维护三个独立分榜�
 | T2 open-data-backed | 测试来源迁移 | OpenML/UCI task utility、ChileCompra、Elexon |
 | T3 market-calibrated | 现实支持与敏感性 | DaDaDa listed asks、CNIL aggregate anchors、deal/source audits |
 
-v1 held-out core 每轨包含 3 个独立 source blocks，共 210 条完成结果；v2 每轨增加 2 个来源不重叠 blocks，共 140 条结果。两轮分别推断，不合并为更窄区间。DaDaDa 是挂牌价支持，ChileCompra/Elexon 是制度 proxy，均不解释为真实私有 reservation cost 或数据市场成交类型。
+v1 held-out core 每轨包含 3 个注册 blocks，共 210 条完成结果；v2 每轨增加 2 个未参与 v1 选型的 blocks，共 140 条结果。两轮分别报告，不合并为更窄区间。层级审计显示 valuation 是五个 dataset/source families 但上游机构独立性未证实，procurement 和 trading 分别只是同一 ChileCompra、Elexon 体系内的五个 temporal blocks；因此当前不声称任何轨道已经建立跨机构推断。DaDaDa 是挂牌价支持，ChileCompra/Elexon 是制度 proxy，均不解释为真实私有 reservation cost 或数据市场成交类型。
 
 `outputs/kdd_market_semantics/` 进一步把真实语义拆成六个不可替代的证据层。
 其中 78 条可再发布的数据许可 deal 记录用于角色、计价方式、金额披露与集中度分析；
@@ -79,6 +84,11 @@ v1 held-out core 每轨包含 3 个独立 source blocks，共 210 条完成结�
 3,810 个指标值、v2 的 140 行复算 2,540 个指标值，均为零不一致；全量完成结果复算
 207,522 个指标值，也为零不一致。需要额外反事实运行的策略指标被显式列为
 execution-dependent，而不是伪称可从单次 outcome 恢复。
+
+市场主指标还具有第二条独立验证路径：v1、v2 与理论边界面板的 29 个采购/交易
+案例均生成 exact finite-case oracle certificate，覆盖 2,624 个采购子集和 150 个
+交易成交基数候选，并与持久化 oracle outcome 完全一致。证书只证明这些有限案例，
+不替代一般理论保证。
 
 ## 主要发现
 
@@ -158,10 +168,45 @@ PYTHONPATH=benchmark/src python benchmark/scripts/reproduce_kdd_core.py \
 | Transfer | `assumption_transfer.csv`、direct-market studies | 放宽一个命名假设或替换支持后结果如何变化？ |
 | Incentive | finite-audit artifacts | 声明的有限类型/报告域内是否观察到 profitable deviation？ |
 | Decision impact | `outputs/kdd_decision_impact/` | 不完整 screen 会改变哪些判定？ |
+| Measurement validity | `outputs/kdd_induced_value_gold/`、`outputs/kdd_metrology/` | evaluator 能否重放直接机制语义并发现科学污染？榜单对来源块删减是否稳定？ |
+| Selection validity | `outputs/kdd_prospective_selection/` | 只用 v1 做出的机制选择在未参与选型的 v2 上损失多少？ |
+| Source hierarchy | `outputs/kdd_source_hierarchy/` | 日期、数据集、来源族和机构分别能支持多强的迁移主张？ |
+| Discriminability | `outputs/kdd_discriminability/` | 榜单是否被 tie、ceiling/floor saturation 或低约束激活率削弱？ |
+| Pairwise transfer | `outputs/kdd_pairwise_transfer/` | v1 中可区分的每个 headline 方法对，在单独冻结的 v2 中是保持、衰减、涌现还是反转？ |
+| Resource/incidence | `outputs/kdd_resource_frontier/`、`outputs/kdd_market_resources/`、`outputs/kdd_distributive_incidence/` | 估值查询前沿、市场机制原生资源向量，以及选择、支付与剩余落在哪类提供者？ |
+| Boundary diagnosis | `outputs/kdd_diagnostic_challenge/` | held-out 并列来自 setting 未激活关键机制分支，还是机制在注册边界上也无法区分？ |
+| Oracle validity | 三个 `oracle_certificate.json` | 采购/交易比率的参考分母是否真的是当前有限案例的精确最优值？ |
+| Resolution envelope | `outputs/kdd_resolution_envelope/` | 每个 headline 方法对的分离是否依赖单个 practical tolerance？ |
+| External admission | `outputs/kdd_external_asset_gate/` | 真实类型数据或作者代码是否同时满足语义、访问、许可、隐私、转换与输出 parity 的准入条件？ |
+| Independent validity | `outputs/kdd_independent_validity/` | 本地 parity、外部实现比较与真实数据来源覆盖分别到什么程度？ |
 
 随机机制先在 case 内聚合 seed，再对独立 cases/source blocks 比较；seed 不被当作独立市场样本。`not_met` 保留在结果中，但不等于理论反证；`not_auditable` 也不等于通过。
 
+新增科学评估层的当前结果是：覆盖全部 17 个 headline 机制的 mutation matrix 中，
+56 个科学破坏全部被检出、34 个良性控制全部被接受；三轨各 5 个累计来源块中，采购和交易的留一块冠军集合
+恢复率为 1，估值为 0.8。v1 冻结选型在 v2 上，采购和交易候选的观测遗憾为 0，
+估值候选的 rank-change 遗憾为 0.0357。估值质量—查询前沿包含
+`knn_shapley` 与 `shapley_exact`。采购的 7 个机制/Oracle 对象已经报告执行期
+utility-oracle calls；交易的 6 个对象报告 submitted reports、clearing passes 和
+realized randomization events，且不合成为跨轨总分。独立理论边界面板在采购、交易
+分别使 14/15 和 10/10 个 headline 方法对至少分离一次，说明主榜低分辨率不等于
+实现行为相同。两项结果均为冻结有限域描述，不是复杂度定理或总体保证。
+
+固定 `[0,.005,.01,.02,.05]` 分辨率网格进一步显示：采购自然面板在 0.01 下
+两轮均仅分离 5/15 对，v1 到 0.05、v2 到 0.02 即降为 0；交易的 6/10 个可分对
+在两轮都保持到 0.05；challenge 的采购 14/15 与交易 10/10 也都保持到 0.05。
+因此 benchmark 会区分“小效应阈值脆弱”“结构性并列”和“理论边界可分”三种诊断，
+而不把它们压成一个榜单稳定性数字。
+
 ## 代码与配置入口
+
+### 仓库边界
+
+Git 仓库只维护 benchmark 的实现、配置、catalog、测试和复现协议。
+`benchmark/outputs/` 是本地实验工作区，除 `.gitkeep` 外全部由 `.gitignore`
+排除；冻结结果若需要发布，应作为独立 release artifact 分发，而不是重新提交到
+源码树。WWW/WWW2027 论文流水线及其 SCR study 资产同样不属于 DataMechBench
+代码发布范围。
 
 ```text
 benchmark/
@@ -221,12 +266,13 @@ OpenDataVal 聚焦 point-level valuation，DataPerf/DAM 聚焦预算数据获取
 ## 当前边界
 
 - held-out 核心尚无真实数据卖方私有 reservation cost 或可比成交类型；
+- 当前最强的 consequential reservation-type 候选仍缺复用权利、隐私与转换审计；BFM-SWM 作者代码候选仍缺可再分发许可、结构一致性和可执行输出 parity，因此二者只保留在候选层；
 - 每轨累计 5 个 held-out source blocks，不能支持总体级最优性；
 - 外部作者代码路径覆盖 5/17 个 headline 核心、2/3 个轨道，其余依赖本地 source/core parity；
 - 本地 release candidate 尚不能替代公开归档 DOI、社区提交或两名非实现者 clean-room 复现；
 - 有限域激励审计是经验反例/未见反例记录，不是 DSIC/BIC 证明。
 
-发布状态和外部复现边界由 `catalog/kdd_public_release.yaml` 与 `reproduction/` 中的机器可读合同记录；KDD benchmark 稿件、venue checklist 和投稿管理位于独立目录 `/root/yusen/datamechbench_kdd2027`，不属于本代码库。其他基于 benchmark 的研究工作也不属于该 KDD 稿件主线。
+发布状态和外部复现边界由 `catalog/kdd_public_release.yaml` 与 `reproduction/` 中的机器可读合同记录。论文稿件、venue checklist、投稿管理以及复用本 benchmark 的独立研究不属于本代码库；核心 headline 机制集合由 venue-independent 的 `catalog/headline_suite.yaml` 冻结。
 
 贡献规范、版本变化与维护政策分别见 [`CONTRIBUTING.md`](CONTRIBUTING.md)、
 [`CHANGELOG.md`](CHANGELOG.md) 和 [`MAINTAINERS.md`](MAINTAINERS.md)。

@@ -1,0 +1,17 @@
+{
+  "artifact_kind": "external_source_receipt",
+  "commit": "ead4f7f88f22933fcdc3a8bf2f239294a6cb6c3c",
+  "commit_date": "2026-01-30T10:42:20Z",
+  "data_bytes": 38142044,
+  "data_path": "DaDaDa/data/final_data.csv",
+  "data_row_count": 16147,
+  "data_sha256": "da52984717826792ec0f69db83f1eaf831b4c5c127fc15771a0a74153b32469a",
+  "data_url": "https://raw.githubusercontent.com/ZJU-DIVER/DaDaDa/ead4f7f88f22933fcdc3a8bf2f239294a6cb6c3c/DaDaDa/data/final_data.csv",
+  "license_id": "Apache-2.0",
+  "license_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+  "license_url": "https://raw.githubusercontent.com/ZJU-DIVER/DaDaDa/ead4f7f88f22933fcdc3a8bf2f239294a6cb6c3c/LICENSE",
+  "redistribution_policy": "raw_csv_rebuild_input_not_release_member",
+  "repository": "https://github.com/ZJU-DIVER/DaDaDa",
+  "schema_version": "1.0",
+  "study_id": "kdd2027-dadada-market-calibration-v1"
+}

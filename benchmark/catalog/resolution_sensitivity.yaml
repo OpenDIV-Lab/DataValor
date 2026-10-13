@@ -1,0 +1,10 @@
+schema_version: "1.0"
+study_id: kdd-resolution-sensitivity-v1
+primary_tolerance: 0.01
+tolerances: [0.0, 0.005, 0.01, 0.02, 0.05]
+selection_rule: fixed_normalized_metric_grid_without_result_conditioning
+scope:
+  heldout_v1: equal_block_weighted_headline_scores
+  heldout_v2: equal_block_weighted_headline_scores
+  challenge: maximum_registered_case_difference_per_headline_pair
+claim_boundary: Post-freeze descriptive sensitivity analysis; the grid does not redefine the frozen primary tolerance or establish population rankings.

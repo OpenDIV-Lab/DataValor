@@ -18,5 +18,5 @@ recorded in `catalog/benchmark_release.yaml`.
 ## 0.3.0
 
 - Froze the three-track KDD reference benchmark, held-out confirmation,
-  source-disjoint replication wave, finite incentive audit, risk cards, and
+  separately frozen replication wave, finite incentive audit, risk cards, and
   deterministic release candidate contract.

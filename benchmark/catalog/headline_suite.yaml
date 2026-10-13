@@ -1,0 +1,36 @@
+schema_version: "1.0"
+suite_id: datamechbench-reference-v0.3
+description: >-
+  Frozen reference mechanisms and structural axes used by the benchmark's
+  primary valuation, procurement, and trading evaluations.
+flagships:
+  valuation:
+    setting_id: V-REPLICATION-ROBUSTNESS
+    structural_axis: replication_factor
+    method_ids:
+      - shapley_exact
+      - tmc_shapley
+      - banzhaf_exact
+      - knn_shapley
+      - volume_shapley
+      - robust_volume_shapley
+  procurement:
+    setting_id: P-MARKET-CONCENTRATION
+    structural_axis: largest_singleton_share
+    method_ids:
+      - generalized_proportional_share
+      - cgl_deterministic
+      - cgl_randomized
+      - jt_greedy_tm
+      - jt_random_eom
+      - jt_deterministic_eom
+  trading:
+    setting_id: T-MARKET-THICKNESS
+    structural_axis: efficient_trade_count
+    method_ids:
+      - mcafee
+      - trade_reduction
+      - sbba
+      - lottery_muda
+      - vickrey_muda
+
