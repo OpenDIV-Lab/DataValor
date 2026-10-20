@@ -4,7 +4,7 @@
 
 DataValor 面向数据资产价值研究与机制实验，提供从数据治理、统计画像和质量评估，到任务效用估计、数据贡献归因、价格形成、市场清算与收益分配的一组可组合实现。库中的公共对象使用统一的运行上下文、数据产品描述和版本化 artifact，便于在同一实验中追踪数据、估值、报价、配置与支付之间的关系。
 
-## 研究范围与术语边界
+## 研究范围与术语
 
 DataValor 将数据价值链拆为若干语义不同的研究对象。代码和实验报告不把这些量混为同一个“数据价值分数”。
 
@@ -34,7 +34,7 @@ cd DataValor/benchmark
 
 ## 分层架构
 
-DataValor 使用版本化 artifact 连接数据治理、证据构建、估值、报价、机制结果与真实使用反馈。实线表示主库内部的数据、控制或经济信号，虚线表示反馈回路或 optional adapter 边界；DataMechBench 作为独立分支只消费主库公共 API。
+DataValor 使用版本化 artifact 连接数据治理、证据构建、估值、报价、机制结果与真实使用反馈。实线表示主库内部的数据、控制或经济信号，虚线表示反馈回路或 optional adapter 接入；DataMechBench 作为独立分支只消费主库公共 API。
 
 <p align="center">
   <img src="docs/assets/datavalor-architecture.svg" width="100%" alt="DataValor 分层架构：从数据与研究上下文，经治理、画像、评估、估值、定价和市场机制，到受治理查询、市场结果及反馈校准，并由 Core 和 Toolkit 提供横切能力。">
@@ -59,6 +59,22 @@ DataValor 使用版本化 artifact 连接数据治理、证据构建、估值、
 | [PyMarket](https://github.com/kiedanski/pymarket) | — | — | — | — | — | ✅ | ✅ | ✅ | — | ✅ |
 | [NegMAS](https://github.com/yasserfarouk/negmas) | — | — | — | — | — | ✅ | — | ✅ | — | — |
 | [DB-GPT](https://github.com/eosphoros-ai/DB-GPT) | — | — | — | — | — | — | — | — | ✅ | — |
+
+为便于观察覆盖数量和能力类型，下表直接统计上面的二元矩阵。能力类型分为数据基础（治理、画像、质量与任务效用）、价值归因、定价与机制、使用环节、实验分析五类。该统计描述功能范围，不代表代码规模、实现成熟度或实验性能。
+
+| 项目 | 能力覆盖数（共 10 项） | 覆盖率 | 类型覆盖数（共 5 类） | 主要覆盖类型 |
+|---|:---:|:---:|:---:|---|
+| **DataValor** | **10** | **100%** | **5** | 数据基础、价值归因、定价与机制、使用环节、实验分析 |
+| OpenDataVal | 4 | 40% | 3 | 数据基础、价值归因、实验分析 |
+| pyDVL | 2 | 20% | 2 | 数据基础、价值归因 |
+| DataPerf | 3 | 30% | 2 | 数据基础、实验分析 |
+| Ocean.py | 3 | 30% | 3 | 数据基础、定价与机制、使用环节 |
+| data.all | 2 | 20% | 2 | 数据基础、使用环节 |
+| DataHub | 2 | 20% | 1 | 数据基础 |
+| Data-Juicer | 1 | 10% | 1 | 数据基础 |
+| PyMarket | 4 | 40% | 2 | 定价与机制、实验分析 |
+| NegMAS | 2 | 20% | 1 | 定价与机制 |
+| DB-GPT | 1 | 10% | 1 | 使用环节 |
 
 DataValor 的优势在于把这些分散在专项项目中的能力纳入同一套可组合 Python 契约和版本化 artifact 链路，使治理证据、任务效用、估值、报价、机制结果与实际使用反馈能够在同一实验中追踪和比较。
 
@@ -326,7 +342,7 @@ class MyValuator(DataValuator):
 VALUATORS.register(MyValuator().spec, MyValuator)
 ```
 
-正式实现应同时给出算法来源、假设、复杂度、随机性控制、适用边界、单元测试和最小实验配置。若方法具有 truthfulness、budget balance、individual rationality、no-arbitrage 等理论性质，需要将理论适用条件与有限样本实验指标分开说明。
+正式实现应同时给出算法来源、假设、复杂度、随机性控制、适用条件、单元测试和最小实验配置。若方法具有 truthfulness、budget balance、individual rationality、no-arbitrage 等理论性质，需要将理论适用条件与有限样本实验指标分开说明。
 
 ## 文档
 
