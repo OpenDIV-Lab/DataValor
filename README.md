@@ -44,20 +44,33 @@ DataValor 使用版本化 artifact 连接数据治理、证据构建、估值、
 
 ## 与相关开源项目的功能范围比较
 
-下表比较的是各项目官方仓库中作为一等接口提供的能力，而不是论文中提及、可由用户自行拼接或仅能通过第三方系统间接获得的功能。`✅` 表示原生支持，`◐` 表示覆盖其中一部分或只在特定 challenge/后端中提供，`—` 表示不属于该项目的主要实现范围。比较基于 2026-10-20 可访问的官方文档与仓库。
+下表比较的是各项目官方仓库中作为一等接口提供的能力，而不是论文中提及、可由用户自行拼接或仅能通过第三方系统间接获得的功能。对于包含多个术语的列，只要项目提供其中一种核心能力的可执行实现即记为 `✅`；`—` 表示该能力不属于项目的主要实现范围。比较基于 2026-10-20 可访问的官方文档与仓库。
 
 | 项目 | 治理、权利与血缘 | 画像与质量 | 任务效用 | 估值与贡献归因 | 定价模型 | 拍卖与预算采购 | 匹配与收益分配 | 策略市场仿真 | 查询与使用反馈 | 实验矩阵与统计比较 |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **DataValor** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| [OpenDataVal](https://github.com/opendataval/opendataval) | — | ◐ | ✅ | ✅ | — | — | — | — | — | ✅ |
-| [pyDVL](https://github.com/aai-institute/pyDVL) | — | — | ◐ | ✅ | — | — | — | — | — | ◐ |
-| [DataPerf](https://github.com/mlcommons/dataperf) | — | ◐ | ✅ | ◐ | — | — | — | — | — | ✅ |
-| [Ocean.py](https://github.com/oceanprotocol/ocean.py) | ◐ | — | — | — | ✅ | — | ◐ | — | ◐ | — |
-| [data.all](https://github.com/data-dot-all/dataall) | ✅ | ◐ | — | — | — | — | ◐ | — | ◐ | — |
+| [OpenDataVal](https://github.com/opendataval/opendataval) | — | ✅ | ✅ | ✅ | — | — | — | — | — | ✅ |
+| [pyDVL](https://github.com/aai-institute/pyDVL) | — | — | ✅ | ✅ | — | — | — | — | — | — |
+| [DataPerf](https://github.com/mlcommons/dataperf) | — | ✅ | ✅ | — | — | — | — | — | — | ✅ |
+| [Ocean.py](https://github.com/oceanprotocol/ocean.py) | ✅ | — | — | — | ✅ | — | — | — | ✅ | — |
+| [data.all](https://github.com/data-dot-all/dataall) | ✅ | — | — | — | — | — | — | — | ✅ | — |
+| [DataHub](https://github.com/datahub-project/datahub) | ✅ | ✅ | — | — | — | — | — | — | — | — |
+| [Data-Juicer](https://github.com/datajuicer/data-juicer) | — | ✅ | — | — | — | — | — | — | — | — |
+| [PyMarket](https://github.com/kiedanski/pymarket) | — | — | — | — | — | ✅ | ✅ | ✅ | — | ✅ |
+| [NegMAS](https://github.com/yasserfarouk/negmas) | — | — | — | — | — | ✅ | — | ✅ | — | — |
+| [DB-GPT](https://github.com/eosphoros-ai/DB-GPT) | — | — | — | — | — | — | — | — | ✅ | — |
 
-DataValor 的定位不是替代上述专项工具：OpenDataVal、pyDVL 和 DataPerf 聚焦数据价值或 data-centric evaluation，Ocean.py 与 data.all 聚焦数据发布、访问和交易基础设施。DataValor 补充的是贯穿治理证据、任务效用、估值归因、报价、配置支付、市场行为与使用反馈的统一研究接口。按上表的 `✅` 统计，DataValor 相对任一对比项目至少多覆盖六类原生能力。
+DataValor 的优势在于把这些分散在专项项目中的能力纳入同一套可组合 Python 契约和版本化 artifact 链路，使治理证据、任务效用、估值、报价、机制结果与实际使用反馈能够在同一实验中追踪和比较。
 
-比较依据：[OpenDataVal README](https://github.com/opendataval/opendataval#readme)、[pyDVL README](https://github.com/aai-institute/pyDVL#readme)、[DataPerf challenges](https://github.com/mlcommons/dataperf#dataperf-2023-challenges)、[Ocean.py README 与交易流程](https://github.com/oceanprotocol/ocean.py/blob/main/READMEs/main-flow.md)、[data.all README](https://github.com/data-dot-all/dataall#readme)。
+<details>
+<summary>比较依据（官方仓库与文档）</summary>
+
+- [OpenDataVal README](https://github.com/opendataval/opendataval#readme)、[pyDVL README](https://github.com/aai-institute/pyDVL#readme) 与 [DataPerf challenges](https://github.com/mlcommons/dataperf#dataperf-2023-challenges)；
+- [Ocean.py 交易流程](https://github.com/oceanprotocol/ocean.py/blob/main/READMEs/main-flow.md) 与 [data.all README](https://github.com/data-dot-all/dataall#readme)；
+- [DataHub 功能概览](https://github.com/datahub-project/datahub/blob/master/docs/features.md) 与 [Data-Juicer quickstart](https://github.com/datajuicer/data-juicer/blob/main/docs/tutorial/QuickStart.md)；
+- [PyMarket README](https://github.com/kiedanski/pymarket#readme)、[NegMAS README](https://github.com/yasserfarouk/negmas#readme) 与 [DB-GPT README](https://github.com/eosphoros-ai/DB-GPT#readme)。
+
+</details>
 
 ## 包结构
 
