@@ -1,7 +1,0 @@
-benchmark_name: DataMechBench
-benchmark_version: "0.3.0"
-result_schema_version: "1.2"
-metric_catalog_version: "1.2"
-external_submission_schema_version: "1.0"
-case_submission_schema_version: "1.0"
-case_admission_scope: open_development_only

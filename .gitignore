@@ -19,14 +19,14 @@ build/
 presentation/
 tests/test_presentation_deck.py
 
-# Do not vendor nested repository metadata or third-party generated results.
+# DataMechBench is maintained on the dedicated benchmark branch. Ignore the
+# top-level directory on main so local datasets and experiment artifacts do not
+# accidentally re-enter this branch. This does not affect
+# src/datavalor/toolkit/benchmark/.
+/benchmark/
+
+# Do not vendor nested repository metadata.
 **/.git/
-benchmark/external/**/output/
-benchmark/external/**/outputs/
-benchmark/external/**/images/
-benchmark/external/**/*.ipynb
-benchmark/external/regression_msr_official/
-benchmark/external/svarm_official/
 
 # Large archives, tabular datasets, array stores, databases, model weights,
 # and binary document exports stay outside Git. Git attributes cannot enforce
@@ -72,47 +72,13 @@ benchmark/external/svarm_official/
 *.wav
 *.mp3
 
-# Downloaded and derived benchmark data are acquired or regenerated locally.
-# Keep only lightweight documentation and source receipts in these trees.
-benchmark/data/**/*
-!benchmark/data/**/
-!benchmark/data/**/README.md
-!benchmark/data/**/*-source-receipt.json
-!benchmark/data/**/*_source_receipt.json
+# Downloaded and derived datasets are acquired or regenerated locally.
 datasets/
 **/datasets/
-
-# Paper-only and historical study material is preserved locally, but is not
-# part of the open-source benchmark package.
-benchmark/.archive/
 
 # Generated experiment artifacts are local by default.
 outputs/*
 !outputs/.gitkeep
-benchmark/outputs/*
-!benchmark/outputs/.gitkeep
-
-# WWW-paper and retired SCR study pipelines are not part of DataMechBench.
-# Keep the reusable estimator implementation; ignore only venue/study assets.
-benchmark/**/*www*
-benchmark/**/www2027*
-benchmark/**/www_scr*
-benchmark/**/www_web*
-benchmark/**/www_icr*
-benchmark/**/www_manuscript*
-benchmark/data/www/
-benchmark/evidence/scr_shapley/
-benchmark/configs/scr_shapley_*.yaml
-benchmark/scripts/run_scr_shapley_*.py
-benchmark/scripts/assemble_scr_confirmatory_evidence.py
-benchmark/docs/scr_shapley_*report.md
-
-# Held-out source caches are reproducibly acquired; do not vendor the 650 MiB
-# ChileCompra snapshot or excluded API-access pilots into the repository.
-benchmark/data/heldout/raw/chilecompra/chilecompra-2024.jsonl.gz
-benchmark/data/heldout/raw/chilecompra/chilecompra-2024.jsonl.gz.aria2
-benchmark/data/heldout/raw/chilecompra/chilecompra-2024-04-12-receipt.json
-benchmark/data/heldout/raw/chilecompra/licitaciones-15032024.json
 
 # Data directories contain documentation only until redistribution rights are checked.
 data/examples/*
@@ -124,10 +90,6 @@ data/examples/*
 data/dataflow_data/*
 !data/dataflow_data/README.md
 
-# Small executable contract fixtures are source assets, not experiment data.
-!benchmark/submission_template/results.jsonl
-
 # Venue-specific KDD submission, release, experiment, and planning material is
-# intentionally local-only. Reusable benchmark code must use venue-neutral
-# names before it is added to the public repository.
+# intentionally local-only.
 **/*[Kk][Dd][Dd]*

@@ -1,8 +1,0 @@
-schema_version: "1.0"
-evidence_scope: real_trained_game
-requires_development_freeze: true
-physical_gpus: [1, 2, 3, 4, 5, 6, 7]
-cpu_threads_per_job: 4
-split_seeds: [11, 29, 47]
-settings: [real-fashion-head-n8, real-cifar-head-n10]
-budgets: {n8: [192, 224], n10: [448, 640]}

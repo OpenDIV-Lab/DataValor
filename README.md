@@ -1,790 +1,314 @@
 # DataValor
 
-**A Toolkit for Data Valorization**
+**A research-oriented Python library for data valuation, data pricing, and data-market mechanisms**
 
-DataValor 是 DIV Lab 维护的 Python 工具库，主要用来做数据治理、质量评估、估值、定价和流通实验。各模块共享一组简单的数据产品和产物接口，研究代码可以逐步接入，不必先搭一整套服务。
+DataValor 面向数据资产价值研究与机制实验，提供从数据治理、统计画像和质量评估，到任务效用估计、数据贡献归因、价格形成、市场清算与收益分配的一组可组合实现。库中的公共对象使用统一的运行上下文、数据产品描述和版本化 artifact，便于在同一实验中追踪数据、估值、报价、配置与支付之间的关系。
 
-当前版本为 `pre-alpha`。仓库里已经有公共模型、接口、registry、基准实验工具和离线示例；生产环境所需的存储、调度、权限系统和外部服务连接，需要在接入项目中补齐。建议先运行 `examples/` 下的脚本，再替换成自己的数据和后端。
+当前版本为 `0.1.0a0`（pre-alpha）。基础安装不依赖重型第三方包；外部质量工具、治理平台、估值框架和市场服务通过 optional dependency 与 adapter 接入。
 
-## 两个清晰分层的交付面
+## 研究范围与术语边界
 
-本仓库包含一个基础库和一个相对独立的研究 benchmark，二者不要混为同一产品：
+DataValor 将数据价值链拆为若干语义不同的研究对象。代码和实验报告不把这些量混为同一个“数据价值分数”。
 
-| 交付面 | 位置 | 主要职责 | 默认读者入口 |
-|---|---|---|---|
-| DataValor Python library | `src/datavalor/` | 数据治理、评估、估值、定价、市场与查询的可复用模型、接口和实现 | 本 README |
-| DataMechBench | `benchmark/` | 数据估值、预算采购和双边交易机制的 claim-/constraint-aware 评估 | [`benchmark/README.md`](benchmark/README.md) |
+| 研究对象 | 含义 | DataValor 中的主要产物 |
+|---|---|---|
+| 数据治理（data governance） | 数据来源、权利、用途限制、血缘和安全条件 | `GovernanceReport`、`RightsEvaluation`、`GovernanceAuditBundle` |
+| 数据画像（data profiling） | 字段分布、缺失、基数、相关性、漂移与市场可用性等描述性事实 | `DatasetProfile`、`DriftReport` |
+| 数据质量与任务效用（data quality and task utility） | 数据在指定维度或下游任务上的观测表现 | `EvaluationReport`、`TaskUtilityResult` |
+| 数据估值（data valuation） | 给定买方、任务、成本与市场条件时的数据效用或货币价值估计 | `ValuationReport`、`ValueEstimate` |
+| 数据贡献归因（data contribution attribution） | 数据单元、群组或来源对联盟效用的边际贡献 | `ContributionReport` |
+| 数据定价（data pricing） | 基于成本、价值、需求、质量、权利或市场参照形成的报价 | `PriceQuote` |
+| 机制结果（mechanism outcome） | 在报告出价、保留价和约束下形成的配置、支付与福利 | `PricingOutcome` |
+| 市场实现（market realization） | 挂牌、匹配、交易、收益分配、策略响应和使用反馈 | `MarketSnapshot`、`SimulationReport`、`UsageAggregate` |
 
-可复用机制优先进入 `src/datavalor`；benchmark 特有的 setting、证据协议、指标、runner 和报告进入 `benchmark/src/datamechbench`。基础库不依赖 benchmark，benchmark 可以 import 基础库。DataMechBench 的主要 novelty、技术构件和三项贡献统一维护在 [`benchmark/docs/core_contribution.md`](benchmark/docs/core_contribution.md)，不以方法总数或运行数代替贡献。
+估值不是成交价；报价不是支付；有限轮仿真中的福利和收入也不构成均衡或因果结论。调用方需要在 `RunContext`、`TaskContext`、`CostContext` 与 `RightsBundle` 中明确相应假设。
 
-代码按用途分成三组：
+## Benchmark 分支
 
-1. **价值发现（Value Discovery）**：DataGov、DataProf、DataEval、DataValue；
-2. **价值流通（Value Circulation）**：DataMarket、DataPrice；
-3. **价值实现（Value Realization）**：DataQuery。
+数据估值与定价机制的系统评测框架 DataMechBench 已从 `main` 分离，完整代码保存在仓库的 [`benchmark` 分支](https://github.com/OpenDIV-Lab/DataValor/tree/benchmark/benchmark)。该分支包含 benchmark 的 setting、机制适配器、指标、runner、来源证据、测试和文档。
 
-<a id="module-index"></a>
+```bash
+git clone --branch benchmark https://github.com/OpenDIV-Lab/DataValor.git
+cd DataValor/benchmark
+```
 
-## 模块索引
+`main` 只保留 DataValor Python library。`src/datavalor/toolkit/benchmark` 仍属于主库，它提供通用的数据源、扰动、实验矩阵和结果接口，不包含 DataMechBench 的榜单与论文实验。
 
-主要模块和源码入口如下。
-
-<table>
-<thead><tr><th>阶段</th><th>模块</th><th>核心职责</th><th>详细说明</th></tr></thead>
-<tbody>
-<tr><td rowspan="1">公共基础</td><td><code>datavalor.core</code></td><td>组件、数据产品、运行上下文、产物、registry、pipeline、存储协议</td><td><a href="#module-core">Core</a></td></tr>
-<tr><td rowspan="4">价值发现</td><td><code>datavalor.data_gov</code></td><td>标准化、清洗、安全、元数据、政策和治理</td><td><a href="#module-datagov">DataGov</a></td></tr>
-<tr><td><code>datavalor.data_prof</code></td><td>统计画像、字段属性、分布和画像比较</td><td><a href="#module-dataprof">DataProf</a></td></tr>
-<tr><td><code>datavalor.data_eval</code></td><td>多维质量评估、证据和任务效用测量</td><td><a href="#module-dataeval">DataEval</a></td></tr>
-<tr><td><code>datavalor.data_value</code></td><td>用户/任务相关估值和数据贡献度</td><td><a href="#module-datavalue">DataValue</a></td></tr>
-<tr><td rowspan="2">价值流通</td><td><code>datavalor.data_market</code></td><td>挂牌、发现、参与者、激励、交易、收益分配和仿真</td><td><a href="#module-datamarket">DataMarket</a></td></tr>
-<tr><td><code>datavalor.data_price</code></td><td>报价、动态定价、拍卖清算、allocation 和 payment</td><td><a href="#module-dataprice">DataPrice</a></td></tr>
-<tr><td>价值实现</td><td><code>datavalor.data_query</code></td><td>授权、查询规划、执行、结果防护和数据智能体</td><td><a href="#module-dataquery">DataQuery</a></td></tr>
-<tr><td rowspan="4">公共工具</td><td><code>datavalor.toolkit</code></td><td>对公共 artifact、pipeline、registry 的便捷导出</td><td><a href="#module-toolkit">Toolkit</a></td></tr>
-<tr><td><code>datavalor.toolkit.benchmark</code></td><td>数据源、扰动、benchmark metric 和实验矩阵</td><td><a href="#module-benchmark">Benchmark</a></td></tr>
-<tr><td><code>datavalor.toolkit.analysis</code></td><td>统计分析、方法比较和 Pareto frontier</td><td><a href="#module-analysis">Analysis</a></td></tr>
-<tr><td><code>datavalor.toolkit.webui</code></td><td>与具体 Web 框架无关的 view/app 接口</td><td><a href="#module-webui">Web UI</a></td></tr>
-</tbody>
-</table>
-
-其他常用位置：
-
-- [仓库结构](#repository-layout)
-- [当前功能概览](docs/repo_overview.md)
-- [模块职责](#semantic-boundaries)
-- [最小扩展方式](#extension-example)
-- [安装与验证](#installation)
-- [可运行示例](examples/README.md)
-- [数据估值定价机制 Benchmark](benchmark/README.md)
-- [文档与调研资料](#documentation)
-- [开发原则](#development-principles)
-
-<a id="repository-layout"></a>
-
-## 仓库结构
+## 包结构
 
 ```text
 DataValor/
 ├── src/datavalor/
-│   ├── core/                     # 公共组件、上下文、产物、registry、pipeline
-│   ├── data_gov/                 # DataGov：治理、标准、清洗、安全、元数据
-│   ├── data_prof/                # DataProf：统计画像、属性与指标
-│   ├── data_eval/                # DataEval：数据质量评估
-│   ├── data_value/               # DataValue：数据估值
-│   ├── data_market/
-│   │   └── simulation/           # DataMarket：参与者策略与市场仿真
-│   ├── data_price/               # DataPrice：定价、拍卖和支付
-│   ├── data_query/               # DataQuery：智能问数与数据智能体
-│   └── toolkit/
-│       ├── benchmark/
-│       ├── analysis/
-│       └── webui/
-├── data/
-│   ├── examples/
-│   └── dataflow_data/
-├── tests/
-├── benchmark/                    # 相对独立的 DataMechBench 研究 artifact
-├── UI/                           # 本地工作流编辑器和运行界面
-├── outputs/                      # 默认不纳入版本控制
-└── docs/
-    └── research/                 # GitHub 调研与 DVMK 迁移分析
+│   ├── core/                  # 数据产品、运行上下文、artifact、registry、pipeline
+│   ├── data_gov/              # 来源、权利、血缘、安全与治理判断
+│   ├── data_prof/             # 统计画像、漂移与市场相关描述量
+│   ├── data_eval/             # 质量指标、任务效用与多模态评估
+│   ├── data_value/            # 任务估值、贡献归因、校准与组合选择
+│   ├── data_price/            # 报价模型、拍卖、采购与支付机制
+│   ├── data_market/           # 挂牌、匹配、收益分配与有限市场仿真
+│   ├── data_query/            # 权利约束查询、结果防护与使用反馈
+│   └── toolkit/               # 通用 benchmark、统计分析与 Web UI 接口
+├── configs/                   # 工作流和集成配置
+├── data/examples/             # 小型可提交样例
+├── examples/                  # 可直接运行的研究示例
+├── tests/                     # 主库测试
+├── UI/                        # 本地工作流编辑器
+└── docs/                      # 架构、接口和研究说明
 ```
 
-目录名就是 Python import 路径。例如 `DataValue` 对应 `datavalor.data_value`；模块展示顺序和阶段信息可以从 `datavalor.MODULES` 查看。
+## 已实现的方法
+
+### Core：实验对象与可追溯执行
+
+`datavalor.core` 定义各模块共享的稳定契约：
+
+- `DataProduct`、`DataReference`、`RightsBundle`：描述数据、内容校验、schema 和使用权利；
+- `ActorProfile`、`TaskContext`、`CostContext`、`RunContext`：显式记录参与者、任务、成本和随机种子；
+- `ArtifactEnvelope[T]`、`ArtifactRef`、`ArtifactStore`：保存版本、producer、lineage、evidence 与 diagnostics；
+- `Registry[T]`、`ComponentSpec`：提供带 capability 和可选依赖的延迟组件注册；
+- `PipelineSpec`、`PipelineRunner`：运行有依赖关系的估值定价工作流。
+
+### DataGov：治理、权利与血缘
+
+| 类别 | 已实现的方法或组件 |
+|---|---|
+| 元数据与目录 | `LocalMetadataExtractor`、`InMemoryMetadataCatalog`；CSV、JSON、JSONL、Parquet、Directory 与 Iterable adapter |
+| 权利判断 | `RightsPolicyEvaluator`、`RightsMatrixEvaluator`、`rights_intersection`、`rights_expiry_window` |
+| 安全检查 | `SensitiveFieldScanner`、`GreatExpectationsPolicyEvaluator`、`DeequPolicyEvaluator` |
+| 血缘分析 | `LineageGraph`、`trace_upstream`、`trace_downstream`、`affected_artifacts`、`compare_lineage` |
+| 版本分析 | `MetadataDiff`、`compare_metadata_records`、`compare_products`、`requires_re_evaluation` |
+| 市场准入 | `RightsRestrictivenessScorer`、`RightsCompatibilityEvaluator`、`ArtifactStalenessEvaluator` |
+| 外部适配器 | DataHub、OpenMetadata、Great Expectations、PyDeequ、PySyft |
+
+### DataProf：统计画像与分布变化
+
+| 类别 | 已实现的方法或指标 |
+|---|---|
+| 基础画像 | `BasicProfileMetric`、`BasicDataProfiler`、`BasicProfileComparator` |
+| 稳健统计 | 分位数、IQR、变异系数和 Tukey 异常围栏（`RobustStatisticsMetric`） |
+| 类别分布 | Shannon entropy、Gini concentration、top-k coverage（`CategoricalConcentrationMetric`） |
+| 变量关系 | Pearson correlation（`PairwiseCorrelationMetric`） |
+| 分布漂移 | 数值 PSI、类别 Jensen–Shannon divergence（`DriftAnalyzer`） |
+| 市场相关画像 | `CoverageProfileMetric`、`RarityProfileMetric`、`FreshnessProfileMetric`、`JoinabilityMetric`、`CrossProductOverlapAnalyzer` |
+| 数据抽样 | 固定随机种子的比例分层抽样 `stratified_sample` |
+
+### DataEval：数据质量与任务效用
+
+| 数据形态或问题 | 已实现的方法或指标 |
+|---|---|
+| 通用质量 | `CompletenessMetric`、`DuplicateRateMetric`、`FieldValidityMetric`、`CompositeEvaluator` |
+| 业务约束 | `NumericRangeComplianceMetric`、`LabelConflictMetric`、`GroupCompletenessParityMetric`、`EvaluationThresholdGate` |
+| 表格数据 | schema consistency、数值统计、IQR outlier rate、label balance |
+| 文本数据 | length、lexical diversity、repetition rate、readability |
+| 图像数据 | metadata quality、aspect-ratio consistency、pixel validity |
+| 音频数据 | metadata quality、clipping rate、silence rate |
+| 视频数据 | format probe、optical-flow motion、scene segmentation、temporal SSIM、privacy CV score |
+| 多模态数据 | package integrity、cross-modal alignment |
+| 任务效用 | `RecordCountUtility`、`CallableTaskUtility`、`DemandFitEvaluator`、`EvaluationConfidenceEstimator` |
+| 外部适配器 | Cleanlab、Evidently、Great Expectations、TorchMetrics |
+
+每个 `MetricResult` 都保留 `dimension`、`scope`、`direction`、`unit`、`statistics`、`evidence` 和 `diagnostics`。指标方向支持 higher-is-better、lower-is-better、target-is-best 与 descriptive。
+
+### DataValue：任务估值与贡献归因
+
+#### 任务与市场条件估值
+
+| 方法族 | 已实现的方法 |
+|---|---|
+| 可解释任务估值 | `WeightedUserTaskValuator`、`SymbolicValuator` |
+| 学习型估值 | `LearnedLinearValuator` |
+| 质量与情景估值 | `QualityAdjustedValuator`、`ScenarioValuator` |
+| 风险与反事实 | `RiskAdjustedValuator`、`CounterfactualValuator` |
+| 组合价值 | `PortfolioValuator`、`BudgetConstrainedPortfolioSelector` |
+| 市场条件估值 | `MarketContextValuator`、`ScarcityAdjustedValuator`、`IncrementalCoverageValuator`、`SubstitutionAdjustedValuator` |
+| 时间与更新 | `TimeDecayValuator`、`UpdateStreamValuator` |
+| 集成与敏感性 | `ValuationEnsemble`、`ConsensusValuation`、`ValuationSensitivityAnalyzer` |
+
+#### 数据贡献归因
+
+| 方法 | 实现 |
+|---|---|
+| Leave-one-out | `LeaveOneOutValuator`、`leave_one_out_values` |
+| Exact Shapley value | `ExactShapleyValuator`、`exact_shapley_values` |
+| Monte Carlo Shapley | `MonteCarloShapleyValuator`、`monte_carlo_shapley_values` |
+| Antithetic sampling | `AntitheticShapleyValuator`、`antithetic_shapley_values` |
+| Owen sampling | `OwenShapleyValuator`、`owen_shapley_values` |
+| Truncated Monte Carlo | `TruncatedMonteCarloShapleyValuator`、`truncated_monte_carlo_shapley_values` |
+| Stratified Shapley | `StratifiedShapleyValuator`、`stratified_shapley_values` |
+| Group Shapley | `GroupShapleyValuator`、`group_shapley_values` |
+| Banzhaf value | `BanzhafValuator` |
+| Multi-fidelity residual Shapley | `ExactLowResidualShapleyValuator`、`exact_low_residual_shapley` |
+| 稳定性与交互 | `bootstrap_loo_values`、`pairwise_interactions` |
+
+估值校准部分实现分组校准、排序一致性、区间覆盖率、MAE/RMSE/bias 与价值曲线分析；下游任务指标包括 classification、ROC-AUC、regression、ranking 和 incremental gain。可选适配器提供 PyDVL 与 OpenDataVal 接口。
+
+### DataPrice：报价模型与市场机制
+
+#### 报价模型
+
+| 定价依据 | 已实现的模型 |
+|---|---|
+| 成本与价值 | `CostPlusPricingModel`、`ValueBasedPricingModel` |
+| 用量与订阅 | `UsageBasedPricingModel`、`TieredUsagePricingModel`、`SubscriptionPricingModel` |
+| 质量与时效 | `QualityFreshnessPricingModel`、`FreshnessTierPricingModel` |
+| 市场需求 | `AdaptiveDemandPricingModel`、`ElasticityPricingModel` |
+| 风险与参照 | `RiskAdjustedPricingModel`、`ComparablePricingModel`、`PriceRangePricingModel` |
+| 权利与版本 | `RightsDifferentiatedPricingModel`、`VersionDeltaPricingModel` |
+| 反馈学习 | `AcceptanceProbabilityModel`、`ExpectedRevenuePricingModel`、`SafeExplorationPricingModel` |
+
+#### 配置与支付机制
 
-每个业务模块默认采用相同的内部约定：
+| 机制类别 | 已实现的机制 |
+|---|---|
+| 单边拍卖 | `FirstPriceAuction`、`SecondPriceAuction`、`VCGMechanism`、`ExternalityVCGMechanism` |
+| 标价机制 | `PostedPriceMechanism`、`FreshnessAdjustedPostedPrice`、`MenuPricingMechanism`、`ContextualBanditPostedPrice` |
+| 双边交易 | `BilateralMidpointTrade`、`McAfeeDoubleAuction` |
+| 多单位拍卖 | `MultiUnitUniformPriceAuction` |
+| 预算采购 | `BudgetFeasibleProcurement`、`ProportionalShareProcurement`、`BudgetAwareProcurement`、`QualityAwareProcurement` |
+| 贡献与核心选择 | `ContributionFairShareMechanism`、`CoreSelectingAuction` |
 
-```text
-module/
-├── models.py       # 稳定的 request、result、finding、report
-├── interfaces.py   # 抽象接口与行为约定
-├── registry.py     # 按能力分类的 typed lazy registry
-└── __init__.py     # 经过筛选的公共 API
-```
+价格约束包括 `PriceBandConstraint`、`VolumeDiscountConstraint`、`BundleDiscountConstraint` 与 `NoArbitrageProjectionPricing`。性质检查实现 individual rationality、budget feasibility、capacity feasibility，以及配置、支付、seller revenue 与 welfare 的一致性审计。
 
-新增实现通常放在 `metrics/`、`valuators/`、`mechanisms/` 或 `providers/` 等子目录，公共模型和接口保持稳定。
+### DataMarket：匹配、收益分配与策略仿真
 
-<a id="semantic-boundaries"></a>
+| 研究环节 | 已实现的方法或机制 |
+|---|---|
+| 挂牌与参与者 | `InMemoryMarketCatalog`、`InMemoryParticipantRepository`、`rank_listings`、`score_reputation` |
+| 订单匹配 | 价格—时间优先 `match_orders`、`MultiAttributeMarketMatcher` |
+| 组合需求 | AND/XOR bundle resolution；小规模 exact-surplus selection 与大规模 greedy-surplus selection（`BundleDemandMatcher`） |
+| 准入控制 | `QuotaAdmissionController` |
+| 收益分配 | `ContributionRevenueAllocator`、`ShapleyRevenueAllocator` |
+| 机制审计 | `audit_market_mechanism`：个体理性、预算平衡与配置效率 |
+| 市场诊断 | demand clustering、supply segmentation、market-gap analysis、HHI、bid–ask spread、price dispersion、异常检测 |
+| 市场仿真 | `FiniteMarketSimulator`、Mesa adapter |
 
-## 模块职责
+仿真策略包括 `TruthfulStrategy`、`FixedShadingStrategy`、`AdaptiveShadingStrategy`、`EpsilonGreedyShadingStrategy`、`BudgetPacingStrategy`、`MultiplicativeWeightsStrategy`、`BestResponseGridStrategy`、`ContextualShadingStrategy`、`FixedReserveSellerStrategy` 与 `PrivacyAwareStrategy`。扩展状态包括隐私预算、数据新鲜度衰减和参与者冲击。
 
-模块之间传递带版本的 artifact。下列结果含义不同，使用时不要混用：
+Ocean 与 PySyft adapter 分别用于市场目录、交易处理和受控数据执行；网络端点、凭据与结算基础设施由部署环境提供。
 
-```text
-DataGov 治理与可用性
-  -> DataProf 描述性事实
-  -> DataEval 质量与任务表现
-  -> DataValue 用户/任务相关效用或贡献
-  -> DataPrice quote、allocation 与 payment
-  -> DataMarket 交易、激励和收入分配
-  -> DataQuery 受治理的数据使用与结果
-```
+### DataQuery：受治理的数据使用与反馈
 
-使用这些结果时，请区分：
+标准执行顺序为 authorization → planning → execution → result guarding → usage logging。
 
-- profile 提供描述性事实；
-- evaluation 记录多维质量或任务表现；
-- valuation 估计特定用户或任务的效用与贡献；
-- bid 表示参与者报告的支付意愿，quote 表示平台报出的价格；
-- payment 是机制和市场环境共同产生的交易结果；
-- simulation observation 用于记录实验行为，理论性质需要单独分析；
-- query answer 在授权、执行和结果防护完成后形成可交付结果。
+- `RightsQueryAuthorizer`：按用途、权利、actor 和数据产品决定 allow、deny 或 review；
+- `DBGPTQueryPlanner`、`VannaQueryPlanner`、`ExternalQueryPlanner`：将自然语言请求转换为外部 planner 可执行计划；
+- `ExternalQueryExecutor`：封装数据库、服务或安全计算执行器；
+- `QueryResultGuard`：字段脱敏、行数限制和结果诊断；
+- `GovernedDataAgent`：组合授权、计划、执行和结果防护；
+- `UsageAggregator`、`UsageAnomalyDetector`、`QueryUtilityFeedback`：聚合实际使用并反馈给估值与定价环节。
 
-<a id="module-core"></a>
+### Toolkit：实验与统计分析
 
-## Core：公共契约与基础设施
+`datavalor.toolkit.benchmark` 提供 `LocalDatasetProvider`、`ParametricProvider`、scikit-learn dataset/generator、Hugging Face 和 WILDS 数据源，支持数据切分与扰动；`MatrixBenchmarkRunner` 对 case × method × seed 运行实验矩阵，`MarketOutcomeMetric` 与 `SimulationReportMetric` 将机制结果转换为统一 observation。
 
-源码入口：[src/datavalor/core](src/datavalor/core)
+`datavalor.toolkit.analysis` 实现：
 
-Core 不依赖第三方包，定义各模块共用的数据结构和运行约定。清洗、估值、拍卖和查询算法放在相应业务模块中。
+- percentile bootstrap mean interval；
+- paired difference 与 paired bootstrap difference；
+- regret summary；
+- scalarized score；
+- Pareto frontier；
+- `BootstrapAnalyzer`、`PairedComparator`、`ParetoFrontierAnalyzer`；
+- `ValueRealizationAnalyzer`：联合分析估值、报价、成交和使用反馈。
 
-### 核心接口和模型
+## 安装
 
-| 名称 | 类型 | 作用 |
-|---|---|---|
-| `ComponentSpec` | dataclass | 记录组件名、版本、模块、类型、capability 和可选依赖 |
-| `Component` | Protocol | 支持结构化扩展的最小组件协议 |
-| `BaseComponent` | ABC | 内置实现和类式插件的公共抽象基类 |
-| `RunContext` | dataclass | 显式传递 run ID、随机种子、actor、task、rights 和配置 |
-| `DataReference` | dataclass | 引用数据 URI、格式、checksum、schema 和记录数 |
-| `DataProduct` | dataclass | 可治理、可评估、可估值、可挂牌和可查询的数据产品 |
-| `RightsBundle` | dataclass | 用途、商业使用、再分发、排他性、期限和地域限制 |
-| `ActorProfile` | dataclass | 供应方、购买方、平台、分析师和 Agent 的最小画像 |
-| `TaskContext` | dataclass | 下游任务、目标、utility metric 和约束 |
-| `CostContext` | dataclass | 采购、准备、采用和运行成本 |
-| `ArtifactEnvelope[T]` | generic dataclass | 统一 schema version、producer、payload、lineage、evidence 和 diagnostics |
-| `ArtifactRef` | dataclass | 不加载 payload 的稳定 artifact 引用 |
-| `ArtifactStore` | ABC | artifact 的 `put/get/exists` 存储边界 |
-| `Registry[T]` | generic class | 延迟工厂、重名保护、组件发现和 registry freeze |
-| `PipelineNode` | dataclass | 声明一个组件节点的输入、输出和参数 |
-| `PipelineSpec` | dataclass | 声明有版本的组件工作流 |
-| `PipelineRunner` | ABC | 执行 pipeline，但不规定存储或调度实现 |
-
-公共导入示例：
-
-```python
-from datavalor import ArtifactEnvelope, ComponentSpec, Registry, RunContext
-from datavalor.core import DataProduct, DataReference, RightsBundle
-```
-
-Core 提供数据引用、上下文、产物和执行协议；数据读取、治理决策、算法运行及输出路径由上层模块按需实现。
-
-[返回模块索引](#module-index)
-
-<a id="module-datagov"></a>
-
-## DataGov：数据治理
-
-源码入口：[src/datavalor/data_gov](src/datavalor/data_gov)
-
-DataGov 管理数据来源、元数据、权利和处理规则，并对具体操作做授权判断。它包含标准化、清洗、安全、元数据和政策接口，也可以接入外部数据目录或合规平台。
-
-### 主要输入与输出
-
-- 输入：`DataProduct`、`StandardDefinition`、治理规则、operation、`RunContext`；
-- 输出：`MetadataRecord`、`TransformationPlan`、`TransformationResult`、`SecurityReport`、`GovernanceReport`。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `MetadataExtractor` | `inspect(product, context)` | 提取技术、语义、权利、分类和血缘元数据 |
-| `MetadataCatalog` | `upsert/get/search` | 保存并检索治理元数据，可通过适配器连接 DataHub/OpenMetadata |
-| `DataStandardizer` | `plan/transform` | 先记录转换计划，再执行格式、schema 或语义标准化 |
-| `DataCleaner` | `plan/clean` | 先产生清洗计划，再物化新的数据引用 |
-| `SecurityScanner` | `scan` | 检测敏感字段、泄露、隐私和安全风险 |
-| `PolicyEvaluator` | `evaluate` | 针对具体 operation 返回 allow、deny 或 review |
-
-### E3 外部治理 Connector
-
-DataGov 的可选 backend 位于 `datavalor.data_gov.backends`：
-
-- `DataHubMetadataCatalog` / `DataHubMetadataExtractor`：将 DataHub emitter、URN 和字段/ownership 元数据映射为 `MetadataRecord`；
-- `OpenMetadataCatalog` / `OpenMetadataExtractor`：将 OpenMetadata SDK/REST client 的 catalog 实体映射为 `MetadataRecord`；
-- `DeequValidationAdapter`：消费外部 PyDeequ/Spark job 的约束结果，封装为版本化 `ArtifactEnvelope`；
-- `DeequPolicyEvaluator`：将 constraint status/message 转为 `GovernanceFinding` 和 `GovernanceReport`。
-
-DataHub、OpenMetadata 和 Spark/Deequ 都属于可选能力。真实 SDK 只在 adapter 执行时延迟加载；
-更推荐在服务部署中注入已配置的 client、emitter 或 Spark runner。connector 统一支持
-timeout、有限 retry 和审计诊断，外部 URN、entity、DataFrame 和 constraint 对象不会
-暴露给 DataValor 上层。
-
-### 关键模型
-
-`FieldSchema`、`MetadataRecord`、`GovernanceFinding`、`GovernanceReport`、`StandardDefinition`、`TransformationStep`、`TransformationPlan`、`TransformationResult`、`SecurityReport`、`CatalogQuery`。
-
-### 扩展 registry
-
-`METADATA_EXTRACTORS`、`METADATA_CATALOGS`、`STANDARDIZERS`、`CLEANERS`、`SECURITY_SCANNERS`、`POLICY_EVALUATORS`。
-
-DataGov 聚焦来源、权利、处理规则与政策判断；统计画像、质量评估、估值和价格计算分别由 DataProf、DataEval、DataValue 与 DataPrice 承载。
-
-DataGov 目录中还包括四个可单独使用的实现：`LineageGraph` 追踪 source 到 evaluation、valuation、quote 的影响；`RightsMatrixEvaluator` 检查用途、商业使用、再分发、辖区和期限；`MetadataDiff` 比较 schema、checksum、统计量和权利变化；`GovernanceAuditBundle` 汇总治理、安全、血缘和版本证据。规则和示例分别见 `docs/research/datagov_lineage_rights_versioning.md` 与 `examples/12_datagov_lineage_rights_audit.py`。
-
-
-[返回模块索引](#module-index)
-
-<a id="module-dataprof"></a>
-
-## DataProf：数据画像
-
-源码入口：[src/datavalor/data_prof](src/datavalor/data_prof)
-
-DataProf 生成字段类型、缺失、基数、分布和数据集级属性，并支持不同时间或数据版本之间的画像比较。
-
-### 主要输入与输出
-
-- 输入：`DataProduct`、`ProfileRequest`、字段和采样选项；
-- 输出：`FieldProfile`、`DatasetProfile`、`ProfileDifference`、`ProfileComparison`。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `ProfileMetric` | `measure` | 计算一个字段级或数据集级描述性事实 |
-| `DataProfiler` | `profile` | 组合统计量形成完整 `DatasetProfile` |
-| `ProfileComparator` | `compare` | 比较两个 profile 的描述性变化 |
-
-### 扩展 registry
-
-`PROFILE_METRICS`、`PROFILERS`、`PROFILE_COMPARATORS`。
-
-DataProf 只负责描述数据；分布变化是否可接受，由 DataEval 指标或 DataGov 规则结合具体场景判断。
-
-`advanced.py` 增加了稳健分位数/IQR、类别熵和集中度、Pearson 相关性、固定种子的分层抽样，以及数值 PSI/类别 JS 漂移分析。它们仍返回描述性事实，示例和说明见 `examples/13_dataprof_statistics_drift.py`、`docs/research/dataprof_statistics_drift.md`。
-
-[返回模块索引](#module-index)
-
-<a id="module-dataeval"></a>
-
-## DataEval：数据质量评估
-
-源码入口：[src/datavalor/data_eval](src/datavalor/data_eval)
-
-DataEval 在明确的维度、粒度和任务下计算质量指标，并为每个指标保留方向、单位、统计量、证据和诊断。
-
-### 主要输入与输出
-
-- 输入：`DataProduct`、`EvaluationRequest`、一组 `QualityMetric`、可选 `TaskContext`；
-- 输出：`MetricResult`、`EvaluationReport`、`TaskUtilityResult`。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `QualityMetric` | `compute` | 在 sample、group、dataset、product、source 或 window 粒度计算一个指标 |
-| `DataEvaluator` | `evaluate` | 调度多个 metric，保留每个结果及其 evidence |
-| `TaskUtilityEvaluator` | `evaluate_task` | 通过下游模型或任务实验测量实际 utility |
-
-`MetricResult` 明确包含 `dimension`、`scope`、`value`、`direction`、`unit`、`statistics`、`evidence` 和 `diagnostics`。`ScoreDirection` 支持 `higher_is_better`、`lower_is_better`、`target_is_best` 和 `descriptive`。
-
-### 扩展 registry
-
-`QUALITY_METRICS`、`EVALUATORS`、`TASK_UTILITY_EVALUATORS`。
-
-DataEval 输出质量与任务效用证据，buyer-specific value、bid、quote 和 payment 分别由 DataValue、DataMarket 与 DataPrice 处理。`tabular.py`、`text.py`、`image.py`、`audio.py`、`video.py` 和 `multimodal.py` 分别放置各模态指标；每个指标返回自己的方向、统计量、evidence 和 diagnostics，不把不同模态压成一个分数。统一示例为 `examples/11_stage7_multimodal_evaluation.py`。
-
-`advanced.py` 还包括业务范围合规、重复实体标签冲突、群组完整性差距和无依赖文本可读性指标；`EvaluationThresholdGate` 按各指标方向执行阈值验收。运行入口为 `examples/14_dataeval_quality_gate.py`，规则说明见 `docs/research/dataeval_quality_extensions.md`。
-
-### E1 外部评估适配器
-
-`datavalor.data_eval.backends` 提供可选的外部算子封装：
-
-- `CleanlabQualityMetric`：将 Cleanlab 的 label issue/outlier 结果转为 issue rate 与样本级 `Evidence`；
-- `GreatExpectationsMetric`：将 expectation/checkpoint 验证转为 pass rate；`GreatExpectationsPolicyEvaluator` 也可生成 `GovernanceReport`；
-- `EvidentlyDriftMetric`：将 `Report.run` 的 drift 结果转为 drift-free rate，并保留报告快照；
-- `TorchMetricsAdapter`：桥接 TorchMetrics 的 `update`/`compute` 状态生命周期。
-
-这些类只在调用时加载第三方包，也可以注入 validator、runner、detector 或 metric。没有安装对应 extra 时，核心包仍能导入，调用适配器会抛出 `CapabilityUnavailableError` 并说明缺少的依赖。
-
-[返回模块索引](#module-index)
-
-<a id="module-datavalue"></a>
-
-## DataValue：数据估值与贡献度
-
-源码入口：[src/datavalor/data_value](src/datavalor/data_value)
-
-DataValue 面向特定用户、任务或模型估计数据及其组成单元的效用和贡献。估值对象可以是 sample、group、dataset 或 data product。
-
-### 主要输入与输出
-
-- 输入：`ValuationRequest`，其中显式包含 product、targets、buyer、task、rights、costs 和 evaluation artifacts；
-- 输出：`ValueEstimate`、`ValuationReport`、`ContributionReport`、`TrainingReport`。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `UtilityFunction` | `score` | 计算一个数据子集对任务的 utility |
-| `DataValuator` | `value` | 对一个或多个 target 生成价值估计 |
-| `TrainableValuator` | `fit/value` | 从历史估值请求和观测结果学习模型 |
-| `ContributionValuator` | `value_contributions` | 计算边际贡献或联盟贡献度 |
-
-`ValueEstimate` 包含 `value`、`unit`、可选 `currency`、`components`、`uncertainty`、`explanation` 和 `diagnostics`。`ValuationMode` 区分 model-dependent、model-agnostic、task-specific 和 market-oriented 方法。
-
-### 扩展 registry
-
-`UTILITY_FUNCTIONS`、`VALUATORS`、`TRAINABLE_VALUATORS`、`CONTRIBUTION_VALUATORS`。
-
-DataValue 只负责用户、任务和模型相关的效用与贡献估计，交易报价和清算由 DataPrice 处理。当前实现包括 weighted user-task、requirements、LOO、Shapley、Monte Carlo Shapley，以及 learned/symbolic valuation。
-
-`data_value/extensions.py` 增加了风险调整估值、反事实增量价值、多产品组合协同、单调价值曲线和估值校准：分别对应不确定性折扣、相对 baseline 的收益、portfolio synergy、数据规模的边际价值，以及预测值与实际收益的 MAE/RMSE/bias。示例为 `examples/15_data_value_risk_portfolio.py`，说明见 `docs/research/datavalue_extensions.md`。
-
-### E2 外部估值适配器
-
-`datavalor.data_value.backends` 提供：
-
-- `PyDVLContributionValuator` / `PyDVLValuator`：将 pyDVL 的 Shapley、semivalue 或 influence 结果转换为 `ContributionReport`、`ValuationReport` 和 `ValueEstimate`；
-- `OpenDataValValuator`：兼容 OpenDataVal 的 callable 以及 `input_data → train → data_values` 生命周期；
-- `OpenDataValBenchmarkMetric`：将外部方法结果接入 Benchmark 的 measurement 接口。
-
-适配器会保留外部结果中的索引和标准误，并映射为 DataValor 的目标 ID 与不确定性字段。没有安装 `valuation` extra 时，模块仍可导入，只有执行适配器才会报告 capability 缺失。
-
-[返回模块索引](#module-index)
-
-<a id="module-dataprice"></a>
-
-## DataPrice：数据定价与机制计算
-
-源码入口：[src/datavalor/data_price](src/datavalor/data_price)
-
-DataPrice 根据估值证据、权利、供需和机制规则生成 quote，并计算 allocation 和 payment。所有货币金额使用 `Decimal` 封装在 `Money` 中。
-
-### 主要输入与输出
-
-- 单产品报价输入：`QuoteRequest`；输出：`PriceQuote`；
-- 市场机制输入：`PricingRequest`，包含 products、bids、asks、valuation artifacts、supply、demand 和 market context；
-- 市场机制输出：`PricingOutcome`，包含 allocations、payments、welfare、seller revenue、properties 和 diagnostics。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `PricingModel` | `quote` | 生成产品、买方、任务和权利相关的 quote |
-| `OnlinePricingModel` | `quote/observe` | 根据完整曝光、接受、数量和收入日志更新状态 |
-| `PriceConstraint` | `project` | 执行 no-arbitrage 或其他价格约束 |
-| `PricingMechanism` | `price` | 根据 bid、ask、供需和规则计算 allocation/payment |
-
-### 关键模型
-
-`Money`、`QuoteRequest`、`PriceQuote`、`Bid`、`Ask`、`PricingRequest`、`Allocation`、`Payment`、`PricingOutcome`、`PricingObservation`。
-
-### 扩展 registry
-
-`PRICING_MODELS`、`ONLINE_PRICING_MODELS`、`PRICE_CONSTRAINTS`、`PRICING_MECHANISMS`。
-
-DataPrice 负责报价、分配与支付计算；listing 生命周期、参与者管理、数据交付和结算执行由 DataMarket 等上层流程衔接。当前实现包括 VCG、McAfee、posted price、procurement、core-selecting、contextual pricing 和 no-arbitrage 约束。
-
-仓库提供 `CostPlusPricingModel`、`ValueBasedPricingModel`、`UsageBasedPricingModel`、`QualityFreshnessPricingModel` 和 `AdaptiveDemandPricingModel`，以及价格带、阶梯量价折扣、多单位统一价格拍卖、预算感知和质量感知采购。`evaluate_pricing_properties` 会返回个体理性、预算和容量约束的违规证据。报价、估值和支付保持分离：报价模型可参考估值，但拍卖支付由边际出价或 ask reserve 决定。公式、复杂度和边界见 [报价与市场机制](docs/research/stage4_pricing_mechanisms.md)，运行示例为 `PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py`。
-
-`extensions.py` 补充了分段用量、订阅超额、风险调整和需求弹性四类报价模型，并提供 `calibrate_quotes`（报价与实际成交价的误差统计）和 `audit_pricing_outcome`（支付、收入和数量对账）。这些工具只处理价格计算和结果校验；挂牌、参与者行为和多轮市场实验仍由 `src/datavalor/data_market/` 负责。示例为 `examples/16_data_price_models_audit.py`，详细说明见 `docs/research/dataprice_extensions.md`。
-
-[返回模块索引](#module-index)
-
-<a id="module-datamarket"></a>
-
-## DataMarket：数据市场与市场仿真
-
-源码入口：[src/datavalor/data_market](src/datavalor/data_market)
-
-DataMarket 负责数据产品挂牌和发现、参与者行为、交易、激励和收入分配。它消费 DataPrice 的 `PricingOutcome`，不另定义价格、allocation 或 payment 对象。
-
-`data_market/extensions.py` 增加了 ACTIVE 挂牌排序、交易信誉评分、贡献激励预算、幂等交易处理和市场快照统计。它们围绕挂牌、参与者和交易执行工作，不改变 DataPrice 的报价/支付逻辑。运行示例为 `examples/17_data_market_lifecycle_incentive.py`，说明见 `docs/research/datamarket_extensions.md`。
-
-### 主要输入与输出
-
-- 输入：`Listing`、`DiscoveryQuery`、`ActorProfile`、`PricingOutcome`、参与者 contribution 和 `MarketSnapshot`；
-- 输出：listing 搜索结果、`Incentive`、`RevenueAllocation`、`TransactionRecord`、`SimulationStep`、`SimulationReport`。
-
-### 市场生命周期接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `MarketCatalog` | `publish/withdraw/discover` | 数据产品挂牌、下架和受治理发现 |
-| `ParticipantRepository` | `upsert/get/search` | 保存机制和仿真需要的最小参与者画像 |
-| `IncentivePolicy` | `compute` | 在市场价格之外计算参与激励 |
-| `RevenueAllocator` | `allocate` | 按贡献或明确规则分配已经实现的收入 |
-| `TransactionProcessor` | `execute` | 执行权利、交付和结算并记录部分失败 |
-
-### 市场仿真接口
-
-仿真子模块：[src/datavalor/data_market/simulation](src/datavalor/data_market/simulation)
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `ParticipantStrategy` | `decide/observe` | 根据获准观察生成 bid、ask 或 abstention，并更新状态 |
-| `MarketSimulator` | `reset/step/run` | 以确定性种子运行有限轮市场实验 |
-
-仿真模型包括 `MarketObservation`、`StrategyDecision`、`SimulationStep` 和 `SimulationReport`。仿真结果用于记录实验观察；equilibrium、no-regret 或 incentive compatibility 等理论性质需结合专门分析。
-
-### 扩展 registry
-
-`MARKET_CATALOGS`、`PARTICIPANT_REPOSITORIES`、`INCENTIVE_POLICIES`、`REVENUE_ALLOCATORS`、`TRANSACTION_PROCESSORS`、`PARTICIPANT_STRATEGIES`、`MARKET_SIMULATORS`。
-
-`InMemoryMarketCatalog` 支持按用途、权利、标签和元数据筛选挂牌，`InMemoryParticipantRepository` 支持按角色和属性筛选参与者，`ContributionRevenueAllocator` 负责 Decimal 金额、负贡献截断、分币种残差回补和总额对账。有限轮仿真与策略学习见 [市场仿真、Benchmark 与统计分析](docs/research/stage5_market_benchmark_analysis.md)。
-
-DataMarket 负责市场流程、参与者互动、激励、交易和收入分配，并沿用 DataEval、DataValue 与 DataPrice 的结果模型。
-
-### E4 外部市场与仿真适配器
-
-可选 backend 位于 `datavalor.data_market.simulation.backends`、
-`datavalor.data_market.backends` 和 `datavalor.data_gov.backends`：
-
-- `MesaMarketSimulator`：使用 Mesa 的 `Model.step` 作为调度层，但每轮仍通过 DataValor 的 `MarketObservation`、`StrategyDecision`、`PricingRequest` 和 `SimulationStep` 完成；
-- `SyftOwnerExecution`：把 owner-side 远程执行限制在显式 executor/client 边界；
-- `SyftPolicyEvaluator`：先依据 `RightsBundle.purposes` 做本地权限判断，再可选调用 PySyft checker；
-- `SyftTransactionProcessor`：将 PySyft 执行状态转换为 `TransactionRecord`；
-- `OceanMarketCatalog`：将 Ocean asset 注册、发现和下架流程映射为 `Listing`；
-- `OceanTransactionProcessor`：将 Ocean consume 结果映射为 `TransactionRecord`。
-
-Mesa/PySyft/Ocean 的 Agent、Domain、Datasite、asset 和 service 对象不会暴露给 DataValor
-公共 API。区块链写入、远程执行和数据消费必须由调用方注入 client/executor，不会在
-构造或导入阶段自动联网。
-
-[返回模块索引](#module-index)
-
-<a id="module-dataquery"></a>
-
-## DataQuery：智能问数与数据智能体
-
-源码入口：[src/datavalor/data_query](src/datavalor/data_query)
-
-DataQuery 记录获授权用户或 Agent 的查询过程。授权在执行前校验，prompt 只承载用户意图。
-
-### 标准执行链
-
-```text
-QueryRequest
-  -> QueryAuthorizer
-  -> QueryAuthorization
-  -> QueryPlanner
-  -> QueryPlan
-  -> QueryExecutor
-  -> raw QueryResult
-  -> ResultGuard
-  -> governed QueryResult
-```
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `QueryAuthorizer` | `authorize` | 在执行前检查身份、用途、产品权利和政策 |
-| `QueryPlanner` | `plan` | 把获批请求转换为可检查的 retrieval/computation 步骤 |
-| `QueryExecutor` | `execute` | 执行计划并保留完整 trace |
-| `ResultGuard` | `guard` | 应用行数限制、脱敏、聚合和结果政策 |
-| `DataAgent` | `run` | 编排上述阶段并统一执行授权和结果防护 |
-
-### 关键模型
-
-`QueryRequest`、`QueryAuthorization`、`QueryPlanStep`、`QueryPlan`、`QueryTraceEvent`、`QueryResult`。
-
-### 扩展 registry
-
-`QUERY_AUTHORIZERS`、`QUERY_PLANNERS`、`QUERY_EXECUTORS`、`RESULT_GUARDS`、`DATA_AGENTS`。
-
-DataQuery 的执行始终沿用 DataGov 的产品权利和授权结果，模型生成的 SQL 也需经过同一条执行链。未来 DB-GPT、数据库 connector 或 LLM 能力可通过这些接口接入。
-
-### E5 外部 Query/Agent 适配器
-
-`datavalor.data_query.backends` 已提供一条可组合的标准链路：
-
-```text
-RightsQueryAuthorizer
-    -> DBGPTQueryPlanner / VannaQueryPlanner
-    -> ExternalQueryExecutor
-    -> QueryResultGuard
-    -> GovernedDataAgent
-```
-
-- `RightsQueryAuthorizer`：依据产品 `RightsBundle.purposes` 和可选 policy callback 产生 `QueryAuthorization`；
-- `DBGPTQueryPlanner`：封装 DB-GPT 的 `generate_sql`、`ask` 或 `generate` 入口；
-- `VannaQueryPlanner`：封装 Vanna 的 `generate_sql`/`ask` 入口；
-- `ExternalQueryExecutor`：把 `run_sql`、`execute` 或 `query` 结果转换为 `QueryResult`；
-- `QueryResultGuard`：执行最大行数、字段脱敏和 truncation 标记；
-- `GovernedDataAgent`：固定执行 `authorize → plan → execute → guard`，未授权时不会调用外部 agent。
-
-DB-GPT/Vanna 的 SQL、DataFrame、agent state 和服务响应不会成为 DataValor 公共类型。
-适配器支持注入 generator/client/executor，便于离线测试与多版本 SDK；真实包仅在执行时
-通过 capability probe 加载。
-
-[返回模块索引](#module-index)
-
-<a id="module-toolkit"></a>
-
-## Toolkit：跨模块公共工具
-
-源码入口：[src/datavalor/toolkit](src/datavalor/toolkit)
-
-Toolkit 为研究和应用层提供公共入口，当前重导出 `ArtifactEnvelope`、`ArtifactRef`、`ArtifactStore`、`PipelineNode`、`PipelineSpec`、`PipelineRunner`、`Registry` 和 `RunContext`。具体公共工具分为 Benchmark、Analysis 和 Web UI 三个子模块。
-
-七个业务模块继续维护各自的结果语义，Toolkit 提供共享的 artifact、pipeline、benchmark、analysis 和 Web UI 工具。
-
-[返回模块索引](#module-index)
-
-<a id="module-benchmark"></a>
-
-## Toolkit Benchmark：基准实验
-
-源码入口：[src/datavalor/toolkit/benchmark](src/datavalor/toolkit/benchmark)
-
-Benchmark 负责可复现地执行：
-
-```text
-component × case × repetition × metric
-```
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `BenchmarkDataProvider` | `load` | 加载带 provenance 的真实、合成或缓存输入 |
-| `DataPerturbation` | `apply` | 确定性构造 shift、noise、split 或 resampling |
-| `BenchmarkMetric` | `measure` | 测量一次原始输出，聚合与排名由 benchmark 流程统一处理 |
-| `BenchmarkRunner` | `run` | 执行 component、case、repetition 实验矩阵 |
-
-关键模型为 `BenchmarkCase`、`BenchmarkSpec`、`BenchmarkObservation` 和 `BenchmarkReport`。原始 observation 与 aggregate 分开保存，方便复核每次实验并生成排行榜。
-
-### 扩展 registry
-
-`BENCHMARK_DATA_PROVIDERS`、`DATA_PERTURBATIONS`、`BENCHMARK_METRICS`、`BENCHMARK_RUNNERS`。
-
-数据 provider、shift/扰动和 split 能力都放在这一层；市场 benchmark 与 pyDVL、OpenDataVal 等外部算法也通过同一套 benchmark 接口比较。
-
-### E2 外部 Benchmark 数据源
-
-`datavalor.toolkit.benchmark.backends.wilds.WILDSDataProvider` 使用 WILDS 的
-`get_dataset` 和官方 `get_subset(split)`，将样本（包括 Tensor/array）转换为普通
-Python records 后封装进 `ArtifactEnvelope`。默认不下载数据，可通过 case 参数显式开启；
-也可以设置 `max_records` 或 `materialize=false` 控制物化范围。外部 Dataset 对象不会直接
-成为 DataValor 公共 payload。
-
-[返回模块索引](#module-index)
-
-<a id="module-analysis"></a>
-
-## Toolkit Analysis：统计分析与比较
-
-源码入口：[src/datavalor/toolkit/analysis](src/datavalor/toolkit/analysis)
-
-Analysis 消费已经落盘并带版本的 artifact，集中进行统计分析和方法比较；算法运行由 benchmark 或业务模块负责。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `Analyzer` | `analyze` | 生成统计量、warning 和派生产物 |
-| `ResultComparator` | `compare` | 比较 baseline 与候选方法，保留 effect 和 uncertainty |
-| `FrontierAnalyzer` | `frontier` | 在明确最大化/最小化方向和约束下计算 Pareto frontier |
-
-关键模型为 `AnalysisRequest`、`AnalysisResult`、`ComparisonRequest` 和 `ComparisonResult`。
-
-### 扩展 registry
-
-`ANALYZERS`、`RESULT_COMPARATORS`、`FRONTIER_ANALYZERS`。
-
-这一层提供市场策略、有限轮仿真、welfare/revenue benchmark、bootstrap、paired comparison 和 Pareto 分析。CLI、配置和插件加载入口位于 DataValor 自己的命名空间下。
-
-[返回模块索引](#module-index)
-
-<a id="module-webui"></a>
-
-## Toolkit Web UI：可选交互层
-
-源码入口：[src/datavalor/toolkit/webui](src/datavalor/toolkit/webui)
-
-Web UI 保持 framework-neutral，核心包通过可选的 Streamlit、Gradio、FastAPI 等适配器接入，服务器按应用配置启动。
-
-### 具体接口
-
-| 接口 | 方法 | 说明 |
-|---|---|---|
-| `ViewProvider` | `build` | 把 artifacts 转换为框架无关的 `ViewModel` |
-| `WebApplicationFactory` | `create` | 把声明式 `ApplicationSpec` 和 view providers 转为具体应用对象 |
-
-关键模型为 `ActionSpec`、`ViewSpec`、`ViewModel` 和 `ApplicationSpec`。
-
-### 扩展 registry
-
-`VIEW_PROVIDERS`、`WEB_APPLICATION_FACTORIES`。
-
-Web UI 负责将公共接口转换为可交互的视图与操作，算法计算、治理决策和 artifact 存储仍由对应模块完成。
-
-[返回模块索引](#module-index)
-
-<a id="extension-example"></a>
-
-## 最小扩展方式
-
-下面用一个小例子演示接口与 registry 的使用方式：
-
-```python
-from datavalor import ComponentSpec, RunContext
-from datavalor.core import DataProduct
-from datavalor.data_eval import (
-    EvaluationRequest,
-    MetricResult,
-    QUALITY_METRICS,
-    QualityMetric,
-    ScoreDirection,
-)
-
-
-class MyMetric(QualityMetric):
-    @property
-    def spec(self) -> ComponentSpec:
-        return ComponentSpec(
-            name="example.my_metric",
-            version="1.0.0",
-            module="data_eval",
-            kind="quality_metric",
-            capabilities=("dataset",),
-        )
-
-    def compute(
-        self,
-        product: DataProduct,
-        request: EvaluationRequest,
-        context: RunContext,
-    ) -> MetricResult:
-        raise NotImplementedError
-
-
-QUALITY_METRICS.register(MyMetric().spec, MyMetric)
-metric = QUALITY_METRICS.create("example.my_metric")
-```
-
-正式实现应同时提交：
-
-- 实现代码；
-- 单元测试和性质测试；
-- 最小配置与示例；
-- `ComponentSpec` capability 和可选依赖；
-- 算法来源、假设、复杂度和适用边界；
-- 既有实现迁入时，需同步完成 DataValor 命名、接口、配置、产物和测试的改造，并将公共入口统一到 DataValor。
-
-<a id="installation"></a>
-
-## 安装与验证
-
-基础安装保持轻量；开发环境可安装测试依赖：
+Python 版本要求为 3.10 或更高。
 
 ```bash
+git clone https://github.com/OpenDIV-Lab/DataValor.git
+cd DataValor
 python -m pip install -e ".[dev]"
-python -c "from datavalor import MODULES; print([m.display_name for m in MODULES])"
 pytest -q
-ruff check src tests
 ```
 
-统一主链路可以直接离线运行：
+基础依赖为空。按研究任务安装可选组件：
+
+```bash
+python -m pip install -e ".[quality]"     # Cleanlab, Great Expectations, Evidently
+python -m pip install -e ".[valuation]"   # PyDVL, OpenDataVal
+python -m pip install -e ".[governance]"  # DataHub, OpenMetadata, PyDeequ, PySyft
+python -m pip install -e ".[simulation]"  # Mesa
+python -m pip install -e ".[market]"      # Ocean
+python -m pip install -e ".[query]"       # DB-GPT, Vanna
+```
+
+可选依赖均延迟加载；导入 `datavalor` 不会自动连接外部服务。
+
+## 快速运行
+
+统一价值链示例依次执行治理、画像、评估、估值、定价、市场、查询和分析：
 
 ```bash
 PYTHONPATH=src python examples/00_unified_value_chain.py
 ```
 
-它使用 `configs/workflows/stage0_unified.json` 依次执行治理、画像、评估、估值、定价、市场、查询、使用计量和分析；每个阶段的 artifact 与运行摘要写入 `outputs/stage0-unified/`。
-
-数据产品与质量基线可以单独运行：
+针对主要研究环节，可以直接运行：
 
 ```bash
-PYTHONPATH=src python examples/05_stage1_governance_profile_eval.py
-```
-
-该示例读取含有重复、缺失值和类型错误的合成记录，生成元数据、权利决策、敏感字段发现、统计画像、版本差异和质量评估结果。
-
-也可以用统一 runner 运行同一组治理、画像和评估步骤：
-
-```bash
-PYTHONPATH=src python examples/06_stage1_unified_workflow.py
-```
-
-入口加载 `configs/workflows/stage1_quality.json`，依次落盘治理 bundle、`DatasetProfile` 和 `EvaluationReport`。每个 artifact 都带父引用、schema version、运行参数和文件 checksum，可以继续交给 DataValue/DataPrice 使用。
-
-任务相关估值和数据单元贡献分析：
-
-```bash
-PYTHONPATH=src python examples/07_stage2_task_valuation.py
-```
-
-入口加载 `configs/workflows/stage2_valuation.json`，复用治理、画像和质量评估结果，再由买方任务上下文驱动 `WeightedUserTaskValuator`，用 `TabularTaskUtility` 和 Monte Carlo Shapley 计算样本边际贡献。结果写入 `outputs/stage2-valuation/`；金额是给定 buyer/task/cost 假设下的价值估计，不是报价或支付。
-
-高级估值与贡献分摊：
-
-```bash
+PYTHONPATH=src python examples/01_task_value_and_shapley.py
+PYTHONPATH=src python examples/02_auction_and_budget_procurement.py
 PYTHONPATH=src python examples/08_stage3_advanced_valuation.py
+PYTHONPATH=src python examples/09_stage4_pricing_and_mechanisms.py
+PYTHONPATH=src python examples/18_data_market_mechanism_design.py
+PYTHONPATH=src python examples/19_data_market_simulation_dynamics.py
+PYTHONPATH=src python examples/24_stage12_feedback_calibration.py
 ```
 
-入口追加安全符号估值、线性模型训练/预测、精确 Shapley 和贡献金额分摊，结果写入 `outputs/stage3-valuation/`。
+各脚本使用固定种子和小型合成数据，输出写入 `outputs/`。替换为真实数据时，应在 `DataReference` 中补充 checksum、schema、来源、许可证和权利信息，并将下游效用函数替换为明确的验证集指标或业务效用。
 
-按需启用外部治理 connector：
+完整示例索引见 [examples/README.md](examples/README.md)。
 
-```bash
-python -m pip install -e ".[governance]"
-python -m pip install -e ".[simulation]"  # Mesa
-python -m pip install -e ".[market]"      # Ocean.py/ocean-lib
-python -m pip install -e ".[query]"        # DB-GPT/Vanna
+## 扩展一个估值或定价方法
+
+新方法需要实现对应抽象接口并注册到 typed registry。估值方法实现 `DataValuator` 或 `ContributionValuator`；报价方法实现 `PricingModel`；配置与支付机制实现 `PricingMechanism`。
+
+```python
+from datavalor import ComponentSpec
+from datavalor.data_value import DataValuator, VALUATORS
+
+
+class MyValuator(DataValuator):
+    @property
+    def spec(self) -> ComponentSpec:
+        return ComponentSpec(
+            name="research.my_valuator",
+            version="1.0.0",
+            module="data_value",
+            kind="valuator",
+            capabilities=("task_aware",),
+        )
+
+    def evaluate(self, request, context):
+        raise NotImplementedError
+
+
+VALUATORS.register(MyValuator().spec, MyValuator)
 ```
 
-该 extra 包含 DataHub、OpenMetadata 和 PyDeequ SDK；Spark 集群、DataHub/OpenMetadata
-服务地址和凭据仍由部署环境注入，DataValor 不会在安装或导入时自动连接这些服务。
+正式实现应同时给出算法来源、假设、复杂度、随机性控制、适用边界、单元测试和最小实验配置。若方法具有 truthfulness、budget balance、individual rationality、no-arbitrage 等理论性质，需要将理论适用条件与有限样本实验指标分开说明。
 
-测试目前覆盖：
-
-- 所有公共模块在可选依赖缺席时仍可导入；
-- 所有扩展接口均采用需要具体实现才能实例化的 ABC；
-- registry 的延迟 factory、重名保护和 freeze；
-- artifact、evaluation、valuation、pricing 各自负责的内容；
-- 货币金额使用 `Decimal`；
-- `src/datavalor` 不导入 `dvmk`。
-
-<a id="documentation"></a>
-
-## 文档与调研资料
-
-DataMechBench 使用独立文档入口，避免与基础库的模块调研混杂：
-
-- [DataMechBench 范围、结果和运行入口](benchmark/README.md)
-- [DataMechBench 核心贡献与技术主线](benchmark/docs/core_contribution.md)
-- [DataMechBench 文档导航](benchmark/docs/README.md)
-
-DataValor 基础库文档：
+## 文档
 
 - [架构与模块契约](docs/architecture.md)
-- [系统框架与接口设计](docs/interfaces.md)
-- [GitHub 项目调研与选型](docs/research/github_landscape.md)
-- [机器可读参考项目清单](docs/research/reference_projects.yaml)
-- [外部仓库功能复用规划](docs/research/external_repo_reuse_plan.md)
-- [外部仓库复用阶段配置](configs/integrations/external_repo_reuse.yaml)
-- [data_value_market_kit 代码筛选、迁移与改造方案](docs/research/dvmk_reuse.md)
-- [数据估值定价调研与 DataValor 模块对照](docs/research/data_valuation_pricing_landscape.md)
-- [数据产品治理、画像与质量评估](docs/research/stage1_data_product_governance.md)
-- [任务效用、估值与数据单元贡献](docs/research/stage2_data_valuation.md)
-- [符号估值、学习型估值与贡献分摊](docs/research/stage3_advanced_valuation.md)
-- [DataValue 风险、反事实、组合与校准扩展](docs/research/datavalue_extensions.md)
-- [DataPrice 分段、订阅、风险与弹性定价扩展](docs/research/dataprice_extensions.md)
-- [DVMK 源码迁移执行手册](docs/migrations/dvmk/README.md)
-- [机器可读 DVMK 迁移计划](configs/migrations/dvmk/plan.yaml)
+- [接口设计](docs/interfaces.md)
+- [仓库概览](docs/repo_overview.md)
+- [数据估值定价研究综述与模块映射](docs/research/data_valuation_pricing_landscape.md)
+- [任务效用、数据估值与贡献归因](docs/research/stage2_data_valuation.md)
+- [高级估值方法](docs/research/stage3_advanced_valuation.md)
+- [数据定价与机制设计](docs/research/stage4_pricing_mechanisms.md)
+- [外部项目与实现来源](docs/research/reference_projects.yaml)
+- [DataMechBench 独立分支](https://github.com/OpenDIV-Lab/DataValor/tree/benchmark/benchmark)
 
-参考项目用于记录调研依据和后续选型方向。仓库尚未迁移这些项目的代码、模型或数据，正式接入前会复核版本、许可证、数据权利与安全边界。
+## 开发约定
 
-可选依赖边界、DataEval/DataProf 适配器、DataValue/Benchmark 适配器、DataGov connector、DataMarket/Simulation connector 和 DataQuery connector 均有对应实现。第三方依赖不进入基础安装，适配器输出统一转换为 DataValor 公共模型。
-
-DVMK 是实验室已有的代码基础，相关实现会迁入并重构为 `datavalor.*` 原生代码。迁入后由 DataValor 独立维护，公共入口使用 DataValor 的命名和协议。
-
-<a id="development-principles"></a>
-
-## 开发原则
-
-- 质量评估、估值与定价保持各自语义层，价格计算引用明确的估值和市场证据；
-- 算法通过稳定协议和 registry 接入，benchmark 与算法实现解耦；
-- 运行产物包含 schema version、配置、随机种子、依赖版本、输入摘要和 provenance；
-- 一般外部能力优先采用 optional dependency、adapter、API 或服务边界；实验室自有实现可以完整迁入，但必须按 DataValor 接口和目录重构；
-- DVMK 的完整实现文件迁入后成为 `datavalor.*` 原生实现，统一采用 DataValor 的包名、protocol、CLI 命令和路径；
-- 重型依赖不在公共包 import 阶段加载；
-- 算法层通过协议连接输出目录、数据库、Web 框架或 UI；
-- 原始数据、受限数据和大体积输出默认不提交到 Git。
+- 质量、效用、估值、报价、出价、支付和实现价值使用不同模型与字段；
+- 金额使用 `Decimal`，并显式记录币种；
+- 随机算法接受固定 seed，并在 artifact 中记录运行参数；
+- 原始数据、受限数据、模型权重和大体积运行输出不提交到 Git；
+- 外部方法通过 adapter 或 optional dependency 接入，导入核心包时不加载重型依赖；
+- 新机制的实验结果不能替代理论性质证明，理论 claim 需要单独注明假设。
 
 ## License
 
-Apache License 2.0。数据、模型和可选依赖按实际使用范围管理；实验室自有实现统一遵循 DataValor 的目录、接口和发布约定。
+代码采用 Apache License 2.0。外部数据、模型和可选依赖仍遵循各自的许可证与使用条件。

@@ -2,7 +2,7 @@
 
 DataValor 用于数据治理、画像、评估、估值、定价和市场实验。源码位于 `src/datavalor/`，模块之间使用同一套数据产品、运行上下文和 artifact 引用。各模块既可单独使用，也可按工作流组合。
 
-仓库中的 `benchmark/` 是相对独立的 DataMechBench 研究 artifact，不是 `datavalor.toolkit.benchmark` 的同义目录。前者评估数据估值、预算采购和双边交易机制的完整经济结果与论文 claim；后者只是基础库中的通用实验工具。可复用算法放在 `src/datavalor`，DataMechBench 的 setting、runner、evidence 和 leaderboard 放在 `benchmark/src/datamechbench`。详细入口见 [`../benchmark/README.md`](../benchmark/README.md) 和 [`../benchmark/docs/core_contribution.md`](../benchmark/docs/core_contribution.md)。
+DataMechBench 已迁移到独立的 [`benchmark` 分支](https://github.com/OpenDIV-Lab/DataValor/tree/benchmark/benchmark)。它评估数据估值、预算采购和双边交易机制的经济结果与理论性质，不是 `datavalor.toolkit.benchmark` 的同义目录。可复用算法放在 `src/datavalor`；DataMechBench 自有的 setting、机制适配器、指标、runner 和 leaderboard 保存在该分支的顶层 `benchmark/` 目录。`main` 只维护 DataValor Python 库及其文档和测试。
 
 ## 公共基础
 
@@ -57,7 +57,7 @@ DataValor 用于数据治理、画像、评估、估值、定价和市场实验�
 
 `src/datavalor/toolkit/benchmark/` 提供数据源、扰动、实验矩阵和 benchmark 指标；`src/datavalor/toolkit/analysis/` 提供 bootstrap 区间、策略比较、regret 和 Pareto frontier；`src/datavalor/toolkit/webui/` 提供与具体 Web 框架无关的 view/app 接口。`src/datavalor/*/backends/` 中的 DataHub、OpenMetadata、Cleanlab、Evidently、Great Expectations、TorchMetrics 等连接器采用可选依赖和 adapter 方式，未安装第三方包时核心模块仍可导入。
 
-机制设计论文比较由顶层 `benchmark/` 承载。它使用独立的 `datamechbench` 包和 catalog，不向基础库反向注入榜单、论文 gate 或 held-out 数据。
+机制设计方法的系统比较由 `benchmark` 分支中的顶层 `benchmark/` 承载。它使用独立的 `datamechbench` 包和 catalog，不向基础库反向注入榜单、论文 gate 或 held-out 数据。
 
 ## 运行入口和资料位置
 

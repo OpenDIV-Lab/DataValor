@@ -1,8 +1,0 @@
-name: elr-vrds-smoke
-split: development
-physical_gpus: [1]
-setting_ids: [gen-breast-rf-n8, gen-adult-gb-n8, gen-digits-head-n8, gen-agnews-head-n8]
-seeds: [0]
-cache_dir: benchmark/outputs/elr_vrds_smoke/cache
-fixture_mode: true
-fidelities: [low, medium, high]
