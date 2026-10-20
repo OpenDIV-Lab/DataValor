@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1280" viewBox="0 0 1760 1280" role="img" aria-labelledby="title desc">
+<title id="title">DataValor layered architecture</title>
+<desc id="desc">A layered view of data governance, profiling, evaluation, valuation, pricing, market mechanisms, governed querying, feedback, shared contracts, adapters, and benchmark tooling.</desc>
+<defs>
+<linearGradient id="canvas" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F8FAFC"/><stop offset="0.52" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F1F5F9"/></linearGradient>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#0F172A" flood-opacity="0.10"/></filter>
+<linearGradient id="grad-input" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EEF2FF"/><stop offset="1" stop-color="#E0E7FF"/></linearGradient>
+<linearGradient id="grad-gov" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EFF6FF"/><stop offset="1" stop-color="#DBEAFE"/></linearGradient>
+<linearGradient id="grad-prof" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ECFEFF"/><stop offset="1" stop-color="#CFFAFE"/></linearGradient>
+<linearGradient id="grad-eval" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0FDFA"/><stop offset="1" stop-color="#CCFBF1"/></linearGradient>
+<linearGradient id="grad-value" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FAF5FF"/><stop offset="1" stop-color="#EDE9FE"/></linearGradient>
+<linearGradient id="grad-price" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF7ED"/><stop offset="1" stop-color="#FFEDD5"/></linearGradient>
+<linearGradient id="grad-market" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF1F2"/><stop offset="1" stop-color="#FFE4E6"/></linearGradient>
+<linearGradient id="grad-query" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0FDF4"/><stop offset="1" stop-color="#DCFCE7"/></linearGradient>
+<linearGradient id="grad-outcome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7FEE7"/><stop offset="1" stop-color="#ECFCCB"/></linearGradient>
+<linearGradient id="grad-feedback" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFBEB"/><stop offset="1" stop-color="#FEF3C7"/></linearGradient>
+<linearGradient id="grad-core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F8FAFC"/><stop offset="1" stop-color="#E2E8F0"/></linearGradient>
+<linearGradient id="grad-toolkit" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5F3FF"/><stop offset="1" stop-color="#EDE9FE"/></linearGradient>
+<linearGradient id="grad-external" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F8FAFC"/></linearGradient>
+<marker id="arrow-data" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker>
+<marker id="arrow-control" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2563EB"/></marker>
+<marker id="arrow-evidence" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0F766E"/></marker>
+<marker id="arrow-economic" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7C3AED"/></marker>
+<marker id="arrow-market" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#E11D48"/></marker>
+<marker id="arrow-feedback" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#D97706"/></marker>
+<marker id="arrow-adapter" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B"/></marker>
+</defs>
+<rect width="1760" height="1280" fill="url(#canvas)"/>
+<circle cx="1640" cy="65" r="170" fill="#DDD6FE" opacity="0.22"/>
+<circle cx="95" cy="1030" r="210" fill="#BFDBFE" opacity="0.16"/>
+<text x="70" y="58" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="30" font-weight="800" fill="#0F172A" opacity="1.0">DataValor · Layered Architecture</text>
+<text x="70" y="84" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="520" fill="#64748B" opacity="1.0">Evidence-aware data valuation, pricing, mechanism design, and market realization</text>
+<text x="1690" y="58" text-anchor="end" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="800" fill="#4F46E5" opacity="1.0">MAIN LIBRARY</text>
+<text x="1690" y="80" text-anchor="end" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="550" fill="#64748B" opacity="1.0">typed artifacts · explicit assumptions · reproducible runs</text>
+<rect x="40" y="305" width="1680" height="215" rx="28" fill="#F0FDFF" stroke="#0E7490" stroke-width="1.2"/>
+<rect x="54" y="323" width="42" height="24" rx="12" fill="#0E7490"/>
+<text x="75" y="340" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">01</text>
+<text x="108" y="341" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">EVIDENCE &amp; ELIGIBILITY</text>
+<rect x="40" y="545" width="1680" height="215" rx="28" fill="#FCF7FF" stroke="#7C3AED" stroke-width="1.2"/>
+<rect x="54" y="563" width="42" height="24" rx="12" fill="#7C3AED"/>
+<text x="75" y="580" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">02</text>
+<text x="108" y="581" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">VALUE FORMATION &amp; MECHANISM DESIGN</text>
+<rect x="40" y="805" width="1680" height="205" rx="28" fill="#F6FFF7" stroke="#16A34A" stroke-width="1.2"/>
+<rect x="54" y="823" width="42" height="24" rx="12" fill="#16A34A"/>
+<text x="75" y="840" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">03</text>
+<text x="108" y="841" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">MARKET REALIZATION &amp; LEARNING</text>
+<rect x="40" y="1045" width="1680" height="175" rx="28" fill="#F8FAFC" stroke="#475569" stroke-width="1.2"/>
+<rect x="54" y="1063" width="42" height="24" rx="12" fill="#475569"/>
+<text x="75" y="1080" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">04</text>
+<text x="108" y="1081" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">CROSS-CUTTING FOUNDATION</text>
+<path d="M250 255 C250 300 300 305 300 350" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-data)" opacity="0.92"/>
+<path d="M350 255 L350 278 L880 278 L880 350" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-data)" opacity="0.92"/>
+<path d="M650 255 L650 289 L1460 289 L1460 350" fill="none" stroke="#475569" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-data)" opacity="0.92"/>
+<path d="M1050 255 L1120 286 L1120 532 L880 532 L880 590" fill="none" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-market)" opacity="0.92"/>
+<path d="M1120 255 L1190 295 L1190 536 L1460 536 L1460 590" fill="none" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-market)" opacity="0.92"/>
+<path d="M1690 192 L1712 192 L1712 915 L1670 915" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-adapter)" opacity="0.92"/>
+<path d="M1712 415 L1670 415" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-adapter)" opacity="0.92"/>
+<path d="M1712 655 L1670 655" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-adapter)" opacity="0.92"/>
+<path d="M510 415 L670 415" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-control)" opacity="0.92"/>
+<path d="M1090 415 L1250 415" fill="none" stroke="#0F766E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)" opacity="0.92"/>
+<path d="M90 420 L55 420 L55 910 L90 910" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-control)" opacity="0.92"/>
+<path d="M430 480 L430 514 L1610 514 L1610 590" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-control)" opacity="0.92"/>
+<path d="M880 480 L880 526 L430 526 L430 590" fill="none" stroke="#0F766E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)" opacity="0.92"/>
+<path d="M1370 480 L1370 538 L300 538 L300 590" fill="none" stroke="#0F766E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)" opacity="0.92"/>
+<path d="M1460 480 L1460 554 L960 554 L960 590" fill="none" stroke="#0F766E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)" opacity="0.92"/>
+<path d="M510 655 L670 655" fill="none" stroke="#7C3AED" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-economic)" opacity="0.92"/>
+<path d="M1090 655 L1250 655" fill="none" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-market)" opacity="0.92"/>
+<path d="M430 720 L430 774 L1370 774 L1370 720" fill="none" stroke="#7C3AED" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-economic)" opacity="0.92"/>
+<path d="M1320 720 L1320 796 L300 796 L300 850" fill="none" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-market)" opacity="0.92"/>
+<path d="M1460 720 L1460 788 L880 788 L880 850" fill="none" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-market)" opacity="0.92"/>
+<path d="M510 910 L670 910" fill="none" stroke="#16A34A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-evidence)" opacity="0.92"/>
+<path d="M1090 910 L1250 910" fill="none" stroke="#65A30D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-feedback)" opacity="0.92"/>
+<path d="M1460 850 L1460 782 L1640 782 L1640 566 L960 566 L960 590" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-feedback)" opacity="0.92"/>
+<path d="M1250 945 L1150 945 L1150 1026 L42 1026 L42 655 L90 655" fill="none" stroke="#D97706" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-feedback)" opacity="0.92"/>
+<path d="M880 970 L880 1032 L1040 1032 L1040 1095" fill="none" stroke="#6D28D9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow-economic)" opacity="0.92"/>
+<path d="M1460 970 L1460 1020 L1190 1020 L1190 1095" fill="none" stroke="#6D28D9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-economic)" opacity="0.92"/>
+<path d="M1330 1155 L1390 1155" fill="none" stroke="#64748B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 7" marker-end="url(#arrow-adapter)" opacity="0.92"/>
+<rect x="221.5" y="280" width="127" height="23" rx="11.5" fill="#FFFFFF" stroke="#475569" stroke-width="0.8" opacity="0.98"/>
+<text x="285" y="296" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#475569" opacity="1.0">data + versions</text>
+<rect x="986.0" y="272" width="148" height="23" rx="11.5" fill="#FFFFFF" stroke="#475569" stroke-width="0.8" opacity="0.98"/>
+<text x="1060" y="288" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#475569" opacity="1.0">task &amp; constraints</text>
+<rect x="935.0" y="515" width="120" height="23" rx="11.5" fill="#FFFFFF" stroke="#E11D48" stroke-width="0.8" opacity="0.98"/>
+<text x="995" y="531" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#E11D48" opacity="1.0">bids / budgets</text>
+<rect x="1605.5" y="313" width="113" height="23" rx="11.5" fill="#FFFFFF" stroke="#64748B" stroke-width="0.8" opacity="0.98"/>
+<text x="1662" y="329" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#64748B" opacity="1.0">lazy adapters</text>
+<rect x="519.5" y="387" width="141" height="23" rx="11.5" fill="#FFFFFF" stroke="#2563EB" stroke-width="0.8" opacity="0.98"/>
+<text x="590" y="403" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#2563EB" opacity="1.0">governed metadata</text>
+<rect x="1103.0" y="387" width="134" height="23" rx="11.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="0.8" opacity="0.98"/>
+<text x="1170" y="403" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#0F766E" opacity="1.0">profile evidence</text>
+<rect x="47.5" y="779" width="113" height="23" rx="11.5" fill="#FFFFFF" stroke="#2563EB" stroke-width="0.8" opacity="0.98"/>
+<text x="104" y="795" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#2563EB" opacity="1.0">authorization</text>
+<rect x="956.0" y="497" width="148" height="23" rx="11.5" fill="#FFFFFF" stroke="#2563EB" stroke-width="0.8" opacity="0.98"/>
+<text x="1030" y="513" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#2563EB" opacity="1.0">rights &amp; admission</text>
+<rect x="572.5" y="509" width="155" height="23" rx="11.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="0.8" opacity="0.98"/>
+<text x="650" y="525" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#0F766E" opacity="1.0">scarcity / coverage</text>
+<rect x="739.0" y="521" width="176" height="23" rx="11.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="0.8" opacity="0.98"/>
+<text x="827" y="537" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#0F766E" opacity="1.0">quality &amp; task utility</text>
+<rect x="1144.5" y="537" width="141" height="23" rx="11.5" fill="#FFFFFF" stroke="#0F766E" stroke-width="0.8" opacity="0.98"/>
+<text x="1215" y="553" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#0F766E" opacity="1.0">quality modifiers</text>
+<rect x="530.0" y="628" width="120" height="23" rx="11.5" fill="#FFFFFF" stroke="#7C3AED" stroke-width="0.8" opacity="0.98"/>
+<text x="590" y="644" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#7C3AED" opacity="1.0">value estimate</text>
+<rect x="1096.0" y="628" width="148" height="23" rx="11.5" fill="#FFFFFF" stroke="#E11D48" stroke-width="0.8" opacity="0.98"/>
+<text x="1170" y="644" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#E11D48" opacity="1.0">quote / allocation</text>
+<rect x="798.0" y="757" width="204" height="23" rx="11.5" fill="#FFFFFF" stroke="#7C3AED" stroke-width="0.8" opacity="0.98"/>
+<text x="900" y="773" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#7C3AED" opacity="1.0">contribution-aware revenue</text>
+<rect x="731.0" y="779" width="148" height="23" rx="11.5" fill="#FFFFFF" stroke="#E11D48" stroke-width="0.8" opacity="0.98"/>
+<text x="805" y="795" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#E11D48" opacity="1.0">transaction rights</text>
+<rect x="1089.0" y="771" width="162" height="23" rx="11.5" fill="#FFFFFF" stroke="#E11D48" stroke-width="0.8" opacity="0.98"/>
+<text x="1170" y="787" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#E11D48" opacity="1.0">allocation &amp; payment</text>
+<rect x="533.5" y="883" width="113" height="23" rx="11.5" fill="#FFFFFF" stroke="#16A34A" stroke-width="0.8" opacity="0.98"/>
+<text x="590" y="899" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#16A34A" opacity="1.0">guarded usage</text>
+<rect x="1117.0" y="883" width="106" height="23" rx="11.5" fill="#FFFFFF" stroke="#65A30D" stroke-width="0.8" opacity="0.98"/>
+<text x="1170" y="899" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#65A30D" opacity="1.0">observations</text>
+<rect x="1237.5" y="549" width="155" height="23" rx="11.5" fill="#FFFFFF" stroke="#D97706" stroke-width="0.8" opacity="0.98"/>
+<text x="1315" y="565" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#D97706" opacity="1.0">acceptance &amp; demand</text>
+<rect x="144.0" y="1009" width="232" height="23" rx="11.5" fill="#FFFFFF" stroke="#D97706" stroke-width="0.8" opacity="0.98"/>
+<text x="260" y="1025" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#D97706" opacity="1.0">realized utility / calibration</text>
+<rect x="918.5" y="1015" width="183" height="23" rx="11.5" fill="#FFFFFF" stroke="#6D28D9" stroke-width="0.8" opacity="0.98"/>
+<text x="1010" y="1031" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#6D28D9" opacity="1.0">comparable observations</text>
+<rect x="50" y="317" width="290" height="36" rx="18" fill="#F0FDFF"/>
+<rect x="54" y="323" width="42" height="24" rx="12" fill="#0E7490"/>
+<text x="75" y="340" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">01</text>
+<text x="108" y="341" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">EVIDENCE &amp; ELIGIBILITY</text>
+<rect x="50" y="557" width="398" height="36" rx="18" fill="#FCF7FF"/>
+<rect x="54" y="563" width="42" height="24" rx="12" fill="#7C3AED"/>
+<text x="75" y="580" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">02</text>
+<text x="108" y="581" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">VALUE FORMATION &amp; MECHANISM DESIGN</text>
+<rect x="50" y="817" width="353" height="36" rx="18" fill="#F6FFF7"/>
+<rect x="54" y="823" width="42" height="24" rx="12" fill="#16A34A"/>
+<text x="75" y="840" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">03</text>
+<text x="108" y="841" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">MARKET REALIZATION &amp; LEARNING</text>
+<rect x="50" y="1057" width="308" height="36" rx="18" fill="#F8FAFC"/>
+<rect x="54" y="1063" width="42" height="24" rx="12" fill="#475569"/>
+<text x="75" y="1080" text-anchor="middle" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="800" fill="#FFFFFF" opacity="1.0">04</text>
+<text x="108" y="1081" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="750" fill="#334155" opacity="1.0">CROSS-CUTTING FOUNDATION</text>
+<rect x="70" y="130" width="360" height="125" rx="20" fill="url(#grad-input)" stroke="#4F46E5" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="70" y="130" width="7" height="125" rx="3.5" fill="#4F46E5"/>
+<text x="94" y="161" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#4F46E5" opacity="1.0">INPUT / DATA</text>
+<text x="94" y="189" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#312E81" opacity="1.0">Data assets &amp; versions</text>
+<text x="94" y="214" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">DataProduct • DataReference • schema</text>
+<text x="94" y="234" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">checksum • provenance • version delta</text>
+<rect x="470" y="130" width="360" height="125" rx="20" fill="url(#grad-input)" stroke="#4F46E5" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="470" y="130" width="7" height="125" rx="3.5" fill="#4F46E5"/>
+<text x="494" y="161" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#4F46E5" opacity="1.0">INPUT / CONTEXT</text>
+<text x="494" y="189" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#312E81" opacity="1.0">Research context</text>
+<text x="494" y="214" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">RunContext • TaskContext • CostContext</text>
+<text x="494" y="234" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">RightsBundle • seed • assumptions</text>
+<rect x="870" y="130" width="360" height="125" rx="20" fill="url(#grad-input)" stroke="#4F46E5" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="870" y="130" width="7" height="125" rx="3.5" fill="#4F46E5"/>
+<text x="894" y="161" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#4F46E5" opacity="1.0">INPUT / ECONOMY</text>
+<text x="894" y="189" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#312E81" opacity="1.0">Actors &amp; market reports</text>
+<text x="894" y="214" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">buyers • sellers • bids • reserves</text>
+<text x="894" y="234" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">budgets • quantities • realized demand</text>
+<rect x="1270" y="130" width="420" height="125" rx="20" fill="url(#grad-external)" stroke="#64748B" stroke-width="1.5" stroke-dasharray="8 6" filter="url(#shadow)"/>
+<text x="1294" y="161" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#64748B" opacity="1.0">ADAPTER BOUNDARY</text>
+<text x="1294" y="189" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#334155" opacity="1.0">Optional ecosystems</text>
+<text x="1294" y="214" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">DataHub • Cleanlab • PyDVL • OpenDataVal</text>
+<text x="1294" y="234" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">Ocean • Mesa • PySyft • DB-GPT • Vanna</text>
+<rect x="90" y="350" width="420" height="130" rx="20" fill="url(#grad-gov)" stroke="#2563EB" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="90" y="350" width="7" height="130" rx="3.5" fill="#2563EB"/>
+<text x="114" y="381" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#2563EB" opacity="1.0">datavalor.data_gov</text>
+<text x="114" y="409" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#1E3A8A" opacity="1.0">DataGov</text>
+<text x="114" y="434" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">metadata catalog • rights matrix • security</text>
+<text x="114" y="454" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">lineage graph • version diff • market readiness</text>
+<rect x="670" y="350" width="420" height="130" rx="20" fill="url(#grad-prof)" stroke="#0891B2" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="670" y="350" width="7" height="130" rx="3.5" fill="#0891B2"/>
+<text x="694" y="381" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#0891B2" opacity="1.0">datavalor.data_prof</text>
+<text x="694" y="409" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#164E63" opacity="1.0">DataProf</text>
+<text x="694" y="434" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">robust statistics • entropy • correlation</text>
+<text x="694" y="454" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">PSI / JS drift • coverage • rarity • joinability</text>
+<rect x="1250" y="350" width="420" height="130" rx="20" fill="url(#grad-eval)" stroke="#0D9488" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1250" y="350" width="7" height="130" rx="3.5" fill="#0D9488"/>
+<text x="1274" y="381" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#0D9488" opacity="1.0">datavalor.data_eval</text>
+<text x="1274" y="409" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#134E4A" opacity="1.0">DataEval</text>
+<text x="1274" y="434" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">quality constraints • multimodal metrics</text>
+<text x="1274" y="454" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">task utility • demand fit • confidence gates</text>
+<rect x="90" y="590" width="420" height="130" rx="20" fill="url(#grad-value)" stroke="#7C3AED" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="90" y="590" width="7" height="130" rx="3.5" fill="#7C3AED"/>
+<text x="114" y="621" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#7C3AED" opacity="1.0">datavalor.data_value</text>
+<text x="114" y="649" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#4C1D95" opacity="1.0">DataValue</text>
+<text x="114" y="674" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">task / risk / market-conditioned valuation</text>
+<text x="114" y="694" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">LOO • Shapley • Banzhaf • portfolio selection</text>
+<rect x="670" y="590" width="420" height="130" rx="20" fill="url(#grad-price)" stroke="#EA580C" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="670" y="590" width="7" height="130" rx="3.5" fill="#EA580C"/>
+<text x="694" y="621" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#EA580C" opacity="1.0">datavalor.data_price</text>
+<text x="694" y="649" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#7C2D12" opacity="1.0">DataPrice</text>
+<text x="694" y="674" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">cost / value / usage / demand pricing</text>
+<text x="694" y="694" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">posted price • VCG • McAfee • procurement</text>
+<rect x="1250" y="590" width="420" height="130" rx="20" fill="url(#grad-market)" stroke="#E11D48" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1250" y="590" width="7" height="130" rx="3.5" fill="#E11D48"/>
+<text x="1274" y="621" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#E11D48" opacity="1.0">datavalor.data_market</text>
+<text x="1274" y="649" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#881337" opacity="1.0">DataMarket</text>
+<text x="1274" y="674" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">catalog • matching • admission • allocation</text>
+<text x="1274" y="694" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">revenue sharing • strategy &amp; shock simulation</text>
+<rect x="90" y="850" width="420" height="120" rx="20" fill="url(#grad-query)" stroke="#16A34A" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="90" y="850" width="7" height="120" rx="3.5" fill="#16A34A"/>
+<text x="114" y="881" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#16A34A" opacity="1.0">datavalor.data_query</text>
+<text x="114" y="909" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#14532D" opacity="1.0">DataQuery</text>
+<text x="114" y="934" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">authorize → plan → execute → guard</text>
+<text x="114" y="954" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">usage logging • governed agent boundary</text>
+<polygon points="688,850 1072,850 1090,868 1090,952 1072,970 688,970 670,952 670,868" fill="url(#grad-outcome)" stroke="#65A30D" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="670" y="850" width="7" height="120" rx="3.5" fill="#65A30D"/>
+<text x="694" y="881" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#65A30D" opacity="1.0">OBSERVED ARTIFACTS</text>
+<text x="694" y="909" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#365314" opacity="1.0">Realized outcomes</text>
+<text x="694" y="934" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">allocation • payment • welfare • revenue</text>
+<text x="694" y="954" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">quality delivered • queries • downstream utility</text>
+<rect x="1250" y="850" width="420" height="120" rx="20" fill="url(#grad-feedback)" stroke="#D97706" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1250" y="850" width="7" height="120" rx="3.5" fill="#D97706"/>
+<text x="1274" y="881" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#D97706" opacity="1.0">CLOSED LOOP</text>
+<text x="1274" y="909" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#78350F" opacity="1.0">Feedback &amp; calibration</text>
+<text x="1274" y="934" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">acceptance probability • demand response</text>
+<text x="1274" y="954" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">usage anomaly • quote &amp; valuation calibration</text>
+<rect x="90" y="1095" width="700" height="120" rx="20" fill="url(#grad-core)" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="90" y="1095" width="7" height="120" rx="3.5" fill="#334155"/>
+<text x="114" y="1126" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#334155" opacity="1.0">datavalor.core</text>
+<text x="114" y="1154" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#0F172A" opacity="1.0">Core runtime &amp; contracts</text>
+<text x="114" y="1179" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">typed requests/results • Registry • PipelineRunner</text>
+<text x="114" y="1199" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">ArtifactEnvelope • lineage refs • ArtifactStore • diagnostics</text>
+<rect x="850" y="1095" width="480" height="120" rx="20" fill="url(#grad-toolkit)" stroke="#6D28D9" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="850" y="1095" width="7" height="120" rx="3.5" fill="#6D28D9"/>
+<text x="874" y="1126" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#6D28D9" opacity="1.0">datavalor.toolkit</text>
+<text x="874" y="1154" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#3B0764" opacity="1.0">Benchmark &amp; analysis toolkit</text>
+<text x="874" y="1179" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">case × method × seed matrix • perturbations</text>
+<text x="874" y="1199" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">bootstrap • paired comparison • regret • Pareto frontier</text>
+<rect x="1390" y="1095" width="280" height="120" rx="20" fill="url(#grad-external)" stroke="#64748B" stroke-width="1.5" stroke-dasharray="8 6" filter="url(#shadow)"/>
+<text x="1414" y="1126" text-anchor="start" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="12" font-weight="650" fill="#64748B" opacity="1.0">SEPARATE BRANCH</text>
+<text x="1414" y="1154" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="760" fill="#334155" opacity="1.0">DataMechBench</text>
+<text x="1414" y="1179" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">settings • adapters • leaderboards</text>
+<text x="1414" y="1199" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="14" font-weight="500" fill="#475569" opacity="1.0">consumes public mechanism APIs</text>
+<line x1="90" y1="1238" x2="125" y2="1238" stroke="#0F766E" stroke-width="2.4" marker-end="url(#arrow-evidence)"/>
+<text x="136" y="1243" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="650" fill="#475569" opacity="1.0">evidence / artifacts</text>
+<line x1="315" y1="1238" x2="350" y2="1238" stroke="#2563EB" stroke-width="2.4" marker-end="url(#arrow-control)"/>
+<text x="361" y="1243" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="650" fill="#475569" opacity="1.0">governance control</text>
+<line x1="548" y1="1238" x2="583" y2="1238" stroke="#7C3AED" stroke-width="2.4" marker-end="url(#arrow-economic)"/>
+<text x="594" y="1243" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="650" fill="#475569" opacity="1.0">economic signal</text>
+<line x1="766" y1="1238" x2="801" y2="1238" stroke="#E11D48" stroke-width="2.4" marker-end="url(#arrow-market)"/>
+<text x="812" y="1243" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="650" fill="#475569" opacity="1.0">market outcome</text>
+<line x1="985" y1="1238" x2="1020" y2="1238" stroke="#D97706" stroke-width="2.4" stroke-dasharray="8 7" marker-end="url(#arrow-feedback)"/>
+<text x="1031" y="1243" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="650" fill="#475569" opacity="1.0">feedback loop</text>
+<line x1="1196" y1="1238" x2="1231" y2="1238" stroke="#64748B" stroke-width="2.4" stroke-dasharray="8 7" marker-end="url(#arrow-adapter)"/>
+<text x="1242" y="1243" text-anchor="start" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="12" font-weight="650" fill="#475569" opacity="1.0">optional / external boundary</text>
+<text x="1690" y="1268" text-anchor="end" font-family="'SFMono-Regular', Consolas, 'Liberation Mono', monospace" font-size="11" font-weight="550" fill="#94A3B8" opacity="1.0">generated from docs/assets/generate_architecture.py</text>
+</svg>

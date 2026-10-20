@@ -4,8 +4,6 @@
 
 DataValor 面向数据资产价值研究与机制实验，提供从数据治理、统计画像和质量评估，到任务效用估计、数据贡献归因、价格形成、市场清算与收益分配的一组可组合实现。库中的公共对象使用统一的运行上下文、数据产品描述和版本化 artifact，便于在同一实验中追踪数据、估值、报价、配置与支付之间的关系。
 
-当前版本为 `0.1.0a0`（pre-alpha）。基础安装不依赖重型第三方包；外部质量工具、治理平台、估值框架和市场服务通过 optional dependency 与 adapter 接入。
-
 ## 研究范围与术语边界
 
 DataValor 将数据价值链拆为若干语义不同的研究对象。代码和实验报告不把这些量混为同一个“数据价值分数”。
@@ -34,6 +32,33 @@ cd DataValor/benchmark
 
 `main` 只保留 DataValor Python library。`src/datavalor/toolkit/benchmark` 仍属于主库，它提供通用的数据源、扰动、实验矩阵和结果接口，不包含 DataMechBench 的榜单与论文实验。
 
+## 分层架构
+
+DataValor 使用版本化 artifact 连接数据治理、证据构建、估值、报价、机制结果与真实使用反馈。实线表示主库内部的数据、控制或经济信号，虚线表示反馈回路或 optional adapter 边界；DataMechBench 作为独立分支只消费主库公共 API。
+
+<p align="center">
+  <img src="docs/assets/datavalor-architecture.svg" width="100%" alt="DataValor 分层架构：从数据与研究上下文，经治理、画像、评估、估值、定价和市场机制，到受治理查询、市场结果及反馈校准，并由 Core 和 Toolkit 提供横切能力。">
+</p>
+
+图由 [`docs/assets/generate_architecture.py`](docs/assets/generate_architecture.py) 生成，不依赖在线绘图服务；修改模块或关系后运行 `python docs/assets/generate_architecture.py` 即可重新生成 SVG。字体栈采用开源项目文档中常见的 Inter、系统 UI 字体、Segoe UI 和 sans-serif 回退，配色按证据构建、价值形成、市场机制和使用反馈分组。
+
+## 与相关开源项目的功能范围比较
+
+下表比较的是各项目官方仓库中作为一等接口提供的能力，而不是论文中提及、可由用户自行拼接或仅能通过第三方系统间接获得的功能。`✅` 表示原生支持，`◐` 表示覆盖其中一部分或只在特定 challenge/后端中提供，`—` 表示不属于该项目的主要实现范围。比较基于 2026-10-20 可访问的官方文档与仓库。
+
+| 项目 | 治理、权利与血缘 | 画像与质量 | 任务效用 | 估值与贡献归因 | 定价模型 | 拍卖与预算采购 | 匹配与收益分配 | 策略市场仿真 | 查询与使用反馈 | 实验矩阵与统计比较 |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **DataValor** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [OpenDataVal](https://github.com/opendataval/opendataval) | — | ◐ | ✅ | ✅ | — | — | — | — | — | ✅ |
+| [pyDVL](https://github.com/aai-institute/pyDVL) | — | — | ◐ | ✅ | — | — | — | — | — | ◐ |
+| [DataPerf](https://github.com/mlcommons/dataperf) | — | ◐ | ✅ | ◐ | — | — | — | — | — | ✅ |
+| [Ocean.py](https://github.com/oceanprotocol/ocean.py) | ◐ | — | — | — | ✅ | — | ◐ | — | ◐ | — |
+| [data.all](https://github.com/data-dot-all/dataall) | ✅ | ◐ | — | — | — | — | ◐ | — | ◐ | — |
+
+DataValor 的定位不是替代上述专项工具：OpenDataVal、pyDVL 和 DataPerf 聚焦数据价值或 data-centric evaluation，Ocean.py 与 data.all 聚焦数据发布、访问和交易基础设施。DataValor 补充的是贯穿治理证据、任务效用、估值归因、报价、配置支付、市场行为与使用反馈的统一研究接口。按上表的 `✅` 统计，DataValor 相对任一对比项目至少多覆盖六类原生能力。
+
+比较依据：[OpenDataVal README](https://github.com/opendataval/opendataval#readme)、[pyDVL README](https://github.com/aai-institute/pyDVL#readme)、[DataPerf challenges](https://github.com/mlcommons/dataperf#dataperf-2023-challenges)、[Ocean.py README 与交易流程](https://github.com/oceanprotocol/ocean.py/blob/main/READMEs/main-flow.md)、[data.all README](https://github.com/data-dot-all/dataall#readme)。
+
 ## 包结构
 
 ```text
@@ -57,6 +82,8 @@ DataValor/
 ```
 
 ## 已实现的方法
+
+以下按公共 API 与源码模块列出代表性实现，包括但不限于这些算法、机制、指标和适配器。
 
 ### Core：实验对象与可追溯执行
 
