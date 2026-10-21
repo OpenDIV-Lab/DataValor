@@ -12,7 +12,7 @@ class Workspace:
     def __init__(self, root: str | Path):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
-        for name in ("products", "runs", "artifacts", "workflows"):
+        for name in ("products", "runs", "artifacts", "workflows", "batches"):
             (self.root / name).mkdir(exist_ok=True)
 
     @staticmethod
@@ -23,7 +23,7 @@ class Workspace:
 
     def path(self, collection: str, item_id: str) -> Path:
         self.validate_id(item_id)
-        if collection not in {"products", "runs", "artifacts", "workflows"}:
+        if collection not in {"products", "runs", "artifacts", "workflows", "batches"}:
             raise ValueError("unknown workspace collection")
         return self.root / collection / f"{item_id}.json"
 

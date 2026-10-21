@@ -139,12 +139,15 @@ def test_real_quote_and_market_operations_expose_repo_algorithms():
     assert market["gaps"][0]["status"] == "undersupplied"
 
 
-def test_frontend_has_meaningful_offline_fallback_and_real_market_calls():
-    source = (Path(__file__).parents[1] / "UI" / "workbench-api.js").read_text()
-    assert "renderOfflinePage" in source
-    assert "if(!WorkbenchAPI.online)" in source
-    assert "'/operations/pricing'" in source
-    assert "'/operations/market'" in source
+def test_frontend_uses_real_batch_api_and_exposes_connection_failure():
+    root = Path(__file__).parents[1] / "UI"
+    api_source = (root / "workbench-api.js").read_text()
+    app_source = (root / "app.js").read_text()
+    assert "response.ok" in api_source
+    assert 'WorkbenchAPI.post("/batches"' in app_source
+    assert 'WorkbenchAPI.get("/workbench/scenarios"' in app_source
+    assert "本地 API 未连接" in app_source
+    assert "batch.market_stage" in app_source
 
 
 def test_ui_runner_resolves_repo_and_src_from_ui_working_directory():

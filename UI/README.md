@@ -1,68 +1,78 @@
-# DataValor UI
+# DataValor Workbench
 
-`UI/` 提供浏览器工作流编辑器和本地 API。直接打开 `index.html` 时可以编辑流程并使用浏览器内计算；需要调用 Python 模块时，从仓库根目录启动服务：
+`UI/` 是面向数据估值、定价和市场配置实验的本地工作台。它不是独立的演示页面：页面发起的治理、画像、质量评价、估值、定价与市场任务均由 DataValor 的 Python 实现执行，运行记录和产物保存在本地工作区。
+
+## 启动
+
+在仓库根目录运行：
 
 ```bash
 python -m UI.run --port 8080
 ```
 
-也可以在 `UI/` 目录运行 `python run.py --port 8080`。启动器根据自身位置查找仓库根目录和 `src/`，两种启动方式使用相同的导入路径，不需要手工设置 `PYTHONPATH`。
+浏览器打开 `http://127.0.0.1:8080`。也可以在 `UI/` 目录执行 `python run.py --port 8080`。页面需要本地 API；直接打开 `index.html` 时会显示离线状态，不会用伪造计算替代 Python 实现。
 
-## 工作流编辑器
+## 工作方式
 
-画布支持添加、删除和重复使用同类节点。输出端与输入端之间的连线表示数据传递；没有上游节点时，可以从输入端拖到空白处建立手动输入。每个启用节点都要有有效输入，输入数量或类型不符合节点约束时会标红。
+一次完整操作由四步组成：
 
-常用操作包括：
+1. 在左栏选择市场场景，主面板显示候选数据资产、权利、质量、新鲜度和参考报价。
+2. 批量选择产品，按需启用 `Govern → Profile → Evaluate → Value → Price → Market` 环节。
+3. 选择定价模型和市场机制，运行批次。每个产品独立保留阶段状态，单项失败默认不会丢失其他成功结果。
+4. 在结果页比较任务估值、合同报价和质量信号，并下钻到生产者、耗时、产物和错误；批次可以导出为 JSON。
 
-- 滚轮或工具栏缩放画布，按住空白处平移；
-- 按住 Shift 框选节点，并统一移动、启停或删除；
-- 配置节点内部组件、实现、超时、重试、缓存和输出格式；
-- 查看和修改连线携带的数据；
-- 下载节点输出，导入或导出工作流 JSON；
-- 在运行记录和产物页面查看当前工作区生成的内容。
+页面内置四组可重复加载的合成场景，共 13 个数据产品：
 
-工作流配置使用 `datavalor.ui-workflow/v1alpha1`。UI 不改变 Python 模块的接口，服务端适配层负责把页面请求转换成现有的数据产品、运行和产物对象。
+- AI 训练数据采购：法律问答、代码推理和工业视觉指令数据；
+- 零售需求数据订阅：门店销量、促销、天气和匿名客流信号；
+- 工业传感数据采购：振动、维修工单和设备能耗时序；
+- 临床研究数据许可：实验室指标、影像标注和随访结局。
 
-## 数据输入
+这些记录只用于验证工作流和接口，不是生产数据，也不代表真实个人、患者、设备或交易。
 
-数据产品页面接受以下输入：
+## 执行内容
 
-- JSON、JSON Lines、CSV、TSV 和键值参数；
-- 直接粘贴的文本或本地文本文件；
-- URI、HTTP 和对象存储引用；
-- 已登记的数据产品、历史产物和上游节点输出。
+工作台通过 `UI/services/operations.py` 调用仓库实现，包括或不限于：
 
-解析结果包含标准化记录、推断 Schema、记录数、字段数和定位到行或字段的错误。输入方式及解析参数保存在产品的 `metadata.input_config` 中。
+- `RightsPolicyEvaluator`、`SensitiveFieldScanner` 和 `LocalMetadataExtractor`；
+- `BasicDataProfiler`；
+- `CompletenessMetric`、`DuplicateRateMetric`、`FieldValidityMetric` 与 `CompositeEvaluator`；
+- `WeightedUserTaskValuator`；
+- `pricing.subscription`、`pricing.quality_freshness`、`pricing.risk_adjusted`、`pricing.rights_differentiated` 等定价模型；
+- `BundleDemandMatcher`、`QualityAwareProcurement`、`MultiUnitUniformPriceAuction`、`McAfeeDoubleAuction`、`VCGMechanism` 等市场机制。
 
-## 定价与市场
+场景默认值位于 `services/scenarios.py`。高级参数仍可在主面板以按 operation 分组的 JSON 修改。可执行方法和参数 Schema 由 `GET /api/workbench/schemas` 返回，前端不维护另一套算法实现。
 
-“定价与市场”页面按场景、产品、参与方、订单、报价、市场机制、执行过程和结果组织。可选模型和参数由 `GET /api/workbench/schemas` 返回，页面不会自行补充服务端未注册的方法。
+## 批处理接口
 
-市场请求可以包含多个产品、买方和卖方，支持 JSON、JSONL 或 CSV 批量订单、AND/XOR 组合需求、多单位统一价、预算采购、质量感知采购和多属性匹配。结果中保留报价分量、市场分配和各执行步骤；诊断项包括约束检查、收入对账、供需缺口、参与者分群和异常信号。
+```text
+GET  /api/workbench/scenarios
+POST /api/workbench/scenarios/{scenario_id}/load
+POST /api/batches
+GET  /api/batches
+GET  /api/batches/{batch_id}
+```
 
-单产品请求仍可使用 `product_id`。多产品请求示例：
+`POST /api/batches` 接收产品、环节和参数：
 
 ```json
 {
-  "product_ids": ["retail-demand", "weather-stream"],
+  "product_ids": ["retail-pos-demand", "retail-local-weather"],
+  "operations": ["governance", "evaluation", "valuation", "pricing"],
   "parameters": {
-    "mechanism": "bundle_matching",
-    "budget": 200000,
-    "bids": [
-      {
-        "buyer_id": "buyer-a",
-        "product_ids": ["retail-demand", "weather-stream"],
-        "amount": 180000,
-        "constraints": {"bundle_mode": "and"}
-      }
-    ],
-    "asks": []
-  }
+    "governance": {"operation": "analytics"},
+    "valuation": {"base_value": 110000},
+    "pricing": {"model": "pricing.subscription", "period_fee": 52000}
+  },
+  "label": "区域补货数据比较",
+  "scenario_id": "retail-demand",
+  "seed": 42,
+  "fail_fast": false
 }
 ```
 
-## 运行方式
+返回的批次包含逐产品 `stages`、比较用 `metrics`、阶段产物引用、错误和可选的全局 `market_stage`。`UI/workspace/` 是运行时目录，不应作为样例数据提交。
 
-直接打开 `index.html` 时，节点在浏览器中执行确定性的本地计算，适合检查编排和数据传递。通过 `UI.run` 启动后，治理、画像、质量评估、估值、定价和市场页面调用 Python API；数据产品、运行记录和产物保存在 `UI/workspace/`。页面会明确显示当前使用的是浏览器计算还是服务端执行。
+## 交互设计参考
 
-组件目录从各模块 registry 读取。可选依赖未安装时，目录会显示不可用状态和原因。
+工作台借鉴了 [DataHub lineage](https://docs.datahub.com/docs/features/feature-guides/lineage) 的资产聚焦和溯源方式、[OpenMetadata Data Quality](https://docs.open-metadata.org/latest/how-to-guides/data-quality-observability/quality) 的状态汇总与下钻，以及 [Data-Juicer Quickstart](https://github.com/datajuicer/data-juicer/blob/main/docs/tutorial/QuickStart.md) 的 recipe 与批处理组织方式。界面的业务主线仍是 DataValor 自身的 `Data → Value → Market`。

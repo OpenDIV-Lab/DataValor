@@ -79,6 +79,7 @@ datasets/
 # Generated experiment artifacts are local by default.
 outputs/*
 !outputs/.gitkeep
+UI/workspace/
 
 # Data directories contain documentation only until redistribution rights are checked.
 data/examples/*

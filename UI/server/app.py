@@ -11,11 +11,13 @@ from pydantic import BaseModel, Field, field_validator
 
 from datavalor.toolkit.capabilities import probe_external_capabilities
 
+from ..services.batches import execute_batch
 from ..services.components import component_catalog
 from ..services.input_parsing import parse_input
 from ..services.market_workbench import market_schema
 from ..services.operations import execute_multiple, jsonable
 from ..services.pricing_workbench import pricing_schema
+from ..services.scenarios import load_scenario, scenario_catalog
 from ..services.workspace import Workspace
 
 
@@ -59,6 +61,26 @@ class InputPreviewPayload(BaseModel):
     options: dict[str, Any] = Field(default_factory=dict)
 
 
+class BatchPayload(BaseModel):
+    product_ids: list[str]
+    operations: list[str]
+    parameters: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    label: str = "Untitled batch"
+    scenario_id: str | None = None
+    seed: int = 0
+    fail_fast: bool = False
+
+    @field_validator("product_ids")
+    @classmethod
+    def safe_batch_product_ids(cls, values: list[str]) -> list[str]:
+        return [Workspace.validate_id(value) for value in values]
+
+    @field_validator("scenario_id")
+    @classmethod
+    def safe_scenario_id(cls, value: str | None) -> str | None:
+        return Workspace.validate_id(value) if value is not None else None
+
+
 def envelope(data: Any, warnings: list[str] | None = None) -> dict[str, Any]:
     return {"ok": True, "data": data, "warnings": warnings or [], "meta": {"request_id": str(uuid.uuid4())}}
 
@@ -88,6 +110,18 @@ def create_app(workspace_root: str | Path | None = None) -> FastAPI:
     @app.get("/api/workbench/schemas")
     def workbench_schemas():
         return envelope({"pricing": pricing_schema(), "market": market_schema()})
+
+    @app.get("/api/workbench/scenarios")
+    def workbench_scenarios():
+        return envelope({"scenarios": scenario_catalog()})
+
+    @app.post("/api/workbench/scenarios/{scenario_id}/load")
+    def load_workbench_scenario(scenario_id: str):
+        try:
+            Workspace.validate_id(scenario_id)
+            return envelope(load_scenario(workspace, scenario_id))
+        except ValueError as exc:
+            raise HTTPException(404, str(exc)) from exc
 
     @app.get("/api/capabilities")
     def capabilities():
@@ -149,6 +183,37 @@ def create_app(workspace_root: str | Path | None = None) -> FastAPI:
         workspace.put("runs", run_id, run)
         return envelope({"run_id": run_id, "artifact_id": artifact_id, "result": result})
 
+    @app.post("/api/batches", status_code=201)
+    def run_batch(payload: BatchPayload):
+        try:
+            batch = execute_batch(
+                workspace,
+                product_ids=payload.product_ids,
+                operations=payload.operations,
+                parameters=payload.parameters,
+                label=payload.label,
+                scenario_id=payload.scenario_id,
+                seed=payload.seed,
+                fail_fast=payload.fail_fast,
+            )
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        return envelope({"batch": batch})
+
+    @app.get("/api/batches")
+    def list_batches():
+        return envelope({"batches": list(reversed(workspace.list("batches")))})
+
+    @app.get("/api/batches/{batch_id}")
+    def get_batch(batch_id: str):
+        try:
+            value = workspace.get("batches", batch_id)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        if value is None:
+            raise HTTPException(404, "batch not found")
+        return envelope({"batch": value})
+
     @app.get("/api/runs")
     def list_runs():
         return envelope({"runs": list(reversed(workspace.list("runs")))})
@@ -168,7 +233,7 @@ def create_app(workspace_root: str | Path | None = None) -> FastAPI:
     def dashboard():
         components_data = component_catalog()
         capabilities_data = [jsonable(item) for item in probe_external_capabilities()]
-        return envelope({"summary": {"products": len(workspace.list("products")), "runs": len(workspace.list("runs")), "artifacts": len(workspace.list("artifacts")), "components": len(components_data), "available_capabilities": sum(bool(item["available"]) for item in capabilities_data)}, "recent_runs": list(reversed(workspace.list("runs")))[:5], "modules": sorted({item["module"] for item in components_data})})
+        return envelope({"summary": {"products": len(workspace.list("products")), "batches": len(workspace.list("batches")), "runs": len(workspace.list("runs")), "artifacts": len(workspace.list("artifacts")), "components": len(components_data), "available_capabilities": sum(bool(item["available"]) for item in capabilities_data)}, "recent_runs": list(reversed(workspace.list("runs")))[:5], "modules": sorted({item["module"] for item in components_data})})
 
     app.mount("/", StaticFiles(directory=ui_root, html=True), name="ui")
 

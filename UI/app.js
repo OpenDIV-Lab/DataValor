@@ -1,81 +1,495 @@
-const stages={discovery:["价值发现","#4d91a8"],circulation:["价值流通","#d8953c"],realization:["价值实现","#6b9a58"],feedback:["反馈校准","#9a6daf"]};
-const C=(key,label,current,options)=>({key,label,current,options});
-const F=(key,label,type,value,more={})=>({key,label,type,value,...more});
-const modules=[
- {id:"gov",name:"DataGov",stage:"discovery",x:40,y:90,summary:"治理、权利、元数据、血缘与安全准入",inputs:["DataProduct","RightsBundle"],outputs:["GovernanceReport","MetadataRecord"],components:[C("metadata","元数据提取","local.metadata_extractor",["local.metadata_extractor","datahub.extractor","openmetadata.extractor"]),C("catalog","元数据目录","memory.metadata_catalog",["memory.metadata_catalog","datahub.catalog","openmetadata.catalog"]),C("security","敏感信息扫描","basic.sensitive_field_scanner",["basic.sensitive_field_scanner"]),C("policy","政策与权利","rights.policy_evaluator",["rights.policy_evaluator","deequ.policy","pysyft.policy"])],fields:[F("operation","目标操作","select","evaluate",{options:["profile","evaluate","valuation","pricing","query"]}),F("strictRights","严格权利检查","boolean",true),F("jurisdiction","适用地域","select","CN",{options:["CN","EU","US","Global"]})]},
- {id:"prof",name:"DataProf",stage:"discovery",x:295,y:90,summary:"统计画像、字段属性、分布与版本漂移",inputs:["Governed Product"],outputs:["DatasetProfile","ProfileDifference"],components:[C("profiler","数据画像器","basic.data_profiler",["basic.data_profiler","fg_data_profiling.profile"]),C("statistics","稳健统计","advanced.robust_statistics",["advanced.robust_statistics","advanced.categorical_concentration","advanced.pairwise_correlation"]),C("market","市场画像","market.coverage",["market.coverage","market.freshness","market.joinability","market.rarity"]),C("compare","画像比较","basic.profile_comparator",["basic.profile_comparator"])],fields:[F("sampleRate","采样比例","range",1,{min:.1,max:1,step:.1}),F("topK","类别 Top-K","number",10),F("drift","启用漂移比较","boolean",true)]},
- {id:"eval",name:"DataEval",stage:"discovery",x:550,y:90,summary:"多模态质量、任务效用、需求匹配与门禁",inputs:["DatasetProfile","TaskContext"],outputs:["EvaluationReport","TaskUtilityResult"],components:[C("quality","基础质量评估","basic.composite_evaluator",["basic.composite_evaluator","great_expectations.validation","evidently.drift"]),C("modality","模态评估","tabular.numeric_statistics",["tabular.numeric_statistics","text.readability","image.metadata_quality","audio.metadata_quality","video.format_probe","multimodal.alignment"]),C("utility","任务效用","task.callable",["task.callable","task.record_count"]),C("fit","需求适配","market.demand_fit",["market.demand_fit"])],fields:[F("modality","数据模态","select","tabular",{options:["tabular","text","image","audio","video","multimodal"]}),F("threshold","质量门槛","range",.75,{min:0,max:1,step:.05}),F("failFast","门禁失败即停止","boolean",true)]},
- {id:"value",name:"DataValue",stage:"discovery",x:805,y:90,summary:"任务相关估值、贡献分摊、风险与市场调整",inputs:["EvaluationReport","CostContext"],outputs:["ValuationResult","ContributionResult"],components:[C("valuator","估值方法","valuation.market_context",["valuation.weighted_user_task","valuation.quality_adjusted","valuation.market_context","valuation.risk_adjusted","valuation.counterfactual"]),C("contribution","贡献方法","contribution.shapley_monte_carlo",["contribution.leave_one_out","contribution.shapley_exact","contribution.shapley_monte_carlo","contribution.banzhaf","contribution.group_shapley"]),C("adjustment","市场调整","valuation.scarcity_adjusted",["valuation.scarcity_adjusted","valuation.substitution_adjusted","valuation.time_decay","valuation.incremental_coverage"]),C("portfolio","组合估值","valuation.portfolio",["valuation.portfolio","valuation.update_stream","valuation.scenario"])],fields:[F("currency","计价币种","select","CNY",{options:["CNY","USD","EUR"]}),F("risk","风险厌恶系数","range",.5,{min:0,max:2,step:.1}),F("iterations","Monte Carlo 次数","number",1000)]},
- {id:"price",name:"DataPrice",stage:"circulation",x:1060,y:90,summary:"候选报价、动态定价、拍卖清算与支付",inputs:["ValuationResult","MarketContext"],outputs:["PriceQuote","PricingOutcome"],components:[C("pricing","定价模型","pricing.expected_revenue",["pricing.cost_plus","pricing.value_based","pricing.comparable","pricing.price_range","pricing.expected_revenue","pricing.safe_exploration"]),C("constraint","价格约束","constraint.price_band",["constraint.price_band","constraint.volume_discount","constraint.bundle_overlap"]),C("mechanism","清算机制","multi_unit_uniform_price",["multi_unit_uniform_price","budget_aware_procurement","quality_aware_procurement"]),C("audit","报价审计","audit_price_quotes",["audit_price_quotes","calibrate_quotes"])],fields:[F("floor","估值底价比例","range",.4,{min:0,max:1,step:.05}),F("ceiling","估值上限比例","range",1.2,{min:.5,max:2,step:.05}),F("maxChange","单次最大变动","range",.2,{min:0,max:.5,step:.05})]},
- {id:"market",name:"DataMarket",stage:"circulation",x:1060,y:355,summary:"挂牌发现、供需匹配、交易、激励与仿真",inputs:["PriceQuote","Bid / Ask"],outputs:["Transaction","MarketSnapshot"],components:[C("matching","市场匹配","MultiAttributeMarketMatcher",["MultiAttributeMarketMatcher","OrderBookMatcher","BundleDemandMatcher"]),C("transaction","交易处理","transaction.idempotent",["transaction.idempotent","ocean.transaction","pysyft.transaction"]),C("incentive","激励分配","incentive.contribution_budget",["incentive.contribution_budget","revenue.shapley"]),C("simulation","市场仿真","mesa.market_simulator",["mesa.market_simulator","native.market_simulator"])],fields:[F("matchingMode","匹配模式","select","multi-attribute",{options:["multi-attribute","price-time","bundle"]}),F("budgetBalance","强制预算平衡","boolean",true),F("rounds","仿真轮数","number",20)]},
- {id:"query",name:"DataQuery",stage:"realization",x:805,y:355,summary:"授权问数、规划执行、结果防护与用量计量",inputs:["DataProduct","Transaction Rights"],outputs:["QueryResult","UsageEvent"],components:[C("authorizer","查询授权","rights.query_authorizer",["rights.query_authorizer"]),C("agent","数据智能体","governed.data_agent",["governed.data_agent"]),C("guard","结果防护","default.result_guard",["default.result_guard"]),C("feedback","使用反馈","usage.aggregate",["usage.aggregate","usage.utility","usage.anomaly"])],fields:[F("maxRows","最大返回行数","number",1000),F("mask","敏感字段脱敏","boolean",true),F("privacy","隐私预算上限","range",1,{min:0,max:10,step:.1})]},
- {id:"feedback",name:"Feedback & Analysis",stage:"feedback",x:420,y:355,summary:"使用反馈、价值校准、价格学习与实现分析",inputs:["UsageEvent","PricingObservation"],outputs:["CalibrationReport","AnalysisResult"],components:[C("usage","用量反馈","UsageAggregator",["UsageAggregator","QueryUtilityFeedback","UsageAnomalyDetector"]),C("calibration","估值校准","calibrate_values_by_group",["calibrate_values_by_group","evaluate_value_intervals","evaluate_value_ranking"]),C("learning","成交概率学习","AcceptanceProbabilityModel",["AcceptanceProbabilityModel","SafeExplorationPricingModel"]),C("analysis","价值实现分析","ValueRealizationAnalyzer",["ValueRealizationAnalyzer","BootstrapAnalyzer","ParetoFrontierAnalyzer"])],fields:[F("window","反馈窗口（天）","number",30),F("groupBy","校准分组","select","buyer_id",{options:["buyer_id","task_id","product_id","version"]}),F("minimum","最少观察数","number",20),F("explore","启用安全探索","boolean",false)]}
-];
-const edges=[["gov","prof","Governed Data",0],["prof","eval","Profile Artifact",0],["eval","value","Quality & Utility",0],["value","price","Valuation Artifact",0],["price","market","Quote / Outcome",0],["market","query","Delivery Rights",0],["query","feedback","Usage Event",1],["feedback","value","Calibration",1],["feedback","price","Demand Signal",1]];
-const presets={enterprise:["企业数据采购",{gov:{operation:"valuation"},eval:{threshold:.8},value:{risk:.7},price:{floor:.5},market:{matchingMode:"multi-attribute"}}],ai:["AI 训练数据估值",{eval:{modality:"multimodal",threshold:.7},value:{iterations:5000},query:{maxRows:5000}}],controlled:["受控数据市场",{price:{maxChange:.1},market:{rounds:50},feedback:{explore:true,minimum:50}}],privacy:["隐私问数服务",{gov:{operation:"query"},query:{maxRows:100,privacy:.5}}]};
-const extraAlgorithms={gov:{metadata:["deequ.validation","pysyft.owner_execution"],policy:["RightsMatrixEvaluator","GovernanceAuditBundle"],security:["LineageGraph","MetadataDiff"]},prof:{statistics:["numeric.quantiles","categorical.entropy","distribution.psi","distribution.js_divergence"],market:["market.overlap","market.scarcity"]},eval:{quality:["basic.completeness","basic.duplicate_rate","basic.field_validity","tabular.label_conflict","tabular.group_completeness_parity"],modality:["text.lexical_diversity","text.repetition_rate","image.pixel_validity","audio.clipping_rate","video.temporal_ssim","video.privacy_cv"]},value:{valuator:["valuation.symbolic","valuation.learned_linear","valuation.scenario","valuation.update_stream"],contribution:["pydvl.contribution","opendataval.valuation"],adjustment:["valuation.incremental_coverage","valuation.substitution_adjusted"]},price:{pricing:["pricing.quality_freshness","pricing.usage_based","pricing.tiered_usage","pricing.subscription","pricing.elasticity","pricing.freshness_tier","pricing.rights_differentiated","pricing.version_delta"],mechanism:["VCGMechanism","McAfeeDoubleAuction","SecondPriceAuction","ContextualBanditPostedPrice","CoreSelectingAuction","BudgetFeasibleProcurement"]},market:{matching:["DemandClusterAnalyzer","SupplySegmentAnalyzer","MarketGapAnalyzer"],simulation:["DemandShock","FreshnessDecay","MarketHealthAnalyzer"],incentive:["ContributionFairShareMechanism","ShapleyRevenueAllocator"]},query:{agent:["VannaPlanner","SQLExecutor","PySyftExecutor"],guard:["row_limit","field_masking","result_audit"],feedback:["QueryUtilityFeedback","UsageAnomalyDetector"]},feedback:{calibration:["calibrate_quotes","evaluate_value_intervals","evaluate_value_ranking"],analysis:["paired_comparison","pareto_frontier","regret_summary"],learning:["ExpectedRevenuePricingModel","SafeExplorationPricingModel"]}};
-modules.forEach(m=>m.components.forEach(c=>c.options=[...new Set([...c.options,...(extraAlgorithms[m.id]?.[c.key]||[])])]));
-const io={
- gov:{accept:["DataProduct"],max:1,out:"GovernanceReport"},prof:{accept:["GovernanceReport","DataProduct"],max:1,out:"DatasetProfile"},
- eval:{accept:["DatasetProfile","DataProduct","TaskContext"],max:3,out:"EvaluationReport"},value:{accept:["EvaluationReport","TaskUtilityResult","CostContext","CalibrationReport"],max:4,out:"ValuationResult"},
- price:{accept:["ValuationResult","MarketContext","CalibrationReport"],max:3,out:"PriceQuote"},market:{accept:["PriceQuote","Bid","Ask","DataProduct"],max:99,out:"DeliveryRights"},
- query:{accept:["DataProduct","DeliveryRights","TaskContext"],max:3,out:"UsageEvent"},feedback:{accept:["UsageEvent","PricingObservation","ValuationResult","PriceQuote"],max:99,out:"CalibrationReport"}
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+
+const OPERATION_META = {
+  governance: ["Govern", "权利准入"],
+  profile: ["Profile", "统计画像"],
+  evaluation: ["Evaluate", "质量效用"],
+  valuation: ["Value", "任务估值"],
+  pricing: ["Price", "合同报价"],
+  market: ["Market", "市场配置"],
 };
-const state={selected:null,selectedNodes:[],filter:"all",page:"workflow",zoom:1,instances:[],connections:[],manualInputs:[],products:[],runs:[],artifacts:[],seq:20};const $=s=>document.querySelector(s);
-function cloneTemplate(m,id,x=m.x,y=m.y){let parties=m.id==='price'||m.id==='market'?[{id:'buyer-a',role:'buyer',budget:160000,bid:125000,quantity:1},{id:'buyer-b',role:'buyer',budget:110000,bid:98000,quantity:1},{id:'seller-a',role:'seller',reserve:65000,ask:72000,quantity:2},{id:'seller-b',role:'seller',reserve:80000,ask:90000,quantity:1}]:[];return{id,type:m.id,name:m.name,stage:m.stage,x,y,enabled:true,status:"idle",output:null,parties,runConfig:{timeout:30,retries:1,cache:true,outputFormat:"json",failOnWarning:false},config:Object.fromEntries(m.fields.map(f=>[f.key,f.value])),components:m.components.map(c=>({...c,options:[...c.options],enabled:true}))}}
-function template(type){return modules.find(m=>m.id===type)}
-function defaults(){state.instances=modules.map(m=>cloneTemplate(m,m.id));state.connections=edges.map((e,i)=>({id:"e"+i,from:e[0],to:e[1],type:io[e[0]].out,content:null,updatedAt:null,feedback:!!e[3]}));state.manualInputs=[];state.products=[{id:"retail-demand",title:"零售需求数据",version:"v3",format:"parquet",records:128420,status:"可用"},{id:"weather-stream",title:"气象实时流",version:"v12",format:"json",records:86400,status:"可用"},{id:"customer-labels",title:"客户标签集",version:"v5",format:"csv",records:45210,status:"待复核"}];state.runs=[];state.artifacts=[]}
-function restore(){defaults();try{let s=JSON.parse(localStorage.getItem("datavalor-ui-v3"));if(s?.instances)Object.assign(state,s)}catch(_){}}
-function save(){localStorage.setItem("datavalor-ui-v3",JSON.stringify({instances:state.instances,connections:state.connections,manualInputs:state.manualInputs,products:state.products,runs:state.runs,artifacts:state.artifacts,seq:state.seq}));$("#saved").textContent="已自动保存"}
-function toast(t){let e=$("#toast");e.textContent=t;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),1600)}
-function incoming(id){return state.connections.filter(e=>e.to===id)}
-function sourceType(edge){if(edge.manual)return state.manualInputs.find(x=>x.id===edge.from)?.type;let source=state.instances.find(x=>x.id===edge.from);return source&&io[source.type].out}
-function errors(n){if(!n.enabled)return[];let list=incoming(n.id),bad=[];if(!list.length)bad.push("缺少输入");if(list.length>io[n.type].max)bad.push(`最多允许 ${io[n.type].max} 个输入`);list.forEach(e=>{let type=sourceType(e);if(!io[n.type].accept.includes(type))bad.push(`不接受 ${type||'未知'} 类型`)});return [...new Set(bad)]}
-function compatible(from,to){return io[to.type].accept.includes(io[from.type].out)}
-function filters(){let all=[["all","全部环节","#cfe65b"],...Object.entries(stages).map(([k,v])=>[k,...v])];$("#filters").innerHTML=all.map(x=>`<button data-k="${x[0]}" class="${state.filter===x[0]?'active':''}" style="--c:${x[2]}"><i></i>${x[1]}</button>`).join("");$("#filters").querySelectorAll("button").forEach(b=>b.onclick=()=>{state.filter=b.dataset.k;filters();nodes()})}
-function nodes(){let host=$("#nodes");host.innerHTML="";state.instances.forEach(n=>{let err=errors(n),e=document.createElement("article"),multi=state.selectedNodes.includes(n.id);e.className=`node ${state.selected===n.id?'selected':''} ${multi?'multi-selected':''} ${err.length?'invalid':''} ${!n.enabled?'disabled':''} ${state.filter!=='all'&&state.filter!==n.stage?'dim':''}`;e.dataset.id=n.id;e.style.cssText=`left:${n.x}px;top:${n.y}px;--c:${stages[n.stage][1]}`;e.innerHTML=`<i class="port in" data-port="in"></i><i class="port out" data-port="out"></i><button class="port-download" title="下载 ${io[n.type].out}">⇩</button><div class="node-head"><small>${stages[n.stage][0]} · ${n.id}</small><strong>${n.name}</strong><b>›</b></div><div class="summary compact">${err.length?'⚠ '+err.join('；'):`${incoming(n.id).length} 输入 · ${io[n.type].out} 输出 · ${n.status}`}</div><div class="chips">${n.components.slice(0,3).map(c=>`<span class="chip">${c.label}</span>`).join('')}<span class="chip more">+${n.components.length-3}</span></div><span class="status">${incoming(n.id).length}/${io[n.type].max===99?'∞':io[n.type].max} 输入</span>`;e.onclick=x=>{if(!e.dataset.drag){if(x.shiftKey||x.ctrlKey){state.selectedNodes=multi?state.selectedNodes.filter(id=>id!==n.id):[...state.selectedNodes,n.id];state.selected=state.selectedNodes.length===1?state.selectedNodes[0]:null}else{state.selected=n.id;state.selectedNodes=[n.id]}nodes();detail()}delete e.dataset.drag};e.querySelector('.port-download').onclick=x=>{x.stopPropagation();downloadJSON(`${n.id}-${io[n.type].out}.json`,n.output||{artifact_type:io[n.type].out,producer:n.id,status:'not_executed'})};dragNode(e,n);wirePort(e.querySelector('.out'),n,'out');wirePort(e.querySelector('.in'),n,'in');host.appendChild(e)});state.manualInputs.forEach(x=>{let e=document.createElement('div');e.className='manual-source';e.dataset.id=x.id;e.style.cssText=`left:${x.x}px;top:${x.y}px`;e.innerHTML=`<b>${x.name}</b><small>${x.type}</small><i class="port out"></i>`;e.onclick=()=>{state.selected=x.id;state.selectedNodes=[];nodes();detail()};dragManual(e,x);wireManual(e.querySelector('.out'),x);host.appendChild(e)});requestAnimationFrame(()=>{draw();validate()})}
-function dragNode(e,n){let h=e.querySelector('.node-head'),s;h.onpointerdown=x=>{let ids=state.selectedNodes.includes(n.id)?state.selectedNodes:[n.id];s={mx:x.clientX,my:x.clientY,items:ids.map(id=>{let item=state.instances.find(v=>v.id===id);return{item,x:item.x,y:item.y}})};h.setPointerCapture(x.pointerId)};h.onpointermove=x=>{if(!s)return;let dx=(x.clientX-s.mx)/state.zoom,dy=(x.clientY-s.my)/state.zoom;if(Math.abs(dx)+Math.abs(dy)>3)e.dataset.drag=1;s.items.forEach(v=>{v.item.x=Math.max(8,Math.min(1345,v.x+dx));v.item.y=Math.max(20,Math.min(515,v.y+dy));let el=document.querySelector(`.node[data-id="${v.item.id}"]`);if(el){el.style.left=v.item.x+'px';el.style.top=v.item.y+'px'}});draw()};h.onpointerup=()=>{if(s)save();s=null}}
-function dragManual(e,n){let s;e.onpointerdown=x=>{if(x.target.classList.contains('port'))return;s={mx:x.clientX,my:x.clientY,x:n.x,y:n.y};e.setPointerCapture(x.pointerId)};e.onpointermove=x=>{if(!s)return;n.x=s.x+x.clientX-s.mx;n.y=s.y+x.clientY-s.my;e.style.left=n.x+'px';e.style.top=n.y+'px';draw()};e.onpointerup=()=>{s=null;save()}}
-let wiring=null;function canvasPoint(e){let r=$("#canvas").getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-function wirePort(port,n,side){port.onpointerdown=e=>{e.stopPropagation();wiring={side,node:n.id,start:canvasPoint(e),end:canvasPoint(e)};port.setPointerCapture(e.pointerId)};port.onpointermove=e=>{if(wiring){wiring.end=canvasPoint(e);draw()}};port.onpointerup=e=>{if(!wiring)return;let target=document.elementFromPoint(e.clientX,e.clientY),targetNode=target?.closest('.node');if(side==='out'&&target?.dataset.port==='in'&&targetNode?.dataset.id!==n.id)addEdge(n.id,targetNode.dataset.id);else if(side==='in'&&!targetNode)addManual(n,canvasPoint(e));wiring=null;nodes();detail()}}
-function wireManual(port,x){port.onpointerdown=e=>{e.stopPropagation();wiring={side:'out',manual:true,node:x.id,start:canvasPoint(e),end:canvasPoint(e)};port.setPointerCapture(e.pointerId)};port.onpointermove=e=>{if(wiring){wiring.end=canvasPoint(e);draw()}};port.onpointerup=e=>{let target=document.elementFromPoint(e.clientX,e.clientY),node=target?.closest('.node');if(wiring&&target?.dataset.port==='in'&&node)addEdge(x.id,node.dataset.id,true);wiring=null;nodes()}}
-function addEdge(from,to,manual=false){let target=state.instances.find(x=>x.id===to),source=state.instances.find(x=>x.id===from);if(state.connections.some(e=>e.from===from&&e.to===to))return toast('该数据流已存在');state.connections.push({id:'e'+state.seq++,from,to,type:manual?state.manualInputs.find(x=>x.id===from).type:io[source.type].out,manual,feedback:source?.type==='feedback'||false});if(!manual&&!compatible(source,target))toast('已连接，但输入类型不兼容');save()}
-function addManual(target,p){let type=io[target.type].accept[0],id='manual-'+state.seq++;state.manualInputs.push({id,name:'手动输入',type,x:Math.max(10,p.x-150),y:Math.max(10,p.y-30),config:{uri:'memory://input',format:'json',schema:'',payload:''}});state.connections.push({id:'e'+state.seq++,from:id,to:target.id,type,manual:true});save();toast('已创建手动输入')}
-function endpoint(id,out){let n=state.instances.find(x=>x.id===id);if(n)return{x:n.x+(out?210:0),y:n.y+82};let m=state.manualInputs.find(x=>x.id===id);return m?{x:m.x+125,y:m.y+25}:null}
-function curve(a,b){let bend=Math.max(35,Math.abs(b.x-a.x)*.42),sign=b.x>a.x?1:-1;return`M${a.x},${a.y} C${a.x+sign*bend},${a.y} ${b.x-sign*bend},${b.y} ${b.x},${b.y}`}
-function draw(){let defs='<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4 0 8z" fill="#849792"/></marker><marker id="f" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4 0 8z" fill="#77a44d"/></marker></defs>',markup=state.connections.map(e=>{let a=endpoint(e.from,true),b=endpoint(e.to,false);if(!a||!b)return'';let bad=!io[state.instances.find(n=>n.id===e.to)?.type]?.accept.includes(sourceType(e)),lx=(a.x+b.x)/2,ly=(a.y+b.y)/2-8,w=Math.max(58,(e.type||'Data').length*5+12);return`<g data-edge="${e.id}" class="edge-group ${state.selected==='edge:'+e.id?'selected-edge':''}"><path class="edge ${e.feedback?'feedback':''} ${bad?'bad':''}" d="${curve(a,b)}" marker-end="url(#${e.feedback?'f':'a'})"/><g class="edge-label"><rect x="${lx-w/2}" y="${ly-7}" width="${w}" height="14"/><text x="${lx}" y="${ly}">${e.type}${e.content?' · 已更新':''}</text></g></g>`}).join('');if(wiring)markup+=`<path class="edge wiring" d="${curve(wiring.start,wiring.end)}"/>`;$("#edges").innerHTML=defs+markup;$("#edges").style.pointerEvents='auto';$("#edges").querySelectorAll('.edge-group').forEach(g=>{g.onclick=()=>{state.selected='edge:'+g.dataset.edge;draw();detail()};g.ondblclick=()=>{state.connections=state.connections.filter(e=>e.id!==g.dataset.edge);state.selected=null;save();nodes();detail();toast('数据流已删除')}})}
-function field(f,v){if(f.type==='boolean')return `<div class="check"><span>${f.label}</span><input data-field="${f.key}" type="checkbox" ${v?'checked':''}></div>`;if(f.type==='select')return `<div class="field"><label>${f.label}</label><select data-field="${f.key}">${f.options.map(x=>`<option ${x===v?'selected':''}>${x}</option>`).join('')}</select></div>`;if(f.type==='range')return `<div class="field"><label><span>${f.label}</span><b id="v-${f.key}">${v}</b></label><input data-field="${f.key}" type="range" min="${f.min}" max="${f.max}" step="${f.step}" value="${v}"></div>`;return `<div class="field"><label>${f.label}</label><input data-field="${f.key}" type="number" value="${v}"></div>`}
-function inputRows(n){let rows=incoming(n.id);return rows.length?rows.map(e=>{let src=state.instances.find(x=>x.id===e.from)||state.manualInputs.find(x=>x.id===e.from),allowed=io[n.type].accept,type=sourceType(e),selector=e.manual?`<select data-edge-type="${e.id}">${allowed.map(x=>`<option ${x===type?'selected':''}>${x}</option>`).join('')}</select>`:`<code>${type}</code>`;return`<div class="binding ${allowed.includes(type)?'':'binding-error'}"><span>${src?.name||e.from}</span>${selector}<button data-remove-edge="${e.id}">×</button></div>`}).join(''):`<p class="input-error">缺少输入：从其他输出端连线，或从本节点输入端拖至空白。</p>`}
-function renderEdgeDetail(d,e){let from=state.instances.find(x=>x.id===e.from)||state.manualInputs.find(x=>x.id===e.from),to=state.instances.find(x=>x.id===e.to),content=e.content??(e.manual?from?.config:null);$("#empty").hidden=true;d.hidden=false;d.innerHTML=`<div class="detail-head"><em>DATA FLOW · ${e.id}</em><h2>${e.type}</h2><p>${from?.name||e.from} → ${to?.name||e.to}</p></div><div class="section"><div class="section-title"><b>连接信息</b><span>${e.updatedAt?'已更新':'等待上游运行'}</span></div><div class="meta-grid"><span>来源</span><b>${e.from}</b><span>目标</span><b>${e.to}</b><span>类型</span><b>${sourceType(e)}</b><span>更新时间</span><b>${e.updatedAt||'—'}</b></div></div><div class="section"><div class="section-title"><b>当前内容</b><span>可人工更新</span></div><textarea id="edgeContent" class="content-editor">${escapeText(JSON.stringify(content,null,2)||'')}</textarea><p class="field-help">更新后，下游环节下次运行将读取这里的内容。</p></div><div class="detail-actions"><button class="danger" id="deleteEdge">删除连线</button><button class="primary" id="updateEdge">更新内容</button></div>`;$("#deleteEdge").onclick=()=>{state.connections=state.connections.filter(x=>x.id!==e.id);state.selected=null;save();nodes();detail()};$("#updateEdge").onclick=()=>{let raw=$("#edgeContent").value;try{e.content=JSON.parse(raw)}catch(_){e.content=raw}e.updatedAt=new Date().toLocaleString();save();draw();renderEdgeDetail(d,e);toast('连线内容已更新')}}
-function escapeText(v){return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
-function renderGroupDetail(d){let items=state.instances.filter(x=>state.selectedNodes.includes(x.id));$("#empty").hidden=true;d.hidden=false;d.innerHTML=`<div class="detail-head"><em>MULTI SELECT</em><h2>已选择 ${items.length} 个环节</h2><p>拖动其中任意节点标题可整体移动；以下操作将作用于全部选中环节。</p></div><div class="group-panel"><div class="group-list">${items.map(x=>`<span>${x.name} · ${x.id}</span>`).join('')}</div><p>输入连接 ${items.reduce((s,x)=>s+incoming(x.id).length,0)} 条，已完成输出 ${items.filter(x=>x.output).length} 个，配置错误 ${items.filter(x=>errors(x).length).length} 个。</p><div class="detail-actions"><button id="groupEnable">全部启用</button><button id="groupDisable">全部停用</button><button class="danger" id="groupDelete">删除所选</button></div></div>`;$("#groupEnable").onclick=()=>groupToggle(true);$("#groupDisable").onclick=()=>groupToggle(false);$("#groupDelete").onclick=()=>{let ids=new Set(state.selectedNodes);state.instances=state.instances.filter(x=>!ids.has(x.id));state.connections=state.connections.filter(x=>!ids.has(x.from)&&!ids.has(x.to));state.selectedNodes=[];save();nodes();detail()}}
-function groupToggle(value){state.instances.filter(x=>state.selectedNodes.includes(x.id)).forEach(x=>x.enabled=value);save();nodes();detail()}
-function renderManualDetail(d,manual){manual.config.mode??='inline';manual.config.encoding??='utf-8';manual.config.delimiter??=',';$("#empty").hidden=true;d.hidden=false;let modes=[['inline','直接输入'],['uri','URI / 文件'],['table','表格记录'],['kv','键值参数']];d.innerHTML=`<div class="detail-head"><em>START DATA · ${manual.id}</em><h2>起始数据配置</h2><p>内容可以直接录入，也可以引用数据产品或外部地址。</p></div><div class="section"><div class="input-mode-tabs">${modes.map(x=>`<button data-mode="${x[0]}" class="${manual.config.mode===x[0]?'active':''}">${x[1]}</button>`).join('')}</div><div class="field"><label>名称</label><input data-manual="name" value="${manual.name}"></div><div class="field"><label>数据类型</label><select data-manual="type">${[...new Set(Object.values(io).flatMap(x=>x.accept))].map(x=>`<option ${x===manual.type?'selected':''}>${x}</option>`).join('')}</select></div><div class="field"><label>格式</label><select data-manual="format">${['json','csv','parquet','records','text','artifact'].map(x=>`<option ${x===manual.config.format?'selected':''}>${x}</option>`).join('')}</select></div></div><div class="section"><div class="field"><label>数据 URI</label><input data-manual="uri" value="${manual.config.uri||''}" placeholder="memory://、file://、catalog://"></div><div class="field"><label>字符编码</label><select data-manual="encoding"><option>utf-8</option><option>gb18030</option><option>utf-16</option></select></div><div class="field"><label>CSV 分隔符</label><input data-manual="delimiter" value="${manual.config.delimiter}"></div></div><div class="section"><div class="field"><label>Schema / 字段说明</label><textarea data-manual="schema" placeholder='{"fields":[...] }'>${manual.config.schema||''}</textarea></div><div class="field"><label>直接输入数据内容</label><textarea class="large-input" data-manual="payload" placeholder='JSON、CSV、文本或键值内容'>${manual.config.payload||''}</textarea></div></div><div class="section"><div class="section-title"><b>输入预览</b><span>${manual.config.mode}</span></div><pre>${escapeText(manual.config.payload||manual.config.uri||'尚未输入内容')}</pre></div><div class="detail-actions"><button class="danger" id="deleteManual">删除输入</button><button class="primary" id="ok">保存起始数据</button></div>`;d.querySelector(`[data-manual="encoding"]`).value=manual.config.encoding;d.querySelectorAll('[data-mode]').forEach(e=>e.onclick=()=>{manual.config.mode=e.dataset.mode;save();renderManualDetail(d,manual)});d.querySelectorAll('[data-manual]').forEach(e=>e.oninput=()=>{let k=e.dataset.manual;if(k==='name'||k==='type')manual[k]=e.value;else manual.config[k]=e.value;state.connections.filter(x=>x.from===manual.id).forEach(x=>x.type=manual.type);save();nodes()});$("#deleteManual").onclick=()=>removeItem(manual.id);$("#ok").onclick=()=>toast('起始数据已保存')}
-function detail(){let d=$("#detail"),edgeId=typeof state.selected==='string'&&state.selected.startsWith('edge:')?state.selected.slice(5):null,edge=state.connections.find(x=>x.id===edgeId);if(edge){renderEdgeDetail(d,edge);return}if(state.selectedNodes.length>1){renderGroupDetail(d);return}let manual=state.manualInputs.find(x=>x.id===state.selected);if(manual){renderManualDetail(d,manual);return}
- let n=state.instances.find(x=>x.id===state.selected),m=n&&template(n.type);$("#empty").hidden=!!n;d.hidden=!n;if(!n)return;let err=errors(n);d.innerHTML=`<div class="detail-head ${err.length?'error-head':''}"><em>${stages[n.stage][0]} · ${n.id}</em><h2>${n.name}</h2><p>${err.length?'⚠ '+err.join('；'):m.summary}</p></div><div class="section"><div class="check"><b>环节生效</b><input id="nodeEnabled" type="checkbox" ${n.enabled?'checked':''}></div></div><div class="section"><div class="section-title"><b>输入绑定</b><span>${incoming(n.id).length}/${io[n.type].max===99?'∞':io[n.type].max}</span></div>${inputRows(n)}</div><div class="section"><div class="section-title"><b>内部组分</b><span>实现可替换</span></div>${n.components.map(c=>`<div class="component"><input data-comp="${c.key}" type="checkbox" ${c.enabled?'checked':''}><label><b>${c.label}</b><small>${c.current}</small></label><select data-impl="${c.key}">${c.options.map(x=>`<option ${x===c.current?'selected':''}>${x}</option>`).join('')}</select></div>`).join('')}</div><div class="section"><div class="section-title"><b>运行参数</b><span>即时保存</span></div>${m.fields.map(f=>field(f,n.config[f.key])).join('')}</div><div class="section"><div class="section-title"><b>输出端</b><span>可下载</span></div><div class="output-row"><span class="pill">${io[n.type].out}</span><button id="downloadOutput">⇩ 下载输出</button></div></div><div class="detail-actions"><button class="danger" id="deleteNode">删除环节</button><button class="primary" id="ok">保存配置</button></div>`;
- let runSection=document.createElement('div');runSection.className='section run-section';runSection.innerHTML=`<div class="section-title"><b>执行控制</b><span class="run-status ${n.status}">${n.status}</span></div><div class="runtime-grid"><label>超时（秒）<input data-runtime="timeout" type="number" value="${n.runConfig.timeout}"></label><label>重试次数<input data-runtime="retries" type="number" value="${n.runConfig.retries}"></label><label>输出格式<select data-runtime="outputFormat"><option>json</option><option>artifact</option><option>records</option></select></label><label>缓存结果<input data-runtime="cache" type="checkbox" ${n.runConfig.cache?'checked':''}></label></div><button class="run-button" id="runNode" ${err.length||!n.enabled?'disabled':''}>▶ 运行当前环节</button>${n.output?`<details><summary>最近输出</summary><pre>${escapeText(JSON.stringify(n.output,null,2))}</pre></details>`:''}`;d.querySelectorAll('.section')[1].insertAdjacentElement('afterend',runSection);runSection.querySelector(`[data-runtime="outputFormat"]`).value=n.runConfig.outputFormat;runSection.querySelectorAll('[data-runtime]').forEach(e=>e.oninput=()=>{n.runConfig[e.dataset.runtime]=e.type==='checkbox'?e.checked:e.type==='number'?Number(e.value):e.value;save()});$("#runNode").onclick=()=>runNode(n);
- d.querySelectorAll('[data-field]').forEach(e=>e.oninput=()=>{let v=e.type==='checkbox'?e.checked:e.type==='number'||e.type==='range'?Number(e.value):e.value;n.config[e.dataset.field]=v;let label=$("#v-"+e.dataset.field);if(label)label.textContent=v;save()});d.querySelectorAll('[data-comp]').forEach(e=>e.onchange=()=>{n.components.find(c=>c.key===e.dataset.comp).enabled=e.checked;save();nodes()});d.querySelectorAll('[data-impl]').forEach(e=>e.onchange=()=>{n.components.find(c=>c.key===e.dataset.impl).current=e.value;save();nodes();detail()});d.querySelectorAll('[data-remove-edge]').forEach(e=>e.onclick=()=>{state.connections=state.connections.filter(x=>x.id!==e.dataset.removeEdge);save();nodes();detail()});d.querySelectorAll('[data-edge-type]').forEach(e=>e.onchange=()=>{let edge=state.connections.find(x=>x.id===e.dataset.edgeType),source=state.manualInputs.find(x=>x.id===edge.from);edge.type=e.value;if(source)source.type=e.value;save();nodes();detail()});$("#nodeEnabled").onchange=e=>{n.enabled=e.target.checked;save();nodes();detail()};$("#deleteNode").onclick=()=>removeItem(n.id);$("#downloadOutput").onclick=()=>downloadJSON(`${n.id}-${io[n.type].out}.json`,n.output||{artifact_type:io[n.type].out,producer:n.id,status:'not_executed',configuration:n.config});$("#ok").onclick=()=>toast(n.name+' 配置已保存')}
-function resolveInputs(n){return incoming(n.id).map(e=>{let source=state.instances.find(x=>x.id===e.from),manual=state.manualInputs.find(x=>x.id===e.from);return{connection:e.id,type:sourceType(e),content:e.content??source?.output??manual?.config??null}})}
-function executeModule(n,inputs){let now=new Date().toISOString(),base={artifact_type:io[n.type].out,producer:n.id,generated_at:now,input_count:inputs.length,configuration:n.config,components:n.components.filter(x=>x.enabled).map(x=>x.current)};switch(n.type){case'gov':return{...base,decision:n.config.strictRights?'allow_with_audit':'allow',findings:[],lineage_verified:true};case'prof':return{...base,record_count:inputs.reduce((s,x)=>s+(x.content?.records||x.content?.record_count||0),0),sample_rate:n.config.sampleRate,fields_profiled:12,completeness:.96,drift_enabled:n.config.drift};case'eval':return{...base,quality_score:Number((.78+n.config.threshold*.16).toFixed(3)),threshold:n.config.threshold,passed:.94>=n.config.threshold,metrics:{completeness:.96,validity:.94,uniqueness:.91},modality:n.config.modality};case'value':{let quality=inputs.find(x=>x.content?.quality_score)?.content.quality_score||.85,amount=Math.round(100000*quality*(1-Math.min(n.config.risk,1)*.15));return{...base,currency:n.config.currency,estimated_value:amount,quality_factor:quality,risk_adjustment:n.config.risk,confidence_interval:[amount*.86,amount*1.14]}}case'price':{let valuation=inputs.find(x=>x.content?.estimated_value)?.content.estimated_value||100000,amount=Math.round(valuation*(n.config.floor+n.config.ceiling)/2);return{...base,currency:'CNY',quoted_price:amount,price_band:[valuation*n.config.floor,valuation*n.config.ceiling],valid_for_seconds:n.runConfig.timeout}}case'market':return{...base,matched:inputs.length>1,transactions:inputs.length>1?[{transaction_id:'tx-'+Date.now(),status:'cleared',amount:inputs.find(x=>x.content?.quoted_price)?.content.quoted_price||0}]:[],market_health:{active_supply:inputs.length,liquidity:inputs.length>2?'healthy':'thin'}};case'query':return{...base,answer:'已完成受治理查询',records:[{product:'configured',status:'available'}],records_returned:1,truncated:false,privacy_budget_used:Math.min(.1,n.config.privacy)};case'feedback':return{...base,observations:inputs.length,calibration:{bias:0,coverage_rate:inputs.length?0.9:0,pairwise_accuracy:inputs.length?0.85:null},recommendation:inputs.length>=n.config.minimum?'update_model':'collect_more_observations'};default:return base}}
-function runNode(n){let err=errors(n);if(err.length)return toast('请先修复输入错误');n.runConfig=n.runConfig||{timeout:30,retries:1,cache:true,outputFormat:'json'};n.status='running';nodes();detail();let started=new Date(),runId='run-'+state.seq++;setTimeout(()=>{try{let inputs=resolveInputs(n);n.output=executeModule(n,inputs);n.status='success';state.connections.filter(e=>e.from===n.id).forEach(e=>{e.content=n.output;e.type=io[n.type].out;e.updatedAt=new Date().toLocaleString()});let run={id:runId,module:n.id,status:'成功',started_at:started.toISOString(),duration_ms:Date.now()-started.getTime(),inputs:inputs.length,output_type:io[n.type].out};state.runs.unshift(run);state.artifacts.unshift({id:'artifact-'+state.seq++,type:io[n.type].out,producer:n.id,created_at:new Date().toISOString(),size:JSON.stringify(n.output).length,content:n.output});save();nodes();detail();toast(n.name+' 运行完成')}catch(error){n.status='failed';state.runs.unshift({id:runId,module:n.id,status:'失败',started_at:started.toISOString(),error:String(error)});save();nodes();detail();toast('运行失败')}},350)}
-const semanticExecute=executeModule;executeModule=function(n,inputs){let result=semanticExecute(n,inputs);if(n.type!=='price'&&n.type!=='market')return result;let parties=n.parties||[],buyers=parties.filter(x=>x.role==='buyer').sort((a,b)=>(b.bid||0)-(a.bid||0)),sellers=parties.filter(x=>x.role==='seller').sort((a,b)=>(a.ask||0)-(b.ask||0)),trades=[];for(let i=0;i<Math.min(buyers.length,sellers.length);i++){if((buyers[i].bid||0)>=(sellers[i].ask||0))trades.push({buyer:buyers[i].id,seller:sellers[i].id,bid:buyers[i].bid,ask:sellers[i].ask,clearing_price:Math.round((buyers[i].bid+sellers[i].ask)/2),quantity:Math.min(buyers[i].quantity||1,sellers[i].quantity||1)})}return{...result,participants:parties,order_book:{bids:buyers,asks:sellers},clearing:{trades,volume:trades.reduce((s,x)=>s+x.quantity,0),revenue:trades.reduce((s,x)=>s+x.clearing_price*x.quantity,0)}}}
-const nodeDetail=detail;detail=function(){nodeDetail();let n=state.instances.find(x=>x.id===state.selected);if(!n||!['price','market'].includes(n.type)||state.selectedNodes.length>1)return;let d=$("#detail"),actions=d.querySelector('.detail-actions'),section=document.createElement('div');section.className='section participant-section';section.innerHTML=`<div class="section-title"><b>多方参与场景</b><span>${n.parties?.length||0} 方</span></div><div class="field"><label>场景模板</label><select id="partyPreset"><option value="bilateral">双边市场</option><option value="procurement">竞争采购</option><option value="auction">多买方拍卖</option></select></div><div class="participant-board">${(n.parties||[]).map((p,i)=>`<div class="party"><header>${p.role==='buyer'?'买方':'卖方'} · ${p.id}<button data-party-remove="${i}">×</button></header><small>${p.role==='buyer'?'预算 / 出价':'底价 / 要价'}</small><input data-party="${i}:id" value="${p.id}"><input data-party="${i}:${p.role==='buyer'?'budget':'reserve'}" type="number" value="${p.role==='buyer'?p.budget:p.reserve}"><input data-party="${i}:${p.role==='buyer'?'bid':'ask'}" type="number" value="${p.role==='buyer'?p.bid:p.ask}"><input data-party="${i}:quantity" type="number" value="${p.quantity||1}"></div>`).join('')}</div><div class="participant-actions"><button id="addBuyer">＋ 买方</button><button id="addSeller">＋ 卖方</button></div>`;actions.before(section);section.querySelectorAll('[data-party]').forEach(e=>e.oninput=()=>{let[i,k]=e.dataset.party.split(':');n.parties[i][k]=e.type==='number'?Number(e.value):e.value;save()});section.querySelectorAll('[data-party-remove]').forEach(e=>e.onclick=()=>{n.parties.splice(Number(e.dataset.partyRemove),1);save();detail()});section.querySelector('#addBuyer').onclick=()=>{n.parties.push({id:'buyer-'+(n.parties.length+1),role:'buyer',budget:100000,bid:80000,quantity:1});save();detail()};section.querySelector('#addSeller').onclick=()=>{n.parties.push({id:'seller-'+(n.parties.length+1),role:'seller',reserve:50000,ask:65000,quantity:1});save();detail()};section.querySelector('#partyPreset').onchange=e=>{n.parties=partyScenario(e.target.value);save();detail()}}
-function partyScenario(type){if(type==='procurement')return[{id:'buyer-enterprise',role:'buyer',budget:300000,bid:260000,quantity:3},{id:'supplier-a',role:'seller',reserve:55000,ask:68000,quantity:2},{id:'supplier-b',role:'seller',reserve:63000,ask:75000,quantity:2},{id:'supplier-c',role:'seller',reserve:80000,ask:92000,quantity:1}];if(type==='auction')return[{id:'buyer-a',role:'buyer',budget:180000,bid:145000,quantity:1},{id:'buyer-b',role:'buyer',budget:130000,bid:118000,quantity:1},{id:'buyer-c',role:'buyer',budget:90000,bid:85000,quantity:1},{id:'seller-platform',role:'seller',reserve:70000,ask:76000,quantity:2}];return[{id:'buyer-a',role:'buyer',budget:160000,bid:125000,quantity:1},{id:'buyer-b',role:'buyer',budget:110000,bid:98000,quantity:1},{id:'seller-a',role:'seller',reserve:65000,ask:72000,quantity:2},{id:'seller-b',role:'seller',reserve:80000,ask:90000,quantity:1}]}
-function removeItem(id){state.instances=state.instances.filter(x=>x.id!==id);state.manualInputs=state.manualInputs.filter(x=>x.id!==id);state.connections=state.connections.filter(x=>x.from!==id&&x.to!==id);state.selected=null;save();nodes();detail();toast('已删除')}
-function validate(){let bad=state.instances.filter(n=>errors(n).length);let e=$("#validation");e.textContent=bad.length?`● ${bad.length} 个环节配置错误`:'● 工作流配置有效';e.className=bad.length?'validation-error':'validation-ok'}
-function applyPreset(){defaults();let p=presets[$("#preset").value];Object.entries(p[1]).forEach(([id,v])=>{let n=state.instances.find(x=>x.id===id);if(n)Object.assign(n.config,v)});save();nodes();detail();toast('已应用：'+p[0])}
-function output(){return{schema_version:'datavalor.ui-workflow/v1alpha1',workflow_id:'ui-data-valorization',generated_at:new Date().toISOString(),valid:!state.instances.some(n=>errors(n).length),modules:state.instances.map(n=>({...n,input_types:incoming(n.id).map(sourceType),output_type:io[n.type].out,errors:errors(n)})),manual_inputs:state.manualInputs,data_flows:state.connections}}
-function downloadJSON(name,data){let u=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);toast('已生成下载')}
-function download(){downloadJSON('datavalor-workflow.json',output())}
-function addInstance(){let m=template($("#addType").value),id=m.id+'-'+state.seq++,count=state.instances.length,n=cloneTemplate(m,id,80+(count%5)*245,80+Math.floor(count/5)*235);state.instances.push(n);state.selected=id;save();nodes();detail();toast('已添加 '+m.name)}
-function importWorkflow(w){if(!Array.isArray(w.modules))throw Error('modules missing');state.instances=w.modules.map(x=>{let m=template(x.type||x.id?.split('-')[0]||modules.find(v=>v.name===x.module)?.id),n=cloneTemplate(m,x.id,x.x??x.position?.x,x.y??x.position?.y);Object.assign(n,x);n.config=x.config||x.parameters||n.config;n.components=x.components||n.components;return n});state.connections=w.data_flows||w.connections||[];state.manualInputs=w.manual_inputs||[];state.seq=Math.max(state.seq,state.instances.length+20);state.selected=null;save();nodes();detail()}
-restore();filters();nodes();detail();modules.forEach(m=>$("#addType").add(new Option(m.name,m.id)));Object.entries(presets).forEach(([k,v])=>$("#preset").add(new Option(v[0],k)));$("#addNode").onclick=addInstance;$("#apply").onclick=applyPreset;$("#export").onclick=download;$("#reset").onclick=()=>{state.instances.forEach((n,i)=>{let m=template(n.type);n.x=m.x+(i>=modules.length?30:0);n.y=m.y+(i>=modules.length?30:0)});save();nodes();toast('布局已重置')};$("#import").onclick=()=>$("#file").click();$("#file").onchange=e=>{let r=new FileReader;r.onload=()=>{try{importWorkflow(JSON.parse(r.result));toast('导入成功')}catch(_){toast('无法识别配置')}};if(e.target.files[0])r.readAsText(e.target.files[0])};$("#viewport").addEventListener('wheel',e=>{if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.currentTarget.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});window.onresize=draw;
 
-function setZoom(value,focus){let view=$("#viewport"),old=state.zoom;state.zoom=Math.max(.4,Math.min(1.8,value));$("#canvas").style.transform=`scale(${state.zoom})`;$("#canvas").style.transformOrigin='0 0';$("#zoomLabel").textContent=Math.round(state.zoom*100)+'%';if(focus){let ratio=state.zoom/old;view.scrollLeft=(view.scrollLeft+focus.x)*ratio-focus.x;view.scrollTop=(view.scrollTop+focus.y)*ratio-focus.y}}
-function resourcePage(page){state.page=page;let view=$("#resourceView"),canvas=$("#viewport"),titles={workflow:['数据处理流程','模块可重复添加 · 从输出端拖线到输入端 · 从输入端拖至空白可建立手动输入'],products:['数据产品','可作为手动起始输入绑定到工作流'],runs:['运行记录','当前浏览器工作区的环节执行历史'],artifacts:['产物中心','环节运行后形成的版本化输出']};$("#pageTitle").textContent=titles[page][0];$("#pageSubtitle").textContent=titles[page][1];canvas.hidden=page!=='workflow';view.hidden=page==='workflow';$("#workflowTools").style.visibility=page==='workflow'?'visible':'hidden';document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));if(page!=='workflow')renderResource(page)}
-function renderResource(page){let host=$("#resourceView");if(page==='products')host.innerHTML=`<div class="resource-head"><div><h2>数据产品目录</h2><p>${state.products.length} 个已登记产品</p></div><button class="accent" id="newProduct">＋ 新建数据产品</button></div><div class="cards">${state.products.map(p=>`<article><span class="resource-status">${p.status}</span><h3>${p.title}</h3><code>${p.id}</code><dl><dt>版本</dt><dd>${p.version}</dd><dt>格式</dt><dd>${p.format}</dd><dt>记录数</dt><dd>${p.records.toLocaleString()}</dd></dl><button data-use-product="${p.id}">用于工作流</button></article>`).join('')}</div>`;if(page==='runs')host.innerHTML=`<div class="resource-head"><div><h2>运行记录</h2><p>${state.runs.length} 次本地执行</p></div></div>${table(['Run ID','环节','状态','开始时间','耗时'],state.runs.map(r=>[r.id,r.module,r.status,new Date(r.started_at).toLocaleString(),r.duration_ms!=null?r.duration_ms+' ms':'—']))}`;if(page==='artifacts')host.innerHTML=`<div class="resource-head"><div><h2>产物中心</h2><p>${state.artifacts.length} 个可下载产物</p></div></div>${table(['Artifact ID','类型','生产环节','生成时间','操作'],state.artifacts.map(a=>[a.id,a.type,a.producer,new Date(a.created_at).toLocaleString(),`<button data-artifact="${a.id}">下载</button>`]))}`;host.querySelector('#newProduct')?.addEventListener('click',()=>{let id='product-'+state.seq++;state.products.push({id,title:'新数据产品',version:'v1',format:'json',records:0,status:'草稿'});save();renderResource('products')});host.querySelectorAll('[data-use-product]').forEach(b=>b.onclick=()=>{let p=state.products.find(x=>x.id===b.dataset.useProduct),id='manual-'+state.seq++;state.manualInputs.push({id,name:p.title,type:'DataProduct',x:30,y:250,config:{uri:'catalog://'+p.id,format:p.format,schema:'',payload:JSON.stringify(p)}});save();resourcePage('workflow');nodes();toast('已添加为工作流输入')});host.querySelectorAll('[data-artifact]').forEach(b=>b.onclick=()=>{let a=state.artifacts.find(x=>x.id===b.dataset.artifact);downloadJSON(a.id+'.json',a.content)})}
-function table(head,rows){return`<div class="data-table"><table><thead><tr>${head.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${head.length}" class="no-data">暂无记录，请先运行一个工作流环节。</td></tr>`}</tbody></table></div>`}
-document.querySelectorAll('[data-page]').forEach(x=>x.onclick=()=>resourcePage(x.dataset.page));$("#zoomIn").onclick=()=>setZoom(state.zoom+.1);$("#zoomOut").onclick=()=>setZoom(state.zoom-.1);$("#zoomLabel").onclick=()=>setZoom(1);$("#fit").onclick=()=>{setZoom(.72);$("#viewport").scrollTo({left:0,top:0,behavior:'smooth'})};$("#viewport").addEventListener('wheel',e=>{let r=e.currentTarget.getBoundingClientRect();setZoom(state.zoom+(e.deltaY<0?.08:-.08),{x:e.clientX-r.left,y:e.clientY-r.top});e.preventDefault();e.stopImmediatePropagation()},{passive:false,capture:true});let pan=null;$("#viewport").addEventListener('pointerdown',e=>{if(e.target!==$("#canvas")&&e.target!==$("#edges"))return;pan={x:e.clientX,y:e.clientY,left:$("#viewport").scrollLeft,top:$("#viewport").scrollTop};$("#viewport").setPointerCapture(e.pointerId);$("#viewport").classList.add('panning')});$("#viewport").addEventListener('pointermove',e=>{if(!pan)return;$("#viewport").scrollLeft=pan.left-(e.clientX-pan.x);$("#viewport").scrollTop=pan.top-(e.clientY-pan.y)});$("#viewport").addEventListener('pointerup',()=>{pan=null;$("#viewport").classList.remove('panning')});setZoom(1);
+const state = {
+  scenarios: [],
+  scenario: null,
+  products: [],
+  schemas: { pricing: {}, market: { mechanisms: {} } },
+  selected: new Set(),
+  activeProductId: null,
+  currentBatch: null,
+  batches: [],
+  view: "assets",
+  online: false,
+};
 
-let selecting=null;function selectionPoint(e){let r=$("#canvas").getBoundingClientRect();return{x:(e.clientX-r.left)/state.zoom,y:(e.clientY-r.top)/state.zoom}}function paintSelection(a,b){let box=$("#selectionBox"),x=Math.min(a.x,b.x),y=Math.min(a.y,b.y);box.style.display='block';box.style.left=x+'px';box.style.top=y+'px';box.style.width=Math.abs(a.x-b.x)+'px';box.style.height=Math.abs(a.y-b.y)+'px'}$("#viewport").addEventListener('pointerdown',e=>{if(!e.shiftKey||(e.target!==$("#canvas")&&e.target!==$("#edges")))return;selecting={start:selectionPoint(e),end:selectionPoint(e)};paintSelection(selecting.start,selecting.end);$("#viewport").setPointerCapture(e.pointerId);e.stopImmediatePropagation();e.preventDefault()},{capture:true});$("#viewport").addEventListener('pointermove',e=>{if(!selecting)return;selecting.end=selectionPoint(e);paintSelection(selecting.start,selecting.end);e.stopImmediatePropagation()},{capture:true});$("#viewport").addEventListener('pointerup',e=>{if(!selecting)return;let a=selecting.start,b=selecting.end,left=Math.min(a.x,b.x),right=Math.max(a.x,b.x),top=Math.min(a.y,b.y),bottom=Math.max(a.y,b.y);state.selectedNodes=state.instances.filter(n=>n.x+210>=left&&n.x<=right&&n.y+150>=top&&n.y<=bottom).map(n=>n.id);state.selected=state.selectedNodes.length===1?state.selectedNodes[0]:null;selecting=null;$("#selectionBox").style.display='none';nodes();detail();e.stopImmediatePropagation()},{capture:true});
-function updateTypeInfo(){let m=template($("#addType").value);$("#typeInfo").innerHTML=`<b>${m.name}</b><br>${m.summary}<br><small>输入：${io[m.id].accept.join(' / ')}<br>输出：${io[m.id].out}</small>`}$("#addType").onchange=updateTypeInfo;updateTypeInfo();
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function money(value, currency = "CNY") {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "—";
+  return new Intl.NumberFormat("zh-CN", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(Number(value));
+}
+
+function dateTime(value) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+  }).format(new Date(value));
+}
+
+let toastTimer;
+function toast(message) {
+  const host = $("#toast");
+  host.textContent = message;
+  host.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => host.classList.remove("show"), 2600);
+}
+
+function setConnection(online, label) {
+  state.online = online;
+  WorkbenchAPI.online = online;
+  const host = $("#apiState");
+  host.className = `connection-state ${online ? "online" : "offline"}`;
+  $("span", host).textContent = label;
+  updateReadiness();
+}
+
+function switchView(view) {
+  state.view = view;
+  $$("[data-view-target]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.viewTarget === view);
+  });
+  $$(".workspace-view").forEach((panel) => panel.classList.remove("active"));
+  $(`#${view}View`)?.classList.add("active");
+  if (view === "runs") refreshRuns();
+}
+
+function currentScenarioProducts() {
+  return state.scenario?.products || [];
+}
+
+function selectedProductIds() {
+  return currentScenarioProducts()
+    .map((product) => product.product_id)
+    .filter((productId) => state.selected.has(productId));
+}
+
+function renderScenarioOptions() {
+  $("#scenarioSelect").innerHTML = state.scenarios
+    .map((scenario) => `<option value="${escapeHtml(scenario.scenario_id)}">${escapeHtml(scenario.name)}</option>`)
+    .join("");
+}
+
+function applyScenario(scenarioId) {
+  const scenario = state.scenarios.find((item) => item.scenario_id === scenarioId) || state.scenarios[0];
+  if (!scenario) return;
+  state.scenario = scenario;
+  state.selected = new Set(scenario.products.map((product) => product.product_id));
+  state.activeProductId = scenario.products[0]?.product_id || null;
+  $("#scenarioSelect").value = scenario.scenario_id;
+  $("#scenarioRailSummary").textContent = scenario.summary;
+  $("#scenarioDomain").textContent = scenario.domain;
+  $("#scenarioTitle").textContent = scenario.name;
+  $("#scenarioDescription").textContent = scenario.summary;
+  $("#scenarioDecision").textContent = scenario.decision;
+  $("#metricAssets").textContent = scenario.products.length;
+  $("#metricStages").textContent = scenario.default_operations.length;
+  $("#metricSellers").textContent = new Set(scenario.products.map((product) => product.owner_id)).size;
+  $("#metricBudget").textContent = money(scenario.operation_parameters.market?.budget, scenario.currency);
+  $("#batchLabel").value = `${scenario.name} · 候选资产比较`;
+  $("#advancedParameters").value = JSON.stringify(scenario.operation_parameters, null, 2);
+  renderPipeline();
+  syncRecipeControls();
+  renderAssets();
+  updateReadiness();
+}
+
+function renderPipeline() {
+  const defaults = new Set(state.scenario?.default_operations || []);
+  $("#pipelineStages").innerHTML = Object.entries(OPERATION_META)
+    .map(([operation, [name, label]], index) => `
+      <div class="pipeline-stage">
+        <label class="stage-toggle">
+          <input type="checkbox" data-operation="${operation}" ${defaults.has(operation) ? "checked" : ""}>
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <span><b>${name}</b><small>${label}</small></span>
+        </label>
+      </div>`)
+    .join("");
+  $$('[data-operation]').forEach((input) => input.addEventListener("change", updateReadiness));
+}
+
+function renderSchemaOptions() {
+  const pricing = Object.values(state.schemas.pricing || {});
+  const mechanisms = Object.values(state.schemas.market?.mechanisms || {});
+  $("#pricingModel").innerHTML = pricing
+    .map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.label)}</option>`)
+    .join("");
+  $("#marketMechanism").innerHTML = mechanisms
+    .map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.label)}</option>`)
+    .join("");
+}
+
+function syncRecipeControls() {
+  const parameters = state.scenario?.operation_parameters || {};
+  const pricingModel = parameters.pricing?.model;
+  const mechanism = parameters.market?.mechanism;
+  if (pricingModel && state.schemas.pricing[pricingModel]) $("#pricingModel").value = pricingModel;
+  if (mechanism && state.schemas.market?.mechanisms?.[mechanism]) $("#marketMechanism").value = mechanism;
+  $("#marketBudget").value = parameters.market?.budget ?? 0;
+}
+
+function visibleProducts() {
+  const query = $("#assetSearch").value.trim().toLowerCase();
+  const filter = $("#assetFilter").value;
+  return currentScenarioProducts().filter((product) => {
+    const text = [product.title, product.product_id, product.owner_id, ...(product.tags || [])].join(" ").toLowerCase();
+    if (query && !text.includes(query)) return false;
+    if (filter === "selected" && !state.selected.has(product.product_id)) return false;
+    if (filter === "commercial" && product.rights.commercial_use !== true) return false;
+    if (filter === "restricted" && product.rights.commercial_use === true) return false;
+    return true;
+  });
+}
+
+function renderAssets() {
+  const products = visibleProducts();
+  const tbody = $("tbody", $("#assetTable"));
+  tbody.innerHTML = products.length
+    ? products.map((product) => {
+      const metadata = product.metadata || {};
+      const commercial = product.rights?.commercial_use === true;
+      return `<tr data-product-row="${escapeHtml(product.product_id)}" class="${state.activeProductId === product.product_id ? "active" : ""}">
+        <td class="check-col"><input type="checkbox" data-select-product="${escapeHtml(product.product_id)}" ${state.selected.has(product.product_id) ? "checked" : ""} aria-label="选择 ${escapeHtml(product.title)}"></td>
+        <td><div class="asset-name"><span class="asset-symbol">◇</span><span><strong>${escapeHtml(product.title)}</strong><small>${escapeHtml(product.owner_id)} · ${escapeHtml(product.product_id)}</small></span></div></td>
+        <td class="rights-cell"><span class="rights-badge ${commercial ? "" : "restricted"}">${commercial ? "商业使用" : "研究限定"}</span><small>${escapeHtml((product.rights?.purposes || []).join(" · "))}</small></td>
+        <td><span class="score"><i style="--score:${Number(metadata.quality || 0) * 100}%"></i>${Math.round(Number(metadata.quality || 0) * 100)}</span></td>
+        <td><span class="score"><i style="--score:${Number(metadata.freshness || 0) * 100}%"></i>${Math.round(Number(metadata.freshness || 0) * 100)}</span></td>
+        <td class="numeric">${money(metadata.asking_price, metadata.currency)}</td>
+        <td><button class="row-action" data-inspect-product="${escapeHtml(product.product_id)}" aria-label="查看 ${escapeHtml(product.title)}">›</button></td>
+      </tr>`;
+    }).join("")
+    : '<tr><td colspan="7" class="loading-cell">当前筛选条件下没有资产。</td></tr>';
+
+  $$('[data-select-product]').forEach((checkbox) => {
+    checkbox.addEventListener("change", (event) => {
+      event.stopPropagation();
+      if (checkbox.checked) state.selected.add(checkbox.dataset.selectProduct);
+      else state.selected.delete(checkbox.dataset.selectProduct);
+      updateReadiness();
+    });
+  });
+  $$('[data-product-row]').forEach((row) => row.addEventListener("click", (event) => {
+    if (event.target.matches('input[type="checkbox"]')) return;
+    state.activeProductId = row.dataset.productRow;
+    renderAssets();
+  }));
+  $$('[data-inspect-product]').forEach((button) => button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    state.activeProductId = button.dataset.inspectProduct;
+    renderAssets();
+  }));
+  const visibleIds = products.map((product) => product.product_id);
+  $("#masterSelect").checked = visibleIds.length > 0 && visibleIds.every((productId) => state.selected.has(productId));
+  renderInspector();
+}
+
+function renderInspector() {
+  const product = currentScenarioProducts().find((item) => item.product_id === state.activeProductId);
+  if (!product) return;
+  const metadata = product.metadata || {};
+  $("#assetInspector").innerHTML = `
+    <div class="inspector-head"><small>DATA PRODUCT · v${escapeHtml(product.version)}</small><h3>${escapeHtml(product.title)}</h3><p>${escapeHtml(product.description)}</p></div>
+    <div class="inspector-body">
+      <section class="inspector-section"><h4>产品信号</h4><div class="detail-grid">
+        <div><small>Owner</small><strong>${escapeHtml(product.owner_id)}</strong></div>
+        <div><small>记录样例数</small><strong>${product.records.length}</strong></div>
+        <div><small>质量信号</small><strong>${Math.round(metadata.quality * 100)} / 100</strong></div>
+        <div><small>新鲜度</small><strong>${Math.round(metadata.freshness * 100)} / 100</strong></div>
+      </div></section>
+      <section class="inspector-section"><h4>许可与用途</h4><div class="tag-list">${(product.rights.purposes || []).map((purpose) => `<span>${escapeHtml(purpose)}</span>`).join("")}<span>${product.rights.commercial_use ? "commercial" : "non-commercial"}</span>${(product.rights.jurisdictions || []).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div></section>
+      <section class="inspector-section"><h4>标签</h4><div class="tag-list">${(product.tags || []).map((tag) => `<span>#${escapeHtml(tag)}</span>`).join("")}</div></section>
+      <section class="inspector-section"><h4>样例记录</h4><pre class="sample-json">${escapeHtml(JSON.stringify(product.records.slice(0, 2), null, 2))}</pre></section>
+    </div>`;
+}
+
+function selectedOperations() {
+  return $$('[data-operation]:checked').map((input) => input.dataset.operation);
+}
+
+function updateReadiness() {
+  const count = selectedProductIds().length;
+  const operations = selectedOperations();
+  const ready = state.online && count > 0 && operations.length > 0;
+  $("#selectionSummary").textContent = `${count} 个资产已选择`;
+  $("#assetStatus").textContent = `${currentScenarioProducts().length} 个候选 · ${count} 个已选择`;
+  $("#runBatch").disabled = !ready;
+  $("#runBatchInline").disabled = !ready;
+  $("#exportBatch").disabled = !state.currentBatch;
+  const status = $("#batchReadiness");
+  status.parentElement.classList.toggle("ready", ready);
+  status.textContent = !state.online
+    ? "本地服务未连接"
+    : count === 0
+      ? "请选择至少一个数据资产"
+      : operations.length === 0
+        ? "请至少启用一个处理环节"
+        : `${count} 个资产 · ${operations.length} 个环节 · 可以运行`;
+}
+
+async function loadScenarioProducts(silent = false) {
+  if (!state.online) throw new Error("请先启动 DataValor 本地服务");
+  const response = await WorkbenchAPI.post(`/workbench/scenarios/${state.scenario.scenario_id}/load`);
+  state.products = (await WorkbenchAPI.get("/products")).products;
+  if (!silent) toast(`场景数据已同步：新增 ${response.loaded}，更新 ${response.updated}`);
+  return response;
+}
+
+function parametersForSelection() {
+  let parameters;
+  try {
+    parameters = JSON.parse($("#advancedParameters").value || "{}");
+  } catch (error) {
+    throw new Error(`高级参数不是有效 JSON：${error.message}`);
+  }
+  parameters.pricing = { ...(parameters.pricing || {}), model: $("#pricingModel").value };
+  parameters.market = {
+    ...(parameters.market || {}),
+    mechanism: $("#marketMechanism").value,
+    budget: Number($("#marketBudget").value || 0),
+  };
+  const selectedIds = new Set(selectedProductIds());
+  for (const key of ["bids", "asks"]) {
+    if (!Array.isArray(parameters.market[key])) continue;
+    parameters.market[key] = parameters.market[key]
+      .map((order) => ({
+        ...order,
+        product_ids: (order.product_ids || []).filter((productId) => selectedIds.has(productId)),
+      }))
+      .filter((order) => order.product_ids.length > 0);
+  }
+  return parameters;
+}
+
+async function runSelectedBatch() {
+  const productIds = selectedProductIds();
+  const operations = selectedOperations();
+  if (!productIds.length || !operations.length) return;
+  let parameters;
+  try {
+    parameters = parametersForSelection();
+  } catch (error) {
+    toast(error.message);
+    return;
+  }
+  $("#busyOverlay").hidden = false;
+  $("#busyMessage").textContent = `${productIds.length} 个资产正在执行 ${operations.length} 个环节…`;
+  try {
+    await loadScenarioProducts(true);
+    const response = await WorkbenchAPI.post("/batches", {
+      product_ids: productIds,
+      operations,
+      parameters,
+      label: $("#batchLabel").value,
+      scenario_id: state.scenario.scenario_id,
+      seed: Number($("#seedInput").value || 0),
+      fail_fast: $("#failFast").checked,
+    });
+    state.currentBatch = response.batch;
+    renderResults(response.batch);
+    await refreshRuns();
+    switchView("results");
+    toast(response.batch.status === "succeeded" ? "批次完成，结果已保存" : "批次完成，部分环节需要检查");
+  } catch (error) {
+    toast(`批次执行失败：${error.message}`);
+  } finally {
+    $("#busyOverlay").hidden = true;
+    updateReadiness();
+  }
+}
+
+function renderResults(batch) {
+  $("#resultEmpty").hidden = true;
+  $("#resultContent").hidden = false;
+  $("#resultCount").textContent = batch.items.length;
+  $("#resultTitle").textContent = batch.label;
+  $("#resultMeta").textContent = `${batch.batch_id} · ${dateTime(batch.finished_at)} · seed ${batch.seed}`;
+  const cards = [
+    ["候选资产", batch.summary.products, `${batch.summary.succeeded_items} 个完整成功`, "#28c5d7"],
+    ["估值合计", money(batch.summary.total_value), "按当前任务效用", "#7b6cf6"],
+    ["报价合计", money(batch.summary.total_price), "按当前合同模型", "#f1a43a"],
+    ["阶段状态", `${batch.summary.succeeded_stages}/${batch.summary.succeeded_stages + batch.summary.failed_stages}`, `${batch.summary.failed_stages} 个失败`, batch.summary.failed_stages ? "#d95b6a" : "#28a879"],
+  ];
+  $("#resultSummary").innerHTML = cards.map(([label, value, note, accent]) => `<div class="summary-card" style="--accent:${accent}"><small>${label}</small><strong>${value}</strong><em>${note}</em></div>`).join("");
+
+  const maxValue = Math.max(...batch.items.map((item) => Number(item.metrics.value || 0)), 1);
+  const maxPrice = Math.max(...batch.items.map((item) => Number(item.metrics.price || 0)), 1);
+  $("#resultCompare").innerHTML = batch.items.map((item, index) => `
+    <article class="comparison-row ${index === 0 ? "active" : ""}" data-result-item="${escapeHtml(item.product_id)}">
+      <div class="comparison-name"><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.product_id)} · ${item.stages.length} stages</small></div>
+      <div class="metric-bar"><label>任务估值 <b>${money(item.metrics.value, item.metrics.value_currency)}</b></label><i style="--width:${Math.max(2, Number(item.metrics.value || 0) / maxValue * 100)}%;--bar:var(--violet)"></i></div>
+      <div class="metric-bar"><label>合同报价 <b>${money(item.metrics.price, item.metrics.price_currency)}</b></label><i style="--width:${Math.max(2, Number(item.metrics.price || 0) / maxPrice * 100)}%;--bar:var(--amber)"></i></div>
+      <div class="metric-bar"><label>质量信号 <b>${Math.round(Number(item.metrics.quality_signal || item.metrics.quality_score || 0) * 100)}</b></label><i style="--width:${Number(item.metrics.quality_signal || item.metrics.quality_score || 0) * 100}%;--bar:var(--cyan)"></i></div>
+      <span class="item-status ${item.status}">${item.status}</span>
+    </article>`).join("");
+  $$('[data-result-item]').forEach((row) => row.addEventListener("click", () => {
+    $$('[data-result-item]').forEach((item) => item.classList.toggle("active", item === row));
+    renderTrace(batch.items.find((item) => item.product_id === row.dataset.resultItem));
+  }));
+  renderTrace(batch.items[0]);
+  renderMarketResult(batch.market_stage);
+  updateReadiness();
+}
+
+function renderTrace(item) {
+  if (!item) {
+    $("#traceInspector").innerHTML = '<div class="inspector-empty"><p>没有阶段结果。</p></div>';
+    return;
+  }
+  $("#traceInspector").innerHTML = `
+    <div class="trace-head"><small>EXECUTION TRACE</small><h3>${escapeHtml(item.title)}</h3><small>${escapeHtml(item.product_id)} · ${item.status}</small></div>
+    <div class="trace-stages">${item.stages.map((stage) => `<div class="trace-stage ${stage.status}"><i></i><b>${escapeHtml(OPERATION_META[stage.operation]?.[1] || stage.operation)}</b><small>${escapeHtml(stage.producer || stage.error?.message || "未执行")} · ${stage.duration_ms} ms</small><button data-stage-json="${escapeHtml(stage.operation)}">查看产物</button></div>`).join("")}</div>
+    <pre class="trace-json">选择阶段查看可追溯结果。</pre>`;
+  $$('[data-stage-json]', $("#traceInspector")).forEach((button) => button.addEventListener("click", () => {
+    const stage = item.stages.find((candidate) => candidate.operation === button.dataset.stageJson);
+    $(".trace-json", $("#traceInspector")).textContent = JSON.stringify(stage.result || stage.error, null, 2);
+  }));
+}
+
+function renderMarketResult(stage) {
+  const host = $("#marketResult");
+  if (!stage) {
+    host.hidden = true;
+    return;
+  }
+  host.hidden = false;
+  if (stage.status === "failed") {
+    host.innerHTML = `<h3>市场配置需要检查</h3><p>${escapeHtml(stage.error?.message)}</p>`;
+    return;
+  }
+  const result = stage.result || {};
+  const outcome = result.outcome || {};
+  const health = result.market_health?.metrics || {};
+  host.innerHTML = `<h3>市场机制结果 · ${escapeHtml(stage.producer)}</h3><div class="market-grid">
+    <div><small>分配数量</small><strong>${(outcome.allocations || []).length}</strong></div>
+    <div><small>支付数量</small><strong>${(outcome.payments || []).length}</strong></div>
+    <div><small>活跃挂牌</small><strong>${health.active_listings ?? "—"}</strong></div>
+    <div><small>审计状态</small><strong>${escapeHtml(result.audit?.status || "—")}</strong></div>
+  </div>`;
+}
+
+async function refreshRuns() {
+  if (!state.online) return;
+  try {
+    state.batches = (await WorkbenchAPI.get("/batches")).batches;
+    $("#runCount").textContent = state.batches.length;
+    $("#runList").innerHTML = state.batches.length
+      ? state.batches.map((batch) => `<article class="run-row"><div><strong>${escapeHtml(batch.label)}</strong><small>${escapeHtml(batch.batch_id)}</small></div><div><strong>${batch.summary.products} assets</strong><small>${batch.operations.length} operations</small></div><div><strong>${escapeHtml(batch.status)}</strong><small>${batch.summary.failed_stages} failed stages</small></div><div><strong>${dateTime(batch.finished_at)}</strong><small>seed ${batch.seed}</small></div><button data-open-batch="${escapeHtml(batch.batch_id)}">打开结果</button></article>`).join("")
+      : '<div class="loading-cell">暂无批次。先从工作台运行一组数据资产。</div>';
+    $$('[data-open-batch]').forEach((button) => button.addEventListener("click", async () => {
+      try {
+        const response = await WorkbenchAPI.get(`/batches/${button.dataset.openBatch}`);
+        state.currentBatch = response.batch;
+        renderResults(response.batch);
+        switchView("results");
+      } catch (error) {
+        toast(`读取批次失败：${error.message}`);
+      }
+    }));
+  } catch (error) {
+    $("#runList").innerHTML = `<div class="loading-cell">读取批次失败：${escapeHtml(error.message)}</div>`;
+  }
+}
+
+function exportBatch() {
+  if (!state.currentBatch) return;
+  const blob = new Blob([JSON.stringify(state.currentBatch, null, 2)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${state.currentBatch.batch_id}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function importProductFile(file) {
+  if (!file) return;
+  try {
+    const value = JSON.parse(await file.text());
+    const products = Array.isArray(value) ? value : [value];
+    for (const product of products) await WorkbenchAPI.post("/products", product);
+    state.products = (await WorkbenchAPI.get("/products")).products;
+    toast(`已导入 ${products.length} 个产品；可在自定义 API 流程中使用`);
+  } catch (error) {
+    toast(`导入失败：${error.message}`);
+  }
+}
+
+function bindEvents() {
+  $$("[data-view-target]").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.viewTarget)));
+  $("#scenarioSelect").addEventListener("change", (event) => applyScenario(event.target.value));
+  $("#assetSearch").addEventListener("input", renderAssets);
+  $("#assetFilter").addEventListener("change", renderAssets);
+  $("#selectAll").addEventListener("click", () => {
+    const products = visibleProducts();
+    const allSelected = products.length && products.every((product) => state.selected.has(product.product_id));
+    products.forEach((product) => allSelected ? state.selected.delete(product.product_id) : state.selected.add(product.product_id));
+    renderAssets();
+    updateReadiness();
+  });
+  $("#masterSelect").addEventListener("change", (event) => {
+    visibleProducts().forEach((product) => event.target.checked ? state.selected.add(product.product_id) : state.selected.delete(product.product_id));
+    renderAssets();
+    updateReadiness();
+  });
+  $("#loadScenario").addEventListener("click", () => loadScenarioProducts().catch((error) => toast(error.message)));
+  $("#runBatch").addEventListener("click", runSelectedBatch);
+  $("#runBatchInline").addEventListener("click", runSelectedBatch);
+  $("#exportBatch").addEventListener("click", exportBatch);
+  $("#resultToAssets").addEventListener("click", () => switchView("assets"));
+  $("#refreshRuns").addEventListener("click", refreshRuns);
+  $("#reloadWorkspace").addEventListener("click", boot);
+  $("#importProduct").addEventListener("click", () => $("#productFile").click());
+  $("#productFile").addEventListener("change", (event) => importProductFile(event.target.files[0]));
+}
+
+async function boot() {
+  setConnection(false, "正在连接本地服务");
+  try {
+    await WorkbenchAPI.get("/health");
+    const [scenarioData, schemaData, productData, batchData] = await Promise.all([
+      WorkbenchAPI.get("/workbench/scenarios"),
+      WorkbenchAPI.get("/workbench/schemas"),
+      WorkbenchAPI.get("/products"),
+      WorkbenchAPI.get("/batches"),
+    ]);
+    state.scenarios = scenarioData.scenarios;
+    state.schemas = schemaData;
+    state.products = productData.products;
+    state.batches = batchData.batches;
+    setConnection(true, "本地 API 已连接");
+    renderScenarioOptions();
+    renderSchemaOptions();
+    applyScenario(state.scenario?.scenario_id || state.scenarios[0]?.scenario_id);
+    await refreshRuns();
+  } catch (error) {
+    setConnection(false, "本地 API 未连接");
+    $("#scenarioRailSummary").textContent = "请运行 python -m UI.run，然后重新同步工作区。";
+    $("#assetStatus").textContent = "服务离线";
+    toast(`无法连接工作台：${error.message}`);
+  }
+}
+
+bindEvents();
+boot();

@@ -249,25 +249,22 @@ def test_operation_payload_validates_product_ids():
         OperationPayload(product_ids=["valid", "bad/id"])
 
 
-def test_complex_ui_stays_inside_existing_modules_and_renders_real_controls():
+def test_workbench_concentrates_batch_controls_in_the_main_panel():
     from pathlib import Path
 
     root = Path(__file__).parents[1]
     html = (root / "UI" / "index.html").read_text()
-    script = (root / "UI" / "workbench-complex.js").read_text()
-    assert html.count('class="nav"') + html.count('class="nav active"') == 13
-    assert 'workbench-complex.js' in html
-    assert 'workbench-complex.css' in html
-    for input_type in ("json", "jsonl", "csv", "tsv", "key_value", "uri", "catalog", "artifact", "upstream"):
-        assert input_type in script
-    for tab in ("场景", "产品与输入", "参与方与订单", "定价合同", "市场机制", "执行过程", "结果与诊断"):
-        assert tab in script
-    assert "/inputs/preview" in script
+    script = (root / "UI" / "app.js").read_text()
+    assert html.count('class="rail-nav') == 1
+    assert 'id="assetTable"' in html
+    assert 'id="pipelineStages"' in html
+    assert 'id="resultCompare"' in html
+    assert 'workbench-complex.js' not in html
+    for operation in ("governance", "profile", "evaluation", "valuation", "pricing", "market"):
+        assert operation in script
     assert "/workbench/schemas" in script
+    assert "/workbench/scenarios" in script
+    assert "/batches" in script
     assert "product_ids" in script
-    assert "normalized_parameters" in script
-    assert "trace" in script
-    assert "escapeAttribute" in script
-    assert "execution_mode" in script
-    assert "renderFailureTrace" in script
-    assert "/operations/" in script
+    assert "market_stage" in script
+    assert "execution trace" in script.lower()
