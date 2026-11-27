@@ -61,49 +61,15 @@ def execute(operation: str, product_payload: dict, parameters: dict, run_id: str
         result["security"] = jsonable(security)
         return result, RightsPolicyEvaluator().spec.name
     if operation == "evaluation":
-        from datavalor.data_eval import (
-            CompletenessMetric,
-            CompositeEvaluator,
-            DuplicateRateMetric,
-            EvaluationRequest,
-            FieldValidityMetric,
-        )
+        from .evaluation_workbench import run_evaluation
 
-        request = EvaluationRequest(
-            metrics=("basic.completeness", "basic.duplicate_rate", "basic.field_validity"),
-            options={
-                "records": records,
-                "required_fields": tuple(parameters.get("required_fields", ())),
-                "field_types": parameters.get("field_types", {}),
-            },
-        )
-        evaluator = CompositeEvaluator()
-        result = evaluator.evaluate(
-            product,
-            request,
-            (CompletenessMetric(), DuplicateRateMetric(), FieldValidityMetric()),
-            context,
-        )
-        return jsonable(result), evaluator.spec.name
+        result, producer = run_evaluation(product, records, parameters, context)
+        return jsonable(result), producer
     if operation == "valuation":
-        from datavalor.core import DataScope
-        from datavalor.data_value import (
-            ValuationRequest,
-            ValuationTarget,
-            WeightedUserTaskValuator,
-        )
+        from .valuation_workbench import run_valuation
 
-        valuator = WeightedUserTaskValuator(
-            base_value=float(parameters.get("base_value", 1000)),
-            currency=str(parameters.get("currency", "CNY")),
-        )
-        request = ValuationRequest(
-            product,
-            (ValuationTarget(product.product_id, product.product_id, DataScope.PRODUCT),),
-            rights=product.rights,
-            options={"evaluation_vector": parameters.get("evaluation_vector", {})},
-        )
-        return jsonable(valuator.value(request, context)), valuator.spec.name
+        result, producer = run_valuation(product, parameters, context)
+        return jsonable(result), producer
     if operation == "pricing":
         from .pricing_workbench import run_pricing
 

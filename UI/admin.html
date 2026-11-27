@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172133">
+  <title>账号管理 · DataValor</title>
+  <link rel="stylesheet" href="auth.css">
+  <link rel="stylesheet" href="auth-dialog.css">
+</head>
+<body data-auth-page="admin" class="admin-page">
+  <header class="admin-topbar">
+    <a class="auth-brand dark" href="/">
+      <span class="brand-bars"><i></i><i></i><i></i></span>
+      <span><strong>DataValor</strong><small>平台账号管理</small></span>
+    </a>
+    <div>
+      <span id="adminIdentity" class="admin-identity">正在读取管理员身份…</span>
+      <a id="backToWorkbench" href="/">返回工作台</a>
+      <button id="adminLogout" type="button">退出登录</button>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <section class="admin-heading">
+      <div>
+        <p class="eyebrow">ADMINISTRATION</p>
+        <h1>账号与独立工作区</h1>
+        <p>创建账号后，系统会在该账号首次使用时建立独立工作区；不同账号之间不共享资产、参与者或运行产物。</p>
+      </div>
+      <div class="scope-note"><strong>隔离范围</strong><span>数据产品 · 参与者 · 批次 · 运行记录 · 产物</span></div>
+    </section>
+
+    <section class="admin-grid">
+      <form id="accountForm" class="admin-panel account-form">
+        <header><h2>创建账号</h2><p>初始密码至少 10 个字符，账号创建后立即可用。</p></header>
+        <label for="accountUsername">账号名称</label>
+        <input id="accountUsername" autocomplete="off" required pattern="[A-Za-z0-9._-]{3,64}" placeholder="researcher-01">
+        <label for="accountPassword">初始密码</label>
+        <input id="accountPassword" type="password" autocomplete="new-password" minlength="10" required>
+        <label for="accountRole">账号类型</label>
+        <select id="accountRole"><option value="user">普通账号</option><option value="admin">管理员</option></select>
+        <p id="accountFeedback" class="form-feedback" role="status" aria-live="polite"></p>
+        <button type="submit" class="auth-primary">创建账号和工作区</button>
+      </form>
+
+      <section class="admin-panel account-list-panel">
+        <header><div><h2>已注册账号</h2><p id="accountCount">正在读取…</p></div><button id="refreshAccounts" type="button">刷新</button></header>
+        <div class="account-table-wrap">
+          <table>
+            <thead><tr><th>账号</th><th>角色</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+            <tbody id="accountRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="passwordDialog" class="password-dialog">
+    <form id="resetPasswordForm" method="dialog">
+      <header><h2>重置账号密码</h2><p id="passwordDialogAccount"></p></header>
+      <input id="resetAccountId" type="hidden">
+      <label for="resetPassword">新密码</label>
+      <input id="resetPassword" type="password" autocomplete="new-password" minlength="10" required>
+      <p id="passwordFeedback" class="form-feedback" role="status" aria-live="polite"></p>
+      <footer>
+        <button id="cancelPasswordReset" type="button">取消</button>
+        <button class="auth-primary" type="submit">保存新密码</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="auth.js"></script>
+</body>
+</html>

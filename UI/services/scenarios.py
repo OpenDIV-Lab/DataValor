@@ -6,6 +6,7 @@ from copy import deepcopy
 from typing import Any
 
 from .workspace import Workspace
+from .real_world_scenarios import real_world_scenarios
 
 
 def _product(
@@ -70,8 +71,8 @@ _SCENARIOS: tuple[dict[str, Any], ...] = (
         "default_operations": ["governance", "evaluation", "valuation", "pricing", "market"],
         "operation_parameters": {
             "governance": {"operation": "model_training"},
-            "evaluation": {"required_fields": ["prompt", "response"]},
-            "valuation": {"base_value": 140000, "evaluation_vector": {"task_utility": 0.88, "quality": 0.91}, "product_signals": ["quality", "freshness"]},
+            "evaluation": {"modality": "text", "metrics": ["text.length_quality", "text.lexical_diversity", "text.repetition_rate"], "text_field": "response", "min_tokens": 1, "max_tokens": 512},
+            "valuation": {"method": "valuation.weighted_user_task", "base_value": 140000, "evaluation_vector": {"task_utility": 0.88, "quality": 0.91}, "product_signals": ["quality", "freshness"]},
             "pricing": {"model": "pricing.rights_differentiated", "base_price": 90000},
             "market": {
                 "mechanism": "bundle_matching",
@@ -104,7 +105,7 @@ _SCENARIOS: tuple[dict[str, Any], ...] = (
         "operation_parameters": {
             "governance": {"operation": "analytics"},
             "evaluation": {"required_fields": ["region", "date"]},
-            "valuation": {"base_value": 110000, "evaluation_vector": {"forecast_gain": 0.84, "coverage": 0.9}, "product_signals": ["quality", "freshness"]},
+            "valuation": {"method": "valuation.weighted_user_task", "base_value": 110000, "evaluation_vector": {"forecast_gain": 0.84, "coverage": 0.9}, "product_signals": ["quality", "freshness"]},
             "pricing": {"model": "pricing.subscription", "period_fee": 52000, "included_usage": 1000, "usage": 1250, "overage_unit_price": 18},
             "market": {
                 "mechanism": "bundle_matching",
@@ -138,7 +139,7 @@ _SCENARIOS: tuple[dict[str, Any], ...] = (
         "operation_parameters": {
             "governance": {"operation": "predictive_maintenance"},
             "evaluation": {"required_fields": ["machine_id", "timestamp"]},
-            "valuation": {"base_value": 180000, "evaluation_vector": {"downtime_avoidance": 0.86, "reliability": 0.92}, "product_signals": ["quality", "freshness"]},
+            "valuation": {"method": "valuation.weighted_user_task", "base_value": 180000, "evaluation_vector": {"downtime_avoidance": 0.86, "reliability": 0.92}, "product_signals": ["quality", "freshness"]},
             "pricing": {"model": "pricing.quality_freshness", "base_price": 125000, "quality": 0.91, "freshness": 0.96},
             "market": {
                 "mechanism": "quality_aware_procurement",
@@ -171,7 +172,7 @@ _SCENARIOS: tuple[dict[str, Any], ...] = (
         "operation_parameters": {
             "governance": {"operation": "clinical_research"},
             "evaluation": {"required_fields": ["cohort_id", "visit"]},
-            "valuation": {"base_value": 220000, "evaluation_vector": {"endpoint_coverage": 0.83, "quality": 0.94}, "product_signals": ["quality", "freshness"]},
+            "valuation": {"method": "valuation.weighted_user_task", "base_value": 220000, "evaluation_vector": {"endpoint_coverage": 0.83, "quality": 0.94}, "product_signals": ["quality", "freshness"]},
             "pricing": {"model": "pricing.risk_adjusted", "estimated_value": 220000, "std_error": 18000, "buyer_share": 0.5, "rights_factor": 0.82, "ceiling": 180000},
         },
         "products": [
@@ -185,14 +186,103 @@ _SCENARIOS: tuple[dict[str, Any], ...] = (
 
 def scenario_catalog() -> list[dict[str, Any]]:
     """Return an isolated copy so UI callers cannot mutate the built-ins."""
-    return deepcopy(list(_SCENARIOS))
+    return deepcopy([*list(_SCENARIOS), *real_world_scenarios()])
 
 
 def scenario_by_id(scenario_id: str) -> dict[str, Any]:
-    for scenario in _SCENARIOS:
+    for scenario in [*_SCENARIOS, *real_world_scenarios()]:
         if scenario["scenario_id"] == scenario_id:
             return deepcopy(scenario)
     raise ValueError(f"unknown workbench scenario: {scenario_id}")
+
+
+def _scenario_participants(scenario: dict[str, Any]) -> list[dict[str, Any]]:
+    """Build registry-ready participants from products and market orders."""
+    if scenario.get("participants"):
+        return deepcopy(list(scenario["participants"]))
+    currency = str(scenario.get("currency", "CNY"))
+    market = scenario.get("operation_parameters", {}).get("market", {})
+    participants: dict[str, dict[str, Any]] = {}
+    for bid in market.get("bids", ()):
+        participant_id = str(bid.get("buyer_id", "buyer"))
+        participants[participant_id] = {
+            "participant_id": participant_id,
+            "name": participant_id.replace("-", " ").title(),
+            "role": "buyer",
+            "budget": float(bid.get("budget", market.get("budget", 0)) or 0),
+            "currency": str(bid.get("currency", currency)),
+            "reputation": float(bid.get("metadata", {}).get("reputation", 0.9)),
+            "description": f"{scenario['name']}的注册采购方",
+            "scenario_ids": [scenario["scenario_id"]],
+            "delegation_mode": "platform_managed",
+            "strategy": "budget_pacing",
+            "strategy_parameters": {"max_budget": float(bid.get("budget", market.get("budget", 0)) or 0)},
+            "agent_config": {
+                "enabled": True,
+                "rationality": 0.95,
+                "style": "balanced",
+                "model": "budget_pacing",
+                "preferred_mechanisms": [str(market.get("mechanism", "bundle_matching"))],
+                "bundle_mode": str(bid.get("constraints", {}).get("bundle_mode", "single")),
+                "preferences": {"quality": 0.45, "freshness": 0.25, "price": 0.30},
+            },
+        }
+    if market.get("buyer_id") and market["buyer_id"] not in participants:
+        participant_id = str(market["buyer_id"])
+        participants[participant_id] = {
+            "participant_id": participant_id,
+            "name": participant_id.replace("-", " ").title(),
+            "role": "buyer",
+            "budget": float(market.get("budget", 0) or 0),
+            "currency": currency,
+            "reputation": 0.9,
+            "description": f"{scenario['name']}的注册采购方",
+            "scenario_ids": [scenario["scenario_id"]],
+            "delegation_mode": "platform_managed",
+            "strategy": "budget_pacing",
+            "strategy_parameters": {"max_budget": float(market.get("budget", 0) or 0)},
+            "agent_config": {
+                "enabled": True,
+                "rationality": 0.95,
+                "style": "balanced",
+                "model": "budget_pacing",
+                "preferred_mechanisms": [str(market.get("mechanism", "quality_aware_procurement"))],
+                "bundle_mode": "single",
+                "preferences": {"quality": 0.50, "freshness": 0.25, "price": 0.25},
+            },
+        }
+    seller_products: dict[str, list[str]] = {}
+    seller_targets: dict[str, float] = {}
+    for ask in market.get("asks", ()):
+        participant_id = str(ask.get("seller_id", "seller"))
+        seller_products.setdefault(participant_id, []).extend(str(value) for value in ask.get("product_ids", ()))
+        seller_targets[participant_id] = seller_targets.get(participant_id, 0) + float(ask.get("reserve", 0) or 0)
+    for product in scenario.get("products", ()):
+        seller_products.setdefault(str(product["owner_id"]), []).append(str(product["product_id"]))
+    for participant_id, product_ids in seller_products.items():
+        participants[participant_id] = {
+            "participant_id": participant_id,
+            "name": participant_id.replace("-", " ").title(),
+            "role": "seller",
+            "budget": seller_targets.get(participant_id, 0),
+            "currency": currency,
+            "reputation": 0.9,
+            "description": f"{scenario['name']}的数据提供方",
+            "product_ids": sorted(set(product_ids)),
+            "scenario_ids": [scenario["scenario_id"]],
+            "delegation_mode": "self_managed",
+            "strategy": "fixed_reserve",
+            "strategy_parameters": {"reserve_target": seller_targets.get(participant_id, 0)},
+            "agent_config": {
+                "enabled": True,
+                "rationality": 0.95,
+                "style": "balanced",
+                "model": "reserve_optimizer",
+                "preferred_mechanisms": [str(market.get("mechanism", "bundle_matching"))],
+                "preferences": {"quality": 0.40, "freshness": 0.20, "price": 0.40},
+            },
+        }
+    return list(participants.values())
 
 
 def load_scenario(workspace: Workspace, scenario_id: str) -> dict[str, Any]:
@@ -206,11 +296,16 @@ def load_scenario(workspace: Workspace, scenario_id: str) -> dict[str, Any]:
         else:
             updated += 1
         workspace.put("products", product["product_id"], product)
+    participants = _scenario_participants(scenario)
+    for participant in participants:
+        workspace.put("participants", participant["participant_id"], participant)
     return {
         "scenario_id": scenario_id,
         "loaded": loaded,
         "updated": updated,
         "product_ids": [product["product_id"] for product in scenario["products"]],
+        "participants_registered": len(participants),
+        "participant_ids": [participant["participant_id"] for participant in participants],
         "scenario": scenario,
     }
 

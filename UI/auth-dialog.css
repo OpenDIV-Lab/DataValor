@@ -1,0 +1,36 @@
+.password-dialog {
+  width: min(480px, calc(100% - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  color: var(--ink);
+  box-shadow: 0 28px 90px rgb(12 24 41 / 28%);
+}
+
+.password-dialog::backdrop {
+  background: rgb(15 26 42 / 58%);
+  backdrop-filter: blur(2px);
+}
+
+.password-dialog form { padding: 26px; }
+.password-dialog header { margin-bottom: 20px; }
+.password-dialog h2 { margin: 0 0 5px; font-size: 24px; }
+.password-dialog header p { margin: 0; color: var(--muted); }
+.password-dialog label { display: block; margin: 12px 0 6px; font-weight: 750; }
+.password-dialog input[type="password"] {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+.password-dialog footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.password-dialog footer button {
+  width: auto;
+  min-width: 110px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid #ccd6e1;
+  border-radius: 8px;
+}
+.password-dialog footer .auth-primary { border: 0; }

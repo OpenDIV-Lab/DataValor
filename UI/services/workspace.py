@@ -6,13 +6,14 @@ from pathlib import Path
 from typing import Any
 
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+COLLECTIONS = frozenset({"products", "participants", "runs", "artifacts", "workflows", "batches"})
 
 
 class Workspace:
     def __init__(self, root: str | Path):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
-        for name in ("products", "runs", "artifacts", "workflows", "batches"):
+        for name in COLLECTIONS:
             (self.root / name).mkdir(exist_ok=True)
 
     @staticmethod
@@ -23,7 +24,7 @@ class Workspace:
 
     def path(self, collection: str, item_id: str) -> Path:
         self.validate_id(item_id)
-        if collection not in {"products", "runs", "artifacts", "workflows", "batches"}:
+        if collection not in COLLECTIONS:
             raise ValueError("unknown workspace collection")
         return self.root / collection / f"{item_id}.json"
 

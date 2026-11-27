@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101328">
-  <title>DataValor · 数据估值与市场工作台</title>
+  <meta name="theme-color" content="#172133">
+  <title>DataValor · 数据价值工作台</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,157 +12,164 @@
     <aside class="control-rail">
       <div class="brand-lockup">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-        <div><strong>DataValor</strong><small>VALUATION WORKBENCH</small></div>
+        <div><strong>DataValor</strong><small>数据价值工作台</small></div>
       </div>
 
-      <nav class="rail-nav" aria-label="工作区视图">
-        <button class="active" data-view-target="assets"><span>◈</span>估值工作台</button>
-        <button data-view-target="results"><span>⌁</span>结果比较</button>
-        <button data-view-target="runs"><span>◷</span>批次记录</button>
+      <nav class="rail-nav" aria-label="功能模块">
+        <button class="active" data-module-target="home"><span>⌂</span><em>首页</em><b id="navHomeCount">总览</b></button>
+        <button data-module-target="products"><span>◇</span><em>数据产品</em><b id="navProductsCount">0</b></button>
+        <button data-module-target="governance"><span>▣</span><em>治理与权利</em><b id="navGovernanceCount">0</b></button>
+        <button data-module-target="profile"><span>⌁</span><em>数据画像</em><b id="navProfileCount">0</b></button>
+        <button data-module-target="evaluation"><span>✓</span><em>质量评估</em><b id="navEvaluationCount">0</b></button>
+        <button data-module-target="valuation"><span>V</span><em>数据估值</em><b id="navValuationCount">0</b></button>
+        <button data-module-target="pricing"><span>¥</span><em>数据定价</em><b id="navPricingCount">0</b></button>
+        <button data-module-target="market"><span>⇄</span><em>市场配置</em><b id="navMarketCount">0</b></button>
+        <button data-module-target="resources"><span>▤</span><em>运行与产物</em><b id="navResourcesCount">0</b></button>
+        <button data-module-target="components"><span>⚙</span><em>方法组件</em><b id="navComponentsCount">0</b></button>
       </nav>
 
       <section class="rail-section">
-        <label for="scenarioSelect">市场场景</label>
-        <select id="scenarioSelect" aria-label="选择市场场景"></select>
-        <p id="scenarioRailSummary">正在读取场景目录…</p>
+        <label for="scenarioSelect">业务场景</label>
+        <select id="scenarioSelect" aria-label="选择业务场景"></select>
+        <p id="scenarioRailSummary">正在读取场景…</p>
+        <button id="loadScenario" class="rail-secondary">载入场景注册项</button>
       </section>
 
       <section class="rail-section compact-config">
-        <div class="section-caption">运行默认值</div>
-        <label for="seedInput">随机种子</label>
-        <input id="seedInput" type="number" value="42" min="0">
-        <label class="switch-row" for="failFast">
-          <span>遇错停止<small>关闭时保留成功项</small></span>
-          <input id="failFast" type="checkbox">
-        </label>
+        <label for="seedInput">随机种子</label><input id="seedInput" type="number" value="42" min="0">
+        <label class="switch-row" for="failFast"><span>遇错停止</span><input id="failFast" type="checkbox"></label>
       </section>
 
-      <div class="rail-route" aria-label="价值链路">
-        <span>DATA</span><i></i><span>VALUE</span><i></i><span>MARKET</span>
-      </div>
       <div class="rail-spacer"></div>
       <div id="apiState" class="connection-state checking"><i></i><span>正在连接本地服务</span></div>
-      <button id="reloadWorkspace" class="rail-secondary">重新同步工作区</button>
+      <button id="reloadWorkspace" class="rail-secondary">刷新全部注册表</button>
     </aside>
 
     <main class="workspace">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">DATA → VALUE → MARKET</p>
-          <h1>数据估值与定价工作台</h1>
-        </div>
+        <div class="page-heading"><h1 id="pageTitle">首页</h1><p id="pageDescription">查看 Data → Value → Market 各环节的注册规模和运行状态</p></div>
         <div class="top-actions">
-          <span id="selectionSummary" class="selection-summary">0 个资产已选择</span>
-          <button id="importProduct">导入产品 JSON</button>
-          <input id="productFile" type="file" accept="application/json" hidden>
+          <span id="accountIdentity" class="account-identity" hidden></span>
+          <a id="adminAccounts" class="account-action-link" href="/admin" hidden>账号管理</a>
+          <button id="logoutAccount" class="account-logout" type="button" hidden>退出</button>
+          <span id="selectionSummary" class="selection-summary">工作区已连接</span>
+          <button id="importProduct">导入产品</button><input id="productFile" type="file" accept="application/json" hidden>
           <button id="exportBatch" disabled>导出当前结果</button>
-          <button id="runBatch" class="primary-action" disabled><span>▶</span>运行批次</button>
+          <button id="runBatch" class="primary-action" hidden>运行当前环节</button>
         </div>
       </header>
 
       <div class="workspace-scroll">
-        <section class="scenario-hero" aria-labelledby="scenarioTitle">
-          <div class="scenario-copy">
-            <div class="scenario-kicker"><span id="scenarioDomain">场景目录</span><b>SYNTHETIC TESTBED</b></div>
-            <h2 id="scenarioTitle">正在加载工作台</h2>
-            <p id="scenarioDescription">连接 DataValor 本地服务后，可加载代表性数据产品并执行批量估值、定价和市场机制。</p>
-            <div class="decision-line"><span>决策问题</span><strong id="scenarioDecision">—</strong></div>
+        <section id="homeView" class="workspace-view active">
+          <div class="home-intro">
+            <div><span class="status-pill">本地注册工作区</span><h2>数据从注册到价值实现的完整链路</h2><p>点击任一环节进入独立工作区。每次执行都会保存配置、运行记录和可复用产物。</p></div>
+            <div id="homeHeadlineStats" class="headline-stats"></div>
           </div>
-          <div class="value-route" aria-label="Data → Value → Market">
-            <div class="route-node data"><span>01</span><b>Data</b><small>权利 · 质量 · 新鲜度</small></div>
-            <svg viewBox="0 0 180 44" role="img" aria-label="数据流向价值"><path d="M2 30 C55 2 115 42 178 13"/><circle cx="90" cy="22" r="4"/></svg>
-            <div class="route-node value"><span>02</span><b>Value</b><small>效用 · 贡献 · 风险</small></div>
-            <svg viewBox="0 0 180 44" role="img" aria-label="价值流向市场"><path d="M2 13 C55 42 115 2 178 30"/><circle cx="90" cy="22" r="4"/></svg>
-            <div class="route-node market"><span>03</span><b>Market</b><small>报价 · 配置 · 支付</small></div>
-          </div>
-          <div class="hero-metrics">
-            <div><small>场景资产</small><strong id="metricAssets">—</strong></div>
-            <div><small>可执行环节</small><strong id="metricStages">—</strong></div>
-            <div><small>数据提供方</small><strong id="metricSellers">—</strong></div>
-            <div><small>预算 / 目标</small><strong id="metricBudget">—</strong></div>
-          </div>
-        </section>
-
-        <section class="view-tabs" aria-label="主面板视图">
-          <button class="active" data-view-target="assets">资产与批处理</button>
-          <button data-view-target="results">结果比较 <span id="resultCount">0</span></button>
-          <button data-view-target="runs">批次记录 <span id="runCount">0</span></button>
-        </section>
-
-        <section id="assetsView" class="workspace-view active">
-          <div class="workbench-grid">
-            <div class="asset-panel panel">
-              <div class="panel-heading">
-                <div><p class="eyebrow">01 · SELECT DATA</p><h3>候选数据资产</h3><small>场景模板提供合成记录；运行时写入本地工作区并调用真实算法。</small></div>
-                <div class="panel-heading-actions">
-                  <button id="loadScenario">加载 / 刷新场景数据</button>
-                  <button id="selectAll">全选</button>
-                </div>
-              </div>
-              <div class="asset-toolbar">
-                <label class="search-box"><span>⌕</span><input id="assetSearch" type="search" placeholder="搜索产品、提供方或标签"></label>
-                <select id="assetFilter" aria-label="资产筛选"><option value="all">全部资产</option><option value="selected">仅已选择</option><option value="commercial">允许商业使用</option><option value="restricted">受限许可</option></select>
-                <span id="assetStatus" class="quiet-status">场景目录</span>
-              </div>
-              <div class="table-wrap">
-                <table id="assetTable">
-                  <thead><tr><th class="check-col"><input id="masterSelect" type="checkbox" aria-label="全选当前资产"></th><th>数据产品</th><th>权利与用途</th><th>质量</th><th>新鲜度</th><th class="numeric">参考报价</th><th></th></tr></thead>
-                  <tbody><tr><td colspan="7" class="loading-cell">正在加载场景资产…</td></tr></tbody>
-                </table>
-              </div>
-            </div>
-
-            <aside id="assetInspector" class="inspector-panel panel">
-              <div class="inspector-empty"><span>◇</span><h3>选择一个数据产品</h3><p>查看样例记录、使用权利和市场信号。</p></div>
-            </aside>
-          </div>
-
-          <div class="batch-panel panel">
-            <div class="panel-heading">
-              <div><p class="eyebrow">02 · COMPOSE & RUN</p><h3>批量估值配方</h3><small>拖动无必要；按价值链顺序勾选环节即可复现实验批次。</small></div>
-              <label class="batch-name">批次名称<input id="batchLabel" value="场景候选资产比较"></label>
-            </div>
-            <div id="pipelineStages" class="pipeline-stages" aria-label="批处理环节"></div>
-            <div class="recipe-grid">
-              <label>定价模型<select id="pricingModel"></select></label>
-              <label>市场机制<select id="marketMechanism"></select></label>
-              <label>采购预算<input id="marketBudget" type="number" min="0" step="1000"></label>
-              <details class="advanced-config"><summary>高级参数 JSON</summary><textarea id="advancedParameters" spellcheck="false"></textarea><small>按 operation 分组；保存后会覆盖场景默认参数。</small></details>
-            </div>
-            <div class="batch-footer">
-              <div class="batch-readiness"><i></i><span id="batchReadiness">请选择至少一个数据资产</span></div>
-              <button id="runBatchInline" class="primary-action" disabled><span>▶</span>运行选中资产</button>
-            </div>
-          </div>
-        </section>
-
-        <section id="resultsView" class="workspace-view">
-          <div id="resultEmpty" class="empty-state panel"><span>⌁</span><h2>还没有批次结果</h2><p>从“资产与批处理”选择数据产品并运行，即可比较价值、价格、质量与各阶段证据。</p><button data-view-target="assets">返回工作台</button></div>
-          <div id="resultContent" hidden>
-            <div id="resultSummary" class="summary-cards"></div>
-            <div class="result-layout">
-              <section class="comparison-panel panel">
-                <div class="panel-heading"><div><p class="eyebrow">BATCH OUTCOME</p><h3 id="resultTitle">结果比较</h3><small id="resultMeta"></small></div><button id="resultToAssets">调整配方</button></div>
-                <div id="resultCompare" class="comparison-list"></div>
-              </section>
-              <aside id="traceInspector" class="trace-panel panel"></aside>
-            </div>
-            <section id="marketResult" class="market-result panel" hidden></section>
-          </div>
-        </section>
-
-        <section id="runsView" class="workspace-view">
-          <section class="panel">
-            <div class="panel-heading"><div><p class="eyebrow">RUN HISTORY</p><h3>本地批次记录</h3><small>批次、阶段运行和产物均保存在 UI/workspace。</small></div><button id="refreshRuns">刷新</button></div>
-            <div id="runList" class="run-list"><div class="loading-cell">正在读取批次记录…</div></div>
+          <div id="pipelineStages" class="value-map" aria-label="Data → Value → Market"></div>
+          <section class="panel case-brief-panel">
+            <div class="panel-heading"><div><h2>当前应用任务</h2><small>数据来源、参与者、决策需求和评价维度</small></div><span id="caseEvidence" class="status-pill neutral">案例配置</span></div>
+            <div id="caseBrief" class="case-brief"></div>
           </section>
+          <section class="home-lower-grid">
+            <div class="panel recent-panel"><div class="panel-heading"><div><h2>最近运行</h2><small>来自本地工作区的真实记录</small></div><button data-module-target="resources">查看全部</button></div><div id="homeRecentRuns" class="compact-list"></div></div>
+            <div class="panel registry-panel"><div class="panel-heading"><div><h2>注册表概况</h2><small>产品、参与者与环节产物</small></div></div><div id="homeRegistrySummary" class="registry-summary"></div></div>
+          </section>
+        </section>
+
+        <section id="productsView" class="workspace-view">
+          <div class="resource-layout">
+            <section class="panel resource-list-panel">
+              <div class="panel-heading"><div><h2>已注册数据产品</h2><small id="productCount">0 个产品</small></div><button id="newProduct">新建产品</button></div>
+              <div class="resource-toolbar"><input id="productSearch" type="search" placeholder="搜索产品、所有者或标签"><button id="refreshProducts">刷新</button></div>
+              <div class="table-wrap"><table id="assetTable"><thead><tr><th>产品</th><th>提供方</th><th>记录量</th><th>参考报价</th><th>状态</th></tr></thead><tbody id="productCatalogRows"></tbody></table></div>
+            </section>
+            <section id="productEditor" class="panel editor-panel">
+              <div class="panel-heading"><div><h2 id="productEditorTitle">新建数据产品</h2><small>注册后可供所有环节选择</small></div></div>
+              <form id="productForm" class="product-form">
+                <div class="config-field-grid two-column">
+                  <label>产品 ID<input id="editProductId" required pattern="[A-Za-z0-9._-]+" placeholder="dataset-v1"></label>
+                  <label>产品名称<input id="editProductTitle" required placeholder="区域需求数据"></label>
+                  <label>提供方 ID<input id="editProductOwner" required placeholder="provider-a"></label>
+                  <label>版本<input id="editProductVersion" value="1"></label>
+                  <label class="wide-field">产品说明<textarea id="editProductDescription" rows="2"></textarea></label>
+                  <label>允许用途<input id="editProductPurposes" placeholder="analytics, forecasting"></label>
+                  <label class="check-field"><input id="editProductCommercial" type="checkbox" checked>允许商业使用</label>
+                  <label>质量信号<input id="editProductQuality" type="number" min="0" max="1" step="0.01" value="0.9"></label>
+                  <label>新鲜度<input id="editProductFreshness" type="number" min="0" max="1" step="0.01" value="0.9"></label>
+                  <label>参考报价<input id="editProductPrice" type="number" min="0" step="100" value="0"></label>
+                  <label>标签<input id="editProductTags" placeholder="tabular, daily"></label>
+                </div>
+                <div class="input-adapter">
+                  <div class="subsection-head"><div><h3>数据内容</h3><p>支持 JSON、JSONL、CSV、TSV 与键值对象。</p></div><label>格式<select id="productInputType"><option value="json">JSON</option><option value="jsonl">JSONL</option><option value="csv">CSV</option><option value="tsv">TSV</option><option value="key_value">键值对象</option></select></label></div>
+                  <textarea id="productInputContent" rows="8" spellcheck="false" placeholder='[{"id": 1, "value": 42}]'></textarea>
+                  <div class="editor-actions"><button id="previewProductInput" type="button">解析预览</button><button id="saveProduct" type="submit" class="primary-action">保存注册项</button></div>
+                  <div id="inputPreview" class="input-preview">尚未解析输入。</div>
+                </div>
+              </form>
+              <section class="related-content-panel"><div class="subsection-head"><div><h3>资产关联内容</h3><p>该资产在各环节形成的产物与运行记录。</p></div></div><div id="productRelatedContent" class="asset-content-stack"><div class="empty-inline">保存或选择资产后显示关联内容。</div></div></section>
+            </section>
+          </div>
+        </section>
+
+        <section id="moduleView" class="workspace-view">
+          <div class="module-layout">
+            <section class="panel input-panel">
+              <div class="panel-heading"><div><h2>选择资产</h2><small>选中资产即包含原始数据、已有环节产物和运行记录</small></div><button id="selectAllModuleProducts">全选资产</button></div>
+              <div id="moduleProductRows" class="asset-dossier-list"></div>
+            </section>
+            <section class="panel config-panel">
+              <div class="panel-heading"><div><h2 id="moduleConfigTitle">环节配置</h2><small id="moduleConfigHint">参数将随运行记录保存</small></div></div>
+              <div id="moduleConfigFields" class="config-field-grid"></div>
+              <div class="run-strip"><div><strong id="moduleRunSummary">请选择数据产品</strong><small>产物在执行成功后自动注册</small></div><button id="moduleRun" class="primary-action">运行并注册产物</button></div>
+            </section>
+          </div>
+          <section class="panel result-panel"><div class="panel-heading"><div><h2>本次执行结果</h2><small>指标、判断、字段和依据均在当前页面展开</small></div><span id="moduleResultStatus" class="status-pill neutral">尚未运行</span></div><div id="moduleResultSummary" class="result-summary-grid"></div><div id="resultCompare" class="comparison-list"></div><div id="moduleResultDetails" class="structured-result"></div><details class="raw-result"><summary>查看完整结果 JSON</summary><pre id="moduleResult" class="result-json">等待执行。</pre></details></section>
+        </section>
+
+        <section id="pricingView" class="workspace-view">
+          <div class="module-layout pricing-layout">
+            <section class="panel input-panel"><div class="panel-heading"><div><h2>选择定价资产</h2><small>每个资产自动携带其质量、估值、运行记录及原始数据</small></div><button id="selectAllPricingProducts">全选</button></div><div id="pricingProductRows" class="asset-dossier-list"></div></section>
+            <section class="panel config-panel"><div class="panel-heading"><div><h2>定价模型与参数</h2><small>仅展示当前模型实际使用的字段</small></div><label class="heading-select">模型<select id="pricingModel"></select></label></div><div id="pricingConfigFields" class="config-field-grid"></div><div class="run-strip"><div><strong id="pricingRunSummary">请选择产品</strong><small>每个产品独立形成报价产物</small></div><button id="pricingRun" class="primary-action">批量生成报价</button></div></section>
+          </div>
+          <section class="panel result-panel"><div class="panel-heading"><div><h2>报价结果</h2><small>估值、参考报价和模型报价并列比较</small></div></div><div id="pricingResult" class="comparison-list"></div></section>
+        </section>
+
+        <section id="marketView" class="workspace-view">
+          <section class="panel registry-toolbar"><div><h2>市场输入注册表</h2><p>先勾选参与者和数据产品，再为本轮市场编辑订单。</p></div><div><button id="newParticipant">注册参与者</button><button id="refreshMarketRegistry">刷新注册表</button></div></section>
+          <div class="market-select-grid">
+            <section class="panel"><div class="panel-heading"><div><h2>买家</h2><small>预算、托管方式和出价策略</small></div><span id="marketBuyerCount">0 已选择</span></div><div id="marketBuyerRows" class="market-card-list"></div></section>
+            <section class="panel"><div class="panel-heading"><div><h2>卖家</h2><small>资产、托管方式和保留价策略</small></div><span id="marketSellerCount">0 已选择</span></div><div id="marketSellerRows" class="market-card-list"></div></section>
+            <section class="panel"><div class="panel-heading"><div><h2>数据产品</h2><small>订单只能引用本轮选中的产品</small></div><span id="marketProductCount">0 已选择</span></div><div id="marketProductRows" class="market-card-list"></div></section>
+          </div>
+          <section class="panel market-config-panel">
+            <div class="panel-heading"><div><h2>机制与订单簿</h2><small>支持多个参与者围绕多个产品独立或联合报价</small></div><div class="market-top-fields"><label>机制<select id="marketMechanism"></select></label><label>总预算<input id="marketBudget" type="number" min="0" step="1000"></label></div></div>
+            <div id="marketSummary" class="market-summary"></div><div id="marketCompatibility" class="compatibility-note"></div>
+            <div id="marketAgentPlan" class="agent-plan"><div><strong>参与者代理</strong><small>选择启用代理的买卖方后，可根据其理性程度、偏好、策略与当前资产信号自动形成订单。</small></div><button id="generateAgentOrders">代理生成订单</button><details id="marketAgentDetails" hidden><summary>查看代理决策依据</summary><div id="marketAgentOrderDetails" class="agent-order-details"></div></details></div>
+            <div class="subsection-head"><div><h3>本轮订单</h3><p>代理生成后仍可人工调整；组合关系 AND 表示必须联合成交，XOR 表示可替代选择。</p></div><div><button id="addBuyer">＋ 买方注册项</button><button id="addSeller">＋ 卖方注册项</button><button id="addBid">＋ 人工出价</button><button id="addAsk">＋ 人工要价</button></div></div>
+            <div class="table-wrap"><table class="editable-table"><thead><tr><th>方向</th><th>参与者</th><th>产品组合</th><th>金额</th><th>数量</th><th>组合关系</th><th></th></tr></thead><tbody id="marketOrderRows"></tbody></table></div>
+            <div class="run-strip"><div><strong id="marketRunSummary">请选择参与者、产品并添加订单</strong><small>配置、清算结果和诊断会自动注册</small></div><button id="marketRun" class="primary-action">运行市场机制</button></div>
+          </section>
+          <section class="panel result-panel"><div class="panel-heading"><div><h2>市场结果</h2><small>分配、支付、收入及机制性质</small></div></div><div id="marketResult"></div></section>
+
+          <dialog id="participantDialog"><form id="participantForm" method="dialog"><div class="dialog-head"><h2>注册市场参与者</h2><button id="closeParticipantDialog" type="button" aria-label="关闭">×</button></div><div class="config-field-grid two-column"><label>参与者 ID<input id="editParticipantId" required pattern="[A-Za-z0-9._-]+"></label><label>名称<input id="editParticipantName" required></label><label>角色<select id="editParticipantRole"><option value="buyer">买方</option><option value="seller">卖方</option><option value="intermediary">中介</option><option value="operator">运营方</option></select></label><label>预算 / 收入目标<input id="editParticipantBudget" type="number" min="0" value="0"></label><label>信誉<input id="editParticipantReputation" type="number" min="0" max="1" step="0.01" value="0.9"></label><label>币种<input id="editParticipantCurrency" value="CNY"></label><label>托管方式<select id="editParticipantDelegation"><option value="self_managed">自主决策</option><option value="platform_managed">平台托管</option></select></label><label>托管策略<select id="editParticipantStrategy"><option value="manual">手工报价</option><option value="truthful_bidding">真实出价</option><option value="budget_pacing">预算节奏</option><option value="value_shading">价值折让</option><option value="fixed_reserve">固定保留价</option><option value="cost_plus_reserve">成本加成保留价</option><option value="dynamic_markup">动态加成</option></select></label><label class="wide-field">策略参数 JSON<textarea id="editParticipantStrategyParameters" rows="3" spellcheck="false">{}</textarea></label><fieldset class="agent-config-block wide-field"><legend>自动交易代理</legend><label class="check-field"><input id="editAgentEnabled" type="checkbox">允许代理生成订单</label><label>理性程度（0–1）<input id="editAgentRationality" type="number" min="0" max="1" step="0.05" value="1"></label><label>行为风格<select id="editAgentStyle"><option value="conservative">保守</option><option value="balanced">均衡</option><option value="aggressive">积极</option><option value="exploratory">探索</option></select></label><label>代理模型<select id="editAgentModel"><option value="utility_maximizer">效用最大化买方</option><option value="budget_pacing">预算节奏买方</option><option value="bundle_optimizer">组合效用买方</option><option value="reserve_optimizer">保留价优化卖方</option></select></label><label>适用市场机制<input id="editAgentMechanisms" placeholder="bundle_matching, multi_attribute_matching"></label><label class="wide-field">偏好权重 JSON<textarea id="editAgentPreferences" rows="3" spellcheck="false">{"quality": 0.45, "freshness": 0.25, "price": 0.3}</textarea></label></fieldset><label class="wide-field">说明<textarea id="editParticipantDescription" rows="2"></textarea></label></div><div class="editor-actions"><button id="cancelParticipant" type="button">取消</button><button id="saveParticipant" type="submit" value="default" class="primary-action">保存参与者</button></div></form></dialog>
+        </section>
+
+        <section id="resourcesView" class="workspace-view">
+          <div id="dashboardSummary" class="summary-cards"></div>
+          <section class="panel resource-panel"><div class="panel-heading"><div><h2>执行批次</h2><small>展开查看输入资产、配置、各环节结果与谱系</small></div><button id="refreshResources">刷新</button></div><div id="runList" class="run-list"></div></section>
+          <section class="panel resource-panel"><div class="panel-heading"><div><h2>逐项运行记录</h2><small>每次方法执行均可展开检查实现、耗时、输入及产物</small></div></div><div id="runRecordList" class="run-list"></div></section>
+          <section class="panel resource-panel"><div class="panel-heading"><div><h2>已注册产物</h2><small>可作为后续环节的输入依据</small></div></div><div id="artifactList" class="artifact-list"></div></section>
+        </section>
+
+        <section id="componentsView" class="workspace-view">
+          <section class="panel components-panel"><div class="panel-heading"><div><h2>方法与机制组件</h2><small id="componentCount">仓库中已注册的实现</small></div><button id="refreshComponents">刷新</button></div><div class="resource-toolbar"><input id="componentSearch" type="search" placeholder="搜索名称、模块或能力"><select id="componentModule"><option value="all">全部模块</option></select></div><div class="table-wrap"><table><thead><tr><th>实现名称</th><th>模块</th><th>类型</th><th>能力</th><th>版本</th></tr></thead><tbody id="componentRows"></tbody></table></div></section>
         </section>
       </div>
     </main>
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
-  <div id="busyOverlay" class="busy-overlay" hidden><div><span class="spinner"></span><strong>正在执行批次</strong><small id="busyMessage">DataValor 正在生成可追溯产物…</small></div></div>
+  <div id="busyOverlay" class="busy-overlay" hidden><div><span class="spinner"></span><strong>正在执行</strong><small id="busyMessage">正在保存运行结果和产物…</small></div></div>
   <script src="workbench-api.js"></script>
   <script src="app.js"></script>
 </body>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="DataValor 产品导览：从数据治理、质量证据和任务效用，到估值、定价与市场机制。">
+  <title>DataValor · 从数据到市场决策</title>
+  <link rel="stylesheet" href="tour.css">
+</head>
+<body>
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="DataValor 产品导览首页">
+      <span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span><strong>DataValor</strong><small>data value infrastructure</small></span>
+    </a>
+    <nav class="header-nav" aria-label="页面导航">
+      <a href="#value-flow">价值流</a>
+      <a href="#capabilities">方法能力</a>
+      <a href="#use-cases">适用对象</a>
+    </nav>
+    <a class="header-action" href="../"><span>打开工作台</span><b aria-hidden="true">↗</b></a>
+  </header>
+
+  <main id="top">
+    <section class="hero shell" aria-labelledby="heroTitle">
+      <div class="hero-copy">
+        <div class="eyebrow"><span></span> DATA → VALUE → MARKET</div>
+        <h1 id="heroTitle">让数据的每一次估值、<br><em>报价与配置</em>都有依据。</h1>
+        <p class="hero-lede">DataValor 把数据治理、质量证据、任务效用、价值估计、价格形成和市场机制连接到同一条可追溯 artifact 链路。研究者可以比较方法，应用方可以检查一次数据采购决策是如何形成的。估值不是成交价，报价也不是最终支付。</p>
+        <div class="semantic-strip" aria-label="核心语义区分">
+          <span><b>质量</b> 描述数据</span><i>≠</i>
+          <span><b>价值</b> 依赖任务</span><i>≠</i>
+          <span><b>报价</b> 来自模型</span><i>≠</i>
+          <span><b>支付</b> 由机制决定</span>
+        </div>
+        <div class="hero-actions">
+          <a class="primary-cta" href="#value-flow">沿案例查看完整链路 <span>↓</span></a>
+          <a class="text-cta" href="../">直接运行工作台 <span>→</span></a>
+        </div>
+        <dl class="project-facts" aria-label="项目概览">
+          <div><dt id="componentCount">100+</dt><dd>可组合组件</dd></div>
+          <div><dt>8</dt><dd>研究模块</dd></div>
+          <div><dt>4</dt><dd>来源可核验案例</dd></div>
+          <div><dt>1</dt><dd>统一 artifact 链路</dd></div>
+        </dl>
+      </div>
+
+      <aside class="decision-receipt" id="decisionReceipt" data-decision-receipt aria-labelledby="receiptTitle">
+        <div class="receipt-head">
+          <div><span class="receipt-kicker">DECISION RECEIPT</span><h2 id="receiptTitle">金融投研数据采购</h2></div>
+          <span class="receipt-status"><i></i> 场景配置</span>
+        </div>
+        <div class="receipt-route" aria-label="参与者关系">
+          <div class="party buyer-party"><small>BUYER</small><strong id="receiptBuyer">多资产研究与风险团队</strong></div>
+          <div class="route-line"><span></span><b>AND bundle</b><span></span></div>
+          <div class="party seller-party"><small>SELLERS</small><strong id="receiptSellers">3 类数据服务商</strong></div>
+        </div>
+        <dl class="receipt-fields">
+          <div><dt>决策任务</dt><dd id="receiptTask">构建无未来信息泄漏的 point-in-time 研究面板</dd></div>
+          <div><dt>候选数据</dt><dd id="receiptProducts">SEC 公司事实 · FRED 利率 · 派生时点信号</dd></div>
+          <div><dt>估值方法</dt><dd id="receiptValuation"><code>CounterfactualValuator</code></dd></div>
+          <div><dt>价格模型</dt><dd id="receiptPricing"><code>SubscriptionPricingModel</code></dd></div>
+          <div><dt>配置机制</dt><dd id="receiptMarket"><code>BundleDemandMatcher</code></dd></div>
+        </dl>
+        <div class="receipt-decision">
+          <span>系统回答的问题</span>
+          <strong id="receiptDecision">哪些互补数据值得在预算内联合采购？</strong>
+          <p id="receiptOutcome">输出估值报告、订阅报价、组合匹配结果及完整来源链路。</p>
+        </div>
+        <div class="receipt-foot"><span id="receiptBudget">预算假设 · USD 260,000</span><span>价格非观测事实</span></div>
+      </aside>
+    </section>
+
+    <section class="case-switcher shell" aria-labelledby="caseHeading">
+      <div class="section-intro compact">
+        <div><span class="section-index">01</span><div><p class="overline">ONE COMPLETE PROCUREMENT RUN</p><h2 id="caseHeading">用一次金融数据采购看完整流程</h2></div></div>
+        <p>研究团队要联合采购 SEC 点时财务事实、FRED 利率和派生时点信号。下面直接展示这次任务在真实工作台中的配置与结果。</p>
+      </div>
+      <div class="case-tabs" role="tablist" aria-label="来源可核验应用案例">
+        <button class="case-tab active" role="tab" aria-selected="true" aria-controls="casePanel" tabindex="0" data-case="real-sec-fred-investment">
+          <span class="case-icon">⌁</span><span><strong>金融投研</strong><small>时点数据采购</small></span><b>01</b>
+        </button>
+      </div>
+      <div class="case-panel" id="casePanel" role="tabpanel" aria-live="polite">
+        <div><small>DATA SOURCES</small><strong id="caseSources">SEC EDGAR XBRL Company Facts<br>FRED Effective Federal Funds Rate</strong></div>
+        <div><small>DECISION SIGNALS</small><strong id="caseSignals">Rank IC 改善 · 下行预警召回<br>Point-in-time coverage</strong></div>
+        <div><small>MARKET SHAPE</small><strong id="caseShape">1 个买方 · 3 类卖方<br>互补数据 AND 组合</strong></div>
+        <div class="source-stamp"><span>SOURCE<br>GROUNDED</span><p id="caseSourceNote">原始事实保留 filing date、accession 与 observation date；场景价格不代表 SEC 或 FRED 的数据售价。</p></div>
+      </div>
+      <div class="secondary-case-heading"><span>工作台还可载入</span><p>电力、临床和城市交通案例使用各自的数据、任务指标与市场配置。</p></div>
+      <div class="secondary-case-links" aria-label="工作台中的其他真实应用案例">
+        <a class="case-tab secondary-case" href="../" aria-label="在工作台载入 PJM 负荷数据订阅案例">
+          <span class="case-icon">ϟ</span><span><strong>PJM 负荷数据订阅</strong><small>可在工作台载入</small></span><b>02 ↗</b>
+        </a>
+        <a class="case-tab secondary-case" href="../" aria-label="在工作台载入临床 RWE 数据许可案例">
+          <span class="case-icon">✚</span><span><strong>临床 RWE 数据许可</strong><small>可在工作台载入</small></span><b>03 ↗</b>
+        </a>
+        <a class="case-tab secondary-case" href="../" aria-label="在工作台载入 NYC 出行需求数据采购案例">
+          <span class="case-icon">⌖</span><span><strong>NYC 出行需求数据采购</strong><small>可在工作台载入</small></span><b>04 ↗</b>
+        </a>
+      </div>
+    </section>
+
+    <section class="flow-section" id="value-flow" aria-labelledby="flowHeading">
+      <div class="shell">
+        <div class="section-intro">
+          <div><span class="section-index">02</span><div><p class="overline">ONE TRACEABLE VALUE FLOW</p><h2 id="flowHeading">从数据产品到可检查的市场决策</h2></div></div>
+          <p>点击任一环节查看输入、所运行的方法和留下的产物。每个环节消费前序 artifact，而不是覆盖原始资产。</p>
+        </div>
+
+        <div class="flow-canvas">
+          <div class="flow-line" aria-hidden="true"><i></i></div>
+          <div class="stage-tabs" role="tablist" aria-label="DataValor 价值流阶段">
+            <button class="stage-tab stage-data" role="tab" aria-selected="false" aria-controls="stagePanel" tabindex="-1" data-stage="govern">
+              <span class="stage-no">01</span><i class="stage-node"></i><small>DATA</small><strong>注册与治理</strong><em>DataProduct<br>RightsBundle</em>
+            </button>
+            <button class="stage-tab stage-evidence" role="tab" aria-selected="false" aria-controls="stagePanel" tabindex="-1" data-stage="evaluate">
+              <span class="stage-no">02</span><i class="stage-node"></i><small>EVIDENCE</small><strong>画像与评估</strong><em>Profile<br>EvaluationReport</em>
+            </button>
+            <button class="stage-tab stage-value active" role="tab" aria-selected="true" aria-controls="stagePanel" tabindex="0" data-stage="value">
+              <span class="stage-no">03</span><i class="stage-node"></i><small>VALUE</small><strong>任务估值</strong><em>ValueEstimate<br>Uncertainty</em>
+            </button>
+            <button class="stage-tab stage-price" role="tab" aria-selected="false" aria-controls="stagePanel" tabindex="-1" data-stage="price">
+              <span class="stage-no">04</span><i class="stage-node"></i><small>PRICE</small><strong>形成报价</strong><em>PriceQuote<br>Terms</em>
+            </button>
+            <button class="stage-tab stage-market" role="tab" aria-selected="false" aria-controls="stagePanel" tabindex="-1" data-stage="market">
+              <span class="stage-no">05</span><i class="stage-node"></i><small>MARKET</small><strong>配置与支付</strong><em>Allocation<br>Payment</em>
+            </button>
+            <button class="stage-tab stage-outcome" role="tab" aria-selected="false" aria-controls="stagePanel" tabindex="-1" data-stage="realize">
+              <span class="stage-no">06</span><i class="stage-node"></i><small>OUTCOME</small><strong>审计与反馈</strong><em>Decision<br>UsageAggregate</em>
+            </button>
+          </div>
+        </div>
+
+        <article class="stage-panel stage-panel-value" id="stagePanel" role="tabpanel" aria-live="polite">
+          <div class="stage-panel-head">
+            <div><span id="stageCode">03 / VALUE</span><h3 id="stageTitle">估计数据对指定研究任务的增量价值</h3></div>
+            <p id="stageSummary">DataValor 不把通用质量分数直接当作价格。当前案例比较使用候选数据前后的研究信号，并把增量效用、任务权重与不确定性写入估值报告。</p>
+          </div>
+          <section class="workbench-proof" aria-labelledby="workbenchProofTitle">
+            <header class="workbench-proof-head">
+              <div>
+                <span>ACTUAL DATAVALOR WORKBENCH</span>
+                <h4 id="workbenchProofTitle">真实工作台 · 数据估值配置</h4>
+                <p id="screenCaption">左侧选中三个金融数据资产；右侧设置反事实估值方法和价值参数。</p>
+              </div>
+              <div class="screen-mode-switch" role="group" aria-label="切换当前环节的工作台截图">
+                <button class="active" id="screenConfigButton" type="button" data-screen-mode="config" aria-pressed="true">配置界面</button>
+                <button id="screenResultButton" type="button" data-screen-mode="result" aria-pressed="false">执行结果</button>
+              </div>
+            </header>
+            <a class="workbench-screen-link" id="workbenchScreenLink" href="assets/workbench/valuation-config.png" target="_blank" rel="noreferrer" aria-label="打开当前工作台截图原图">
+              <img id="workbenchScreen" src="assets/workbench/valuation-config.png" alt="DataValor 工作台的数据估值配置界面：三个金融数据资产、反事实估值方法和参数">
+              <span>打开原图 ↗</span>
+            </a>
+            <div class="screen-explainer" aria-label="当前截图说明">
+              <div><span>输入</span><p id="screenInputText">选中 SEC 点时财务事实、FRED DFF 和发行人—利率点时信号。</p></div>
+              <div><span>配置</span><p id="screenConfigText">使用 <code>valuation.counterfactual</code>；基础价值 260,000 USD，并填写 evaluation / baseline vectors。</p></div>
+              <div><span>输出</span><p id="screenOutputText">执行后检查逐资产估值、价值分解、状态与完整 artifact。</p></div>
+            </div>
+          </section>
+        </article>
+
+        <div class="lineage" id="artifactLineage" aria-label="artifact 谱系">
+          <div class="lineage-title"><span>ARTIFACT<br>LINEAGE</span><small>任何结果都能回到输入、方法与假设</small></div>
+          <ol id="lineageItems">
+            <li><span>01</span><code>DataProduct</code><small>数据与权利</small></li>
+            <li><span>02</span><code>EvaluationReport</code><small>质量证据</small></li>
+            <li class="active"><span>03</span><code>ValuationReport</code><small>任务价值</small></li>
+            <li><span>04</span><code>PriceQuote</code><small>报价与条款</small></li>
+            <li><span>05</span><code>PricingOutcome</code><small>配置与支付</small></li>
+            <li><span>06</span><code>UsageAggregate</code><small>使用反馈</small></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="capability-section shell" id="capabilities" aria-labelledby="capabilityHeading">
+      <div class="section-intro">
+        <div><span class="section-index">03</span><div><p class="overline">RESEARCH OBJECTS, NOT A SINGLE SCORE</p><h2 id="capabilityHeading">每个问题都有独立方法与产物</h2></div></div>
+        <p>首屏只展示代表性实现。工作台会根据数据模态、估值目标、报价依据和市场结构提供可执行配置。</p>
+      </div>
+      <div class="capability-grid">
+        <article class="capability-card c-data"><header><span>01</span><div><small>GOVERN & PROFILE</small><h3>数据能否被使用？</h3></div></header><p>来源、权利、血缘、安全、字段分布、漂移与市场可用性。</p><div class="method-tags"><code>RightsPolicyEvaluator</code><code>BasicDataProfiler</code><code>DriftAnalyzer</code></div><footer><b>产物</b> GovernanceReport · DatasetProfile</footer></article>
+        <article class="capability-card c-evidence"><header><span>02</span><div><small>EVALUATE</small><h3>数据在何处足够好？</h3></div></header><p>按表格、文本、图像、音频、视频和多模态选择具有方向语义的质量指标。</p><div class="method-tags"><code>CompositeEvaluator</code><code>DemandFitEvaluator</code><code>TaskUtilityEvaluator</code></div><footer><b>产物</b> EvaluationReport · TaskUtilityResult</footer></article>
+        <article class="capability-card c-value"><header><span>03</span><div><small>VALUE & ATTRIBUTE</small><h3>数据贡献了多少效用？</h3></div></header><p>面向任务、风险、反事实、组合和市场条件估值，并将联盟效用归因到数据来源。</p><div class="method-tags"><code>CounterfactualValuator</code><code>RiskAdjustedValuator</code><code>ExactShapleyValuator</code></div><footer><b>产物</b> ValuationReport · ContributionReport</footer></article>
+        <article class="capability-card c-price"><header><span>04</span><div><small>PRICE</small><h3>依据什么形成报价？</h3></div></header><p>把成本、价值、质量、时效、用量、订阅、权利和需求分别建模为可解释报价。</p><div class="method-tags"><code>SubscriptionPricingModel</code><code>ValueBasedPricingModel</code><code>ExpectedRevenuePricingModel</code></div><footer><b>产物</b> PriceQuote · PriceComponent</footer></article>
+        <article class="capability-card c-market"><header><span>05</span><div><small>ALLOCATE & PAY</small><h3>谁获得数据、支付多少？</h3></div></header><p>在预算、保留价、组合需求和多属性偏好下运行拍卖、采购或匹配机制。</p><div class="method-tags"><code>VCGMechanism</code><code>McAfeeDoubleAuction</code><code>BundleDemandMatcher</code></div><footer><b>产物</b> PricingOutcome · MarketSnapshot</footer></article>
+        <article class="capability-card c-outcome"><header><span>06</span><div><small>REALIZE & LEARN</small><h3>决策之后发生了什么？</h3></div></header><p>审计机制性质、保留运行证据，并用交易和实际使用反馈校准后续估值与报价。</p><div class="method-tags"><code>audit_pricing_outcome</code><code>UsageAggregator</code><code>MarketSimulator</code></div><footer><b>产物</b> AuditReport · SimulationReport</footer></article>
+      </div>
+    </section>
+
+    <section class="users-section" id="use-cases" aria-labelledby="usersHeading">
+      <div class="shell">
+        <div class="section-intro inverse">
+          <div><span class="section-index">04</span><div><p class="overline">FROM METHOD STUDY TO MARKET OPERATION</p><h2 id="usersHeading">同一套对象，服务三种工作</h2></div></div>
+          <p>研究、产品决策和市场实验共享同一份数据产品描述与 artifact 谱系，避免各环节使用无法对齐的临时表格。</p>
+        </div>
+        <div class="user-paths">
+          <article><span>RESEARCHER</span><h3>比较估值与机制</h3><p>在固定任务、预算和市场 setting 下替换估值器、定价模型或配置机制，比较误差、福利、收入和机制性质。</p><a href="../">进入方法组件 →</a></article>
+          <article><span>DATA PRODUCT TEAM</span><h3>形成可解释报价</h3><p>把质量、时效、权利、成本和买方任务分别记录，追踪一个价格如何从证据与商业条款中形成。</p><a href="../">进入定价工作区 →</a></article>
+          <article><span>MARKET DESIGNER</span><h3>验证市场规则</h3><p>让多个买卖方代理围绕多个数据产品出价，观察配置、支付、预算可行性、市场健康与策略响应。</p><a href="../">进入市场工作区 →</a></article>
+        </div>
+        <div class="final-cta">
+          <div><span class="eyebrow"><span></span> RUN THE ACTUAL PIPELINE</span><h2>导览说明“为什么”；工作台负责“现在运行”。</h2><p>载入案例、注册资产与参与者，选择 DataValor 中已实现的方法，然后检查每一步的配置、结果和 lineage。</p></div>
+          <a href="../">打开 DataValor 工作台 <b>↗</b></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer shell"><span>DataValor</span><p>Research-oriented infrastructure for data valuation, pricing, and market mechanisms.</p><a href="#top">回到顶部 ↑</a></footer>
+
+  <noscript><div class="noscript-note">当前页面无需脚本也可阅读完整的金融案例与 DataValor 价值流；启用 JavaScript 后可以切换其他真实应用和环节详情。</div></noscript>
+  <script src="tour.js"></script>
+</body>
+</html>

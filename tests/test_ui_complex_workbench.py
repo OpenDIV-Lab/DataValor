@@ -268,3 +268,158 @@ def test_workbench_concentrates_batch_controls_in_the_main_panel():
     assert "product_ids" in script
     assert "market_stage" in script
     assert "execution trace" in script.lower()
+
+
+def test_workbench_restores_module_specific_operational_surfaces():
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    html = (root / "UI" / "index.html").read_text(encoding="utf-8")
+    script = (root / "UI" / "app.js").read_text(encoding="utf-8")
+    styles = (root / "UI" / "styles.css").read_text(encoding="utf-8")
+
+    # Each registered stage has its own rail entry and opens a focused workspace.
+    assert html.count('class="rail-nav') == 1
+    for module in ("home", "products", "governance", "profile", "evaluation", "valuation", "pricing", "market", "resources"):
+        assert f'data-module-target="{module}"' in html
+    for element_id in (
+        "homeView",
+        "moduleView",
+        "moduleProductRows",
+        "moduleConfigFields",
+        "moduleResult",
+        "pricingConfigFields",
+        "pricingProductRows",
+        "marketBuyerRows",
+        "marketSellerRows",
+        "marketProductRows",
+        "marketOrderRows",
+        "productsView",
+        "resourcesView",
+        "componentsView",
+        "productEditor",
+        "inputPreview",
+    ):
+        assert f'id="{element_id}"' in html
+
+    # The frontend must reconnect the previously available APIs and render real forms.
+    for function_name in (
+        "openModule",
+        "renderHome",
+        "renderModuleWorkspace",
+        "renderAssetDossiers",
+        "assetRelatedContent",
+        "renderContentPreview",
+        "runModuleOperation",
+        "renderPricingFields",
+        "runPricingBatch",
+        "renderMarketParticipants",
+        "renderMarketOrders",
+        "runMarketBatch",
+        "renderProductsView",
+        "renderResourcesView",
+        "renderComponentsView",
+        "previewProductInput",
+    ):
+        assert f"function {function_name}" in script or f"async function {function_name}" in script
+    for endpoint in ("/dashboard", "/components", "/participants", "/runs", "/artifacts", "/inputs/preview"):
+        assert endpoint in script
+
+    assert "--font-base: 17px" in styles
+    assert "max-width: none" in styles
+
+
+def test_market_builder_selects_registered_participants_and_products():
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    html = (root / "UI" / "index.html").read_text(encoding="utf-8")
+    script = (root / "UI" / "app.js").read_text(encoding="utf-8")
+
+    for element_id in (
+        "addBuyer",
+        "addSeller",
+        "addBid",
+        "addAsk",
+        "marketSummary",
+        "marketCompatibility",
+        "marketBuyerRows",
+        "marketSellerRows",
+        "marketProductRows",
+    ):
+        assert f'id="{element_id}"' in html
+    for token in (
+        "marketParticipants",
+        "selectedMarketParticipants",
+        "selectedMarketProducts",
+        "marketOrders",
+        "product_ids",
+        "participant_id",
+        "bundle_mode",
+        "delegation_mode",
+        "strategy_parameters",
+        "buildMarketParameters",
+        "validateMarketConfiguration",
+    ):
+        assert token in script
+
+
+def test_results_and_registered_content_are_expandable_and_structured():
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    html = (root / "UI" / "index.html").read_text(encoding="utf-8")
+    script = (root / "UI" / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="moduleResultSummary"' in html
+    assert 'id="moduleResultDetails"' in html
+    for function_name in (
+        "renderGovernanceResult",
+        "renderProfileResult",
+        "renderEvaluationResult",
+        "renderValuationResult",
+        "renderPricingResult",
+        "renderMarketResult",
+    ):
+        assert f"function {function_name}" in script
+    assert "<details" in script
+    assert "records.slice" in script
+    assert 'class="resource-preview"' in script
+    assert "renderBatchPreview" in script
+    assert 'id="productRelatedContent"' in html
+    assert "renderProductRelatedContent" in script
+    assert "market-result-tables" in script
+    assert "inferred_type" in script
+    assert "distinct_count" in script
+    assert "missing_count" in script
+
+
+def test_asset_cards_collapse_and_show_property_history():
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    script = (root / "UI" / "app.js").read_text(encoding="utf-8")
+    styles = (root / "UI" / "styles.css").read_text(encoding="utf-8")
+
+    assert "data-toggle-asset-content" in script
+    assert "assetHistorySeries" in script
+    assert "renderAssetHistory" in script
+    assert "asset-history-grid" in script
+    assert ".asset-dossier.collapsed" in styles
+
+
+def test_market_participants_configure_agents_and_generate_orders():
+    from pathlib import Path
+
+    root = Path(__file__).parents[1]
+    html = (root / "UI" / "index.html").read_text(encoding="utf-8")
+    script = (root / "UI" / "app.js").read_text(encoding="utf-8")
+
+    for element_id in (
+        "generateAgentOrders", "marketAgentPlan", "marketAgentDetails", "marketAgentOrderDetails", "editAgentEnabled",
+        "editAgentRationality", "editAgentStyle", "editAgentModel",
+        "editAgentMechanisms", "editAgentPreferences",
+    ):
+        assert f'id="{element_id}"' in html
+    assert 'post("/market/agent-orders"' in script
+    assert "renderAgentPlan" in script

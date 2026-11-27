@@ -1,7 +1,9 @@
 const WorkbenchAPI = {
   online: false,
+  mode: (window.DATAVALOR_STANDALONE && (window.location.protocol === "file:" || new URLSearchParams(window.location.search).get("offline") === "1")) ? "offline" : "server",
 
   async request(path, options = {}) {
+    if (this.mode === "offline") return OfflineWorkbench.request(path, options);
     const response = await fetch(`/api${path}`, {
       headers: { "Content-Type": "application/json", ...(options.headers || {}) },
       ...options,
@@ -22,5 +24,13 @@ const WorkbenchAPI = {
 
   post(path, data = {}) {
     return this.request(path, { method: "POST", body: JSON.stringify(data) });
+  },
+
+  put(path, data = {}) {
+    return this.request(path, { method: "PUT", body: JSON.stringify(data) });
+  },
+
+  delete(path) {
+    return this.request(path, { method: "DELETE" });
   },
 };

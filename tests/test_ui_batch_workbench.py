@@ -12,7 +12,11 @@ def test_scenario_catalog_is_diverse_and_execution_ready():
     assert sum(len(scenario["products"]) for scenario in scenarios) >= 12
     assert all(len(scenario["products"]) >= 3 for scenario in scenarios)
     assert all(scenario["default_operations"] for scenario in scenarios)
-    assert all("synthetic" in scenario["data_notice"].lower() for scenario in scenarios)
+    synthetic = [scenario for scenario in scenarios if scenario.get("evidence_level") != "source_grounded_sample"]
+    grounded = [scenario for scenario in scenarios if scenario.get("evidence_level") == "source_grounded_sample"]
+    assert synthetic and all("synthetic" in scenario["data_notice"].lower() for scenario in synthetic)
+    assert len(grounded) == 4
+    assert all("官方" in scenario["data_notice"] for scenario in grounded)
     for scenario in scenarios:
         for product in scenario["products"]:
             assert product["records"]
@@ -62,6 +66,7 @@ def test_batch_runs_real_operations_and_persists_comparison(tmp_path):
     assert all(len(item["stages"]) == 4 for item in batch["items"])
     assert all(item["metrics"]["price"] == 16000.0 for item in batch["items"])
     assert all(item["metrics"]["value"] > 0 for item in batch["items"])
+    assert all(item["metrics"]["asking_price_currency"] == "CNY" for item in batch["items"])
     assert workspace.get("batches", batch["batch_id"])["label"] == "Retail shortlist"
     assert len(workspace.list("runs")) == 8
     assert len(workspace.list("artifacts")) == 8
@@ -153,3 +158,5 @@ def test_workbench_routes_and_frontend_are_batch_first():
     assert "/batches" in script
     assert "selectedProductIds" in script
     assert "exportBatch" in script
+    assert '"investment_research"' in script
+    assert "money(item.metrics.asking_price, item.metrics.asking_price_currency)" in script

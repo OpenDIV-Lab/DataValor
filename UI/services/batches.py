@@ -29,12 +29,18 @@ def _extract_metrics(operation: str, result: dict[str, Any], metrics: dict[str, 
         metrics["record_count"] = result.get("record_count", metrics.get("record_count"))
         metrics["field_count"] = len(result.get("fields", ()))
     elif operation == "evaluation":
-        values = [
-            _number(item.get("value"))
-            for item in result.get("metrics", ())
-            if isinstance(item, dict)
-        ]
-        values = [value for value in values if value is not None]
+        values = []
+        for item in result.get("metrics", ()):
+            if not isinstance(item, dict):
+                continue
+            value = _number(item.get("value"))
+            if value is None or not 0 <= value <= 1:
+                continue
+            direction = item.get("direction")
+            if direction == "higher_is_better":
+                values.append(value)
+            elif direction == "lower_is_better":
+                values.append(1 - value)
         if values:
             metrics["quality_score"] = round(sum(values) / len(values), 4)
     elif operation == "valuation":
@@ -58,6 +64,8 @@ def _persist_stage(
     producer: str,
     started_at: str,
     duration_ms: int,
+    input_artifact_ids: list[str] | None = None,
+    input_run_ids: list[str] | None = None,
 ) -> tuple[str, str]:
     suffix = uuid.uuid4().hex[:10]
     artifact_id = f"artifact-{suffix}"
@@ -91,6 +99,8 @@ def _persist_stage(
             "started_at": started_at,
             "finished_at": finished_at,
             "duration_ms": duration_ms,
+            "input_artifact_ids": list(input_artifact_ids or ()),
+            "input_run_ids": list(input_run_ids or ()),
         },
     )
     return run_id, artifact_id
@@ -112,6 +122,8 @@ def execute_batch(
     scenario_id: str | None = None,
     seed: int = 0,
     fail_fast: bool = False,
+    input_artifact_ids: list[str] | None = None,
+    include_related_content: bool = True,
 ) -> dict[str, Any]:
     """Run product stages plus an optional market stage and persist every result."""
     if not product_ids:
@@ -122,6 +134,36 @@ def execute_batch(
     missing = [product_id for product_id, product in zip(product_ids, products) if product is None]
     if missing:
         raise ValueError(f"products not found: {', '.join(missing)}")
+    input_artifact_ids = list(dict.fromkeys(input_artifact_ids or ()))
+    input_run_ids: list[str] = []
+    if include_related_content:
+        selected_product_ids = set(product_ids)
+        related_artifact_ids = [
+            artifact.get("artifact_id")
+            for artifact in workspace.list("artifacts")
+            if artifact.get("artifact_id")
+            and (
+                artifact.get("product_id") in selected_product_ids
+                or selected_product_ids.intersection(artifact.get("product_ids", ()))
+            )
+        ]
+        input_artifact_ids = list(dict.fromkeys([*input_artifact_ids, *related_artifact_ids]))
+        input_run_ids = [
+            run.get("run_id")
+            for run in workspace.list("runs")
+            if run.get("run_id")
+            and (
+                run.get("product_id") in selected_product_ids
+                or selected_product_ids.intersection(run.get("product_ids", ()))
+            )
+        ]
+    missing_artifacts = [
+        artifact_id
+        for artifact_id in input_artifact_ids
+        if workspace.get("artifacts", artifact_id) is None
+    ]
+    if missing_artifacts:
+        raise ValueError(f"input artifacts not found: {', '.join(missing_artifacts)}")
 
     parameters = parameters or {}
     batch_id = f"batch-{uuid.uuid4().hex[:12]}"
@@ -141,6 +183,7 @@ def execute_batch(
                 "quality_signal": product.get("metadata", {}).get("quality"),
                 "freshness": product.get("metadata", {}).get("freshness"),
                 "asking_price": product.get("metadata", {}).get("asking_price"),
+                "asking_price_currency": product.get("metadata", {}).get("currency", "CNY"),
             },
             "stages": [],
         }
@@ -173,6 +216,8 @@ def execute_batch(
                     producer=producer,
                     started_at=stage_started,
                     duration_ms=duration_ms,
+                    input_artifact_ids=input_artifact_ids,
+                    input_run_ids=input_run_ids,
                 )
                 item["stages"].append(
                     {
@@ -182,6 +227,8 @@ def execute_batch(
                         "run_id": persisted_run,
                         "artifact_id": artifact_id,
                         "duration_ms": duration_ms,
+                        "input_artifact_ids": input_artifact_ids,
+                        "input_run_ids": input_run_ids,
                         "result": result,
                     }
                 )
@@ -195,6 +242,8 @@ def execute_batch(
                         "operation": operation,
                         "status": "failed",
                         "duration_ms": duration_ms,
+                        "input_artifact_ids": input_artifact_ids,
+                        "input_run_ids": input_run_ids,
                         "error": {"code": "execution_error", "message": str(exc)},
                     }
                 )
@@ -227,6 +276,8 @@ def execute_batch(
                 producer=producer,
                 started_at=stage_started,
                 duration_ms=duration_ms,
+                input_artifact_ids=input_artifact_ids,
+                input_run_ids=input_run_ids,
             )
             market_stage = {
                 "operation": "market",
@@ -235,6 +286,8 @@ def execute_batch(
                 "run_id": run_id,
                 "artifact_id": artifact_id,
                 "duration_ms": duration_ms,
+                "input_artifact_ids": input_artifact_ids,
+                "input_run_ids": input_run_ids,
                 "result": result,
             }
             succeeded_stages += 1
@@ -243,6 +296,8 @@ def execute_batch(
                 "operation": "market",
                 "status": "failed",
                 "duration_ms": max(0, round((time.perf_counter() - tick) * 1000)),
+                "input_artifact_ids": input_artifact_ids,
+                "input_run_ids": input_run_ids,
                 "error": {"code": "execution_error", "message": str(exc)},
             }
             failed_stages += 1
@@ -256,6 +311,8 @@ def execute_batch(
         "status": _status(succeeded_stages, failed_stages),
         "seed": seed,
         "fail_fast": fail_fast,
+        "input_artifact_ids": input_artifact_ids,
+        "input_run_ids": input_run_ids,
         "operations": operations,
         "product_ids": product_ids,
         "started_at": started_at,

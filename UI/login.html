@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#172133">
+  <title>登录 · DataValor</title><link rel="stylesheet" href="auth.css">
+</head>
+<body data-auth-page="login">
+  <main class="auth-shell">
+    <section class="auth-context" aria-label="DataValor 功能说明">
+      <a class="auth-brand" href="/tour/"><span class="brand-bars"><i></i><i></i><i></i></span><span><strong>DataValor</strong><small>数据价值工作台</small></span></a>
+      <div class="auth-context-copy"><p class="eyebrow">DATA · VALUE · MARKET</p><h1>在独立工作区完成数据估值、定价与市场配置</h1><p>每个账号拥有独立的数据产品、参与者、运行记录和评估产物。登录后只会进入自己的工作区。</p><ol><li><b>01</b><span>注册数据资产与市场参与者</span></li><li><b>02</b><span>运行质量、估值和定价方法</span></li><li><b>03</b><span>配置机制并保留可复核产物</span></li></ol></div>
+      <a class="tour-link" href="/tour/">查看完整产品导览 →</a>
+    </section>
+    <section class="auth-card-wrap"><form id="loginForm" class="auth-card"><header><span class="auth-kicker">受保护的工作台</span><h2>登录 DataValor</h2><p>使用管理员创建的账号进入个人工作区。</p></header><label for="loginUsername">账号</label><input id="loginUsername" name="username" autocomplete="username" required autofocus><label for="loginPassword">密码</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required><p id="loginFeedback" class="form-feedback" role="alert" aria-live="polite"></p><button type="submit" class="auth-primary">进入工作台</button></form></section>
+  </main><script src="auth.js"></script>
+</body>
+</html>
